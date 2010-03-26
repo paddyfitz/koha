@@ -455,7 +455,6 @@ sub manualinvoice {
     my $dbh      = C4::Context->dbh;
     my $notifyid = 0;
     my $insert;
-    $itemnum =~ s/ //g;
     my $accountno  = getnextacctno($borrowernumber);
     my $amountleft = $amount;
 
@@ -499,7 +498,7 @@ sub manualinvoice {
         $notifyid = 1;
     }
 
-    if ( $itemnum ne '' ) {
+    if ( $itemnum  ) {
         $desc .= " " . $itemnum;
         my $sth = $dbh->prepare(
             "INSERT INTO  accountlines
