@@ -43,7 +43,10 @@ my $add=$input->param('add');
 
 if ($add){
     my $barcode=$input->param('barcode');
-    my $itemnum = GetItemnumberFromBarcode($barcode) if $barcode;
+    my $itemnum;
+    if ( $barcode ) {
+        $itemnum = GetItemnumberFromBarcode($barcode);
+    }
     my $desc=$input->param('desc');
     my $amount=$input->param('amount') || 0;
     $amount = -$amount;
