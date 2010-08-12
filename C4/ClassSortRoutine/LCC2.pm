@@ -123,6 +123,14 @@ Testscript is t/ClassSortRtnLCC2.t
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
+In admin add a filing_rule
+
+Code :: lcc2 
+Description :: lccn without prestamps
+Sort routine :: LCC2
+
+The sort routine lcc2 can then be set as the filing rule for any of your classification sources
+
 The script rebuild_cnsort.pl will regenerate all lcc sortkeys
 This should be run when this version is first installed
 or the logic changed
