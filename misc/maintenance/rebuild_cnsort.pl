@@ -33,7 +33,8 @@ my $class_scheme = shift;
 
 $class_scheme ||= 'lcc';
 
-my $rule     = C4::ClassSource::GetClassSortRule($class_scheme);
+my $source   = C4::ClassSource::GetClassSource($class_scheme);
+my $rule     = C4::ClassSource::GetClassSortRule($source->{class_sort_rule});
 my $sort_rtn = $rule->{sort_routine};
 
 my @sort_routines = C4::ClassSortRoutine->subclasses();
