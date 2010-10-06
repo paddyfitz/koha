@@ -109,7 +109,8 @@
 [% END %]
 
 <div id="moresearches">
-<a href="/cgi-bin/koha/opac-search.pl">Advanced search</a>
+<a href="/cgi-bin/koha/opac-main.pl">Simple Search</a>
+<span class="pipe"> | </span><a href="/cgi-bin/koha/opac-search.pl">Advanced search</a>
 [% IF ( OpacBrowser ) %]<span class="pipe"> | </span><a href="/cgi-bin/koha/opac-browser.pl">Browse by hierarchy</a>[% END %]
 [% IF ( OpacAuthorities ) %]<span class="pipe"> | </span><a href="/cgi-bin/koha/opac-authorities-home.pl">Browse by author or subject</a>[% END %]
 [% IF ( opacuserlogin && reviewson && OpacShowRecentComments ) %]<span class="pipe"> | </span><a href="/cgi-bin/koha/opac-showreviews.pl">Recent comments</a>[% END %]
@@ -120,6 +121,8 @@
   [% IF ( AnonSuggestions ) %]<span class="pipe"> | </span><a href="/cgi-bin/koha/opac-suggestions.pl">Purchase suggestions</a>
   [% ELSIF ( OPACViewOthersSuggestions ) %]<span class="pipe"> | </span><a href="/cgi-bin/koha/opac-suggestions.pl">Purchase suggestions</a>
   [% END %]
+  <span class="pipe"> | </span><a href="/cloud-author.html">Author Cloud</a>
+  <span class="pipe"> | </span><a href="/cloud-subject.html">Subject Cloud</a>
 [% END %]
 </div>
  </div>
