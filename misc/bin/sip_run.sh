@@ -30,7 +30,7 @@ PERL_MODULE_DIR=$PERL5LIB
 cd $PERL_MODULE_DIR/C4/SIP;
 echo;
 
-sipconfig=${1};
+sipconfig=${1:-`pwd`/SIPServer.xml};
 outfile=${2:-$HOME/sip.out};
 errfile=${3:-$HOME/sip.err};
 
