@@ -28,7 +28,7 @@ cd $PERL5LIB/C4/SIP;
 echo;
 echo Running from `pwd`;
 
-sipconfig=${1:-`pwd`/SIPconfig.xml};
+sipconfig=${1:-`pwd`/SIPServer.xml};
 outfile=${2:-$HOME/sip.out};
 errfile=${3:-$HOME/sip.err};
 
