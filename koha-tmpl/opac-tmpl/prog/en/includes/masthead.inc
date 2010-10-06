@@ -105,6 +105,7 @@
 <!-- /TMPL_UNLESS -->
 
 <div id="moresearches">
+<a href="/cgi-bin/koha/opac-main.pl">Simple Search</a><span class="pipe"> | </span>
 <a href="/cgi-bin/koha/opac-search.pl">Advanced Search</a>
 <!-- TMPL_IF NAME="OpacBrowser"     --><span class="pipe"> | </span><a href="/cgi-bin/koha/opac-browser.pl">Browse by Hierarchy</a><!-- /TMPL_IF -->
 <!-- TMPL_IF NAME="OpacAuthorities" --><span class="pipe"> | </span><a href="/cgi-bin/koha/opac-authorities-home.pl">Browse by Subject</a><!-- /TMPL_IF -->
@@ -115,6 +116,8 @@
   <!-- TMPL_IF NAME="AnonSuggestions" --><span class="pipe"> | </span><a href="/cgi-bin/koha/opac-suggestions.pl">Purchase Suggestions</a>
   <!-- TMPL_ELSIF NAME="OPACViewOthersSuggestions" --><span class="pipe"> | </span><a href="/cgi-bin/koha/opac-suggestions.pl">Purchase Suggestions</a>
   <!-- /TMPL_IF -->
+  <span class="pipe"> | </span><a href="/cloud-author.html">Author Cloud</a>
+  <span class="pipe"> | </span><a href="/cloud-subject.html">Subject Cloud</a>
 <!-- /TMPL_IF -->
 </div>
  </div>
