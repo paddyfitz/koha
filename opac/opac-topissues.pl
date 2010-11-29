@@ -101,13 +101,16 @@ $template->param( branchloop => GetBranchesLoop(C4::Context->userenv->{'branch'}
 #doctype
 $itemtypes = GetItemTypes;
 my @itemtypeloop;
-foreach my $thisitemtype (sort {$itemtypes->{$a}->{'description'} cmp $itemtypes->{$b}->{'description'}} keys %$itemtypes) {
-        my $selected = 1 if $thisitemtype eq $itemtype;
-        my %row =(value => $thisitemtype,
-                    description => $itemtypes->{$thisitemtype}->{'description'},
-                    selected => $selected,
-                 );
-        push @itemtypeloop, \%row;
+foreach my $thisitemtype (
+    sort {
+        $itemtypes->{$a}->{'description'} cmp $itemtypes->{$b}->{'description'}
+    } keys %{$itemtypes}
+  ) {
+    push @itemtypeloop,
+      { value       => $thisitemtype,
+        description => $itemtypes->{$thisitemtype}->{'description'},
+        selected    => $thisitemtype eq $itemtype,
+      };
 }
 
 $template->param(

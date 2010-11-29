@@ -232,7 +232,10 @@ my $upc = GetNormalizedUPC($record,$marcflavour);
 my $ean = GetNormalizedEAN($record,$marcflavour);
 my $oclc = GetNormalizedOCLCNumber($record,$marcflavour);
 my $isbn = GetNormalizedISBN(undef,$record,$marcflavour);
-my $content_identifier_exists = 1 if ($isbn or $ean or $oclc or $upc);
+my $content_identifier_exists;
+if ( $isbn or $ean or $oclc or $upc ) {
+    $content_identifier_exists = 1;
+}
 $template->param(
 	normalized_upc => $upc,
 	normalized_ean => $ean,
@@ -534,11 +537,13 @@ if (C4::Context->preference("OPACShelfBrowser")) {
         }
         push @next_items, $this_item;
     }
-    
-    # alas, these won't auto-vivify, see http://www.perlmonks.org/?node_id=508481
-    my $shelfbrowser_next_itemnumber = $next_items[-1]->{itemnumber} if @next_items;
-    my $shelfbrowser_next_biblionumber = $next_items[-1]->{biblionumber} if @next_items;
-    
+
+    my ( $shelfbrowser_next_itemnumber, $shelfbrowser_next_biblionumber );
+    if (@next_items) {
+        $shelfbrowser_next_itemnumber   = $next_items[-1]->{itemnumber};
+        $shelfbrowser_next_biblionumber = $next_items[-1]->{biblionumber};
+    }
+
     $template->param(
         starting_homebranch => $starting_homebranch->{description},
         starting_location => $starting_location->{description},
