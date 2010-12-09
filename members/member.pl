@@ -53,7 +53,6 @@ foreach (keys %$patron){
 	delete $$patron{$_} unless($$patron{$_});
 }
 my @categories=C4::Category->all;
-
 my $branches = GetBranches;
 my @branchloop;
 
@@ -66,7 +65,6 @@ foreach (sort { $branches->{$a}->{branchname} cmp $branches->{$b}->{branchname} 
       );
   push @branchloop, \%row;
 }
-
 my %categories_dislay;
 
 foreach my $category (@categories){
@@ -185,8 +183,8 @@ $template->param(
     advsearch => ($$patron{categorycode} || $$patron{branchcode}),
     branchloop=>\@branchloop,
     categories=>\@categories,
-    searching       => "1",
-		actionname		=>basename($0),
+    searching => "1",
+    actionname=>basename($0),
 		%$patron,
         numresults      => $count,
         resultsloop     => \@resultsdata,
