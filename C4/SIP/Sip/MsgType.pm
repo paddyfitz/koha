@@ -993,7 +993,7 @@ sub handle_patron_info {
 
         # Custom protocol extension to report patron internet privileges
         $resp .= maybe_add(FID_INET_PROFILE,     $patron->inet_privileges);
-        $resp .= maybe_add(FID_PATRENTAL_PERMISSION,     $patron->parental_permission);
+        $resp .= maybe_add(FID_PARENTAL_PERMISSION,     $patron->parental_permission);
 
         $resp .= maybe_add(FID_SCREEN_MSG,       $patron->screen_msg);
         $resp .= maybe_add(FID_PRINT_LINE,       $patron->print_line);
