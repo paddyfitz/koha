@@ -1,0 +1,144 @@
+<!-- TMPL_INCLUDE NAME="doc-head-open.inc" -->
+<title>Koha &rsaquo; Circulation &rsaquo; Pending Holds</title>
+<!-- TMPL_INCLUDE NAME="doc-head-close.inc" -->
+
+<script type="text/javascript" src="<!-- TMPL_VAR NAME="yuipath" -->/yuiloader/yuiloader-min.js"></script>
+<style type="text/css">
+	tr.yui-dt-even td {background-color: #EEE;}
+</style>
+</head>
+<body>
+<!-- TMPL_INCLUDE NAME="header.inc" -->
+<!-- TMPL_INCLUDE NAME="circ-search.inc" -->
+
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/circ/circulation-home.pl">Circulation</a> &rsaquo; Pending Holds</div>
+<div id="doc3" class="yui-t2">
+   <div id="bd">
+		<div id="yui-main">
+			<div class="yui-b">
+				<h2>Pending Reserves</h2>
+				<div id="filters">
+					<label for="holdingbranch">Home branch:</label>
+					<select name="holdingbranch" id="holdingbranch" onchange="javascript:updateDatas()">
+						<option value="">All Branches</option>
+						<!-- TMPL_LOOP NAME="branches_loop" -->
+							<option value="<!-- TMPL_VAR NAME="value" -->"><!-- TMPL_VAR NAME="description" --></option>
+						<!-- /TMPL_LOOP -->
+					</select>
+					<label for="location">Location:</label>
+					<select name="location" id="location" onchange="javascript:updateDatas()">
+						<option value="">All Locations</option>
+						<!-- TMPL_LOOP NAME="locations_loop" -->
+							<option value="<!-- TMPL_VAR NAME="value" -->"><!-- TMPL_VAR NAME="description" --></option>
+						<!-- /TMPL_LOOP -->
+					</select>
+					<label for="itemtype">Item Type:</label>
+					<select name="itemtype" id="itemtype" onchange="javascript:updateDatas()">
+						<option value="">All Item types</option>
+						<!-- TMPL_LOOP NAME="itemtypes_loop" -->
+							<option value="<!-- TMPL_VAR NAME="value" -->"><!-- TMPL_VAR NAME="description" --></option>
+						<!-- /TMPL_LOOP -->
+					</select>
+
+				</div>
+				<div id="dataPaginator"><!-- The Paginator widget is rendered here --></div>
+				<div id="dynamicdata"></div>
+			</div>
+		</div>
+	<script type="text/JavaScript" language="JavaScript">
+		//<![CDATA[
+		var myDataSource;
+		var myDataTable;
+		var myConfigs;
+		var myColumnDefs;
+		function updateDatas(){
+			var holdingbranch = document.getElementById('holdingbranch').value;
+			var location      = document.getElementById('location').value;
+			var itemtype      = document.getElementById('itemtype').value;
+
+			var newurl        = "&startIndex=0&results=25";
+			var newbaseurl    = "/cgi-bin/koha/circ/pendingreserves.pl?json=1" +
+								"&holdingbranches=" + holdingbranch +
+								"&locations=" + location +
+								"&itemtypes=" + itemtype;
+
+		 	myDataSource = new YAHOO.util.DataSource(newbaseurl);
+		 	myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSON
+
+		 	myDataSource.responseSchema = {
+			    	resultsList: "records",
+			        fields: [
+						{key:"title"},
+						{key:"biblionumber"},
+			            {key:"callnumbers", parser: stringparser},
+			            {key:"itemtypes", parser: stringparser},
+			            {key:"holdingbranches", parser: stringparser},
+			            {key:"locations", parser: stringparser},
+			            {key:"count"},
+			            {key:"reservecount"}
+			        ],
+			        metaFields: {
+			            totalRecords: "totalRecords" // Access to value in the server response
+			        }
+				};
+			
+			myConfigs = {
+			        initialRequest: newurl, // Initial request for first page of data
+			        dynamicData: true, // Enables dynamic server-driven data
+			        paginator: new YAHOO.widget.Paginator({ rowsPerPage:25 }) // Enables pagination 
+		    };
+
+			myDataTable = new YAHOO.widget.DataTable("dynamicdata", myColumnDefs, myDataSource, myConfigs);
+			myDataTable.handleDataReturnPayload = function(oRequest, oResponse, oPayload) {
+		        oPayload.totalRecords = oResponse.meta.totalRecords;
+		        return oPayload;
+		    }
+		}
+		
+		var stringparser = function(sData) {
+	 	 	retString = "";
+	        for( i = 0 ; i < sData.length ; i++ ){
+	 	        retString += sData[i]['value'] + "<br />";
+	        }
+	        return retString;
+	    };
+
+	    var formatUrl = function(elCell, oRecord, oColumn, sData) {
+	    	var baseurl =
+	    	<!-- TMPL_IF name="BiblioDefaultViewmarc" -->
+		        '/cgi-bin/koha/catalogue/MARCdetail.pl?biblionumber=';
+			<!-- TMPL_ELSIF name="BiblioDefaultViewisbd"-->
+	        	'/cgi-bin/koha/catalogue/ISBDdetail.pl?biblionumber=';
+			<!-- TMPL_ELSE -->
+		        '/cgi-bin/koha/catalogue/detail.pl?biblionumber=';
+	 		<!-- /TMPL_IF -->
+			    
+		     
+            elCell.innerHTML = "<a href=' " + baseurl + oRecord.getData("biblionumber") + " ' target='_blank'>" + sData + "</a>";
+        };
+		
+		var loader = new YAHOO.util.YUILoader();
+		loader.insert({
+		    	require: ["reset", "menu", "button",  "connection", "json", "paginator", "datatable","datasource"],
+		    	onSuccess: function() {
+					    // Column definitions
+					    myColumnDefs = [ // sortable:true enables sorting
+					        {key:"title", label:"Title", sortable:false, formatter:formatUrl},
+					        {key:"callnumbers", label:"Call Numbers", sortable:false},
+					        {key:"itemtypes", label:"Item Types", sortable:false},
+					        {key:"holdingbranches", label:"Holding Branches", sortable:false},
+					        {key:"locations", label:"Locations", sortable:false},
+					        {key:"count", label:"Count", sortable:false},
+					        {key:"reservecount", label:"Reserves Count", sortable:false}
+					    ];
+			
+					    updateDatas();
+				}    	
+		});
+
+		//]]>
+	</script>
+	</div>
+	
+<!-- TMPL_INCLUDE NAME="intranet-bottom.inc" -->
