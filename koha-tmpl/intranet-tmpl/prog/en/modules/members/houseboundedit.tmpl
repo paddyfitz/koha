@@ -1,0 +1,78 @@
+<!-- TMPL_INCLUDE NAME="doc-head-open.inc" -->
+<title>Koha Housebound - <!-- TMPL_VAR NAME="surname" -->, <!-- TMPL_VAR name="firstname" --></title>
+<!-- TMPL_INCLUDE NAME="doc-head-close.inc" -->
+<script type="text/javascript" language="javascript">
+function check_form_housebound()
+{
+	document.form.submit();
+}
+</script>
+</head>
+<body>
+<!-- TMPL_INCLUDE NAME="header.inc" -->
+<!-- TMPL_INCLUDE NAME="patron-search.inc" -->
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/members/members-home.pl">Patrons</a>  &rsaquo; Edit housebound details for <!-- TMPL_VAR name="firstname" --> <!-- TMPL_VAR NAME="surname" --> <!-- TMPL_IF NAME="cardnumber" -->(<!-- TMPL_VAR NAME="cardnumber" -->)<!-- </TMPL_IF> --></div>
+
+<div id="doc3" class="yui-t2">
+	<div id="bd">
+		<div id="yui-main">
+			<div class="yui-b">
+				<h1>Edit housebound details for <!-- TMPL_VAR name="title" --> <!-- TMPL_VAR name="firstname" --> <!-- TMPL_VAR name="surname" --> <!-- TMPL_IF NAME="cardnumber" -->(<!-- TMPL_VAR NAME="cardnumber" -->)<!-- </TMPL_IF> --></h1>
+				
+				<!--<div><ul class="toolbar"><li><span class="yui-button yui-link-button"><span class="first-child"><a href="/cgi-bin/koha/members/housebound.pl?borrowernumber=<!-- TMPL_VAR name="borrowernumber" -->">Cancel changes</a></span></span></li></ul></div>-->
+					<form id="editform" method="post" action="/cgi-bin/koha/members/houseboundedit.pl" name="form">
+						<input type="hidden" name="borrowernumber" value="<!-- TMPL_VAR name="borrowernumber" -->" />
+						<input type="hidden" name="hbnumber" value="<!-- TMPL_VAR name="hbnumber" -->" />
+						<input type="hidden" name="op" value="<!-- TMPL_VAR name="opeditsubmit" --><!-- TMPL_VAR name="opaddsubmit" -->" />
+						<fieldset id="houseboundentry" class="rows">
+							<legend>Housebound details</legend>
+							<ol>
+								<li>
+									<label for="day">Delivery day:</label>
+									<select id="day" name="day">
+									<option value="">Select a day</option>
+									<option value="Sunday"<!-- TMPL_IF name="dsun" --> selected="selected"<!-- /TMPL_IF -->>Sunday</option>
+									<option value="Monday"<!-- TMPL_IF name="dmon" --> selected="selected"<!-- /TMPL_IF -->>Monday</option>
+									<option value="Tuesday"<!-- TMPL_IF name="dtue" --> selected="selected"<!-- /TMPL_IF -->>Tuesday</option>
+									<option value="Wednesday"<!-- TMPL_IF name="dwed" --> selected="selected"<!-- /TMPL_IF -->>Wednesday</option>
+									<option value="Thursday"<!-- TMPL_IF name="dthu" --> selected="selected"<!-- /TMPL_IF -->>Thursday</option>
+									<option value="Friday"<!-- TMPL_IF name="dfri" --> selected="selected"<!-- /TMPL_IF -->>Friday</option>
+									<option value="Saturday"<!-- TMPL_IF name="dsat" --> selected="selected"<!-- /TMPL_IF -->>Saturday</option>
+									</select>
+								</li>
+								<li>
+									<label for="frequency">Frequency:</label>
+									<select id="frequency" name="frequency">
+									<option value="">Select a frequency</option>
+									<option value="Week 1/3"<!-- TMPL_IF name="wk1" --> selected="selected"<!-- /TMPL_IF -->>Week 1/3</option>
+									<option value="Week 2/4"<!-- TMPL_IF name="wk2" --> selected="selected"<!-- /TMPL_IF -->>Week 2/4</option>
+									</select>
+								</li>
+								<li><label for="Itype_quant">Material:</label><input id="Itype_quant" type="text" value="<!-- TMPL_VAR name="Itype_quant" -->" size="50" name="Itype_quant"></li>
+								<li><label for="Item_subject">Subjects:</label><input id="Item_subject" type="text" value="<!-- TMPL_VAR name="Item_subject" -->" size="50" name="Item_subject"></li>
+								<li><label for="Item_authors">Authors:</label><input id="Item_authors" type="text" value="<!-- TMPL_VAR name="Item_authors" -->" size="50" name="Item_authors"></li>
+								<li><label for="referral">Referral:</label><input id="referral" type="text" value="<!-- TMPL_VAR name="referral" -->" size="50" name="referral"></li>
+								<li><label for="notes">Notes:</label><input id="notes" type="text" value="<!-- TMPL_VAR name="notes" -->" size="50" name="notes"></li>
+						</fieldset>
+						<fieldset class="action">
+							<input type="submit" value="Save changes" onclick="return check_form_housebound();" name="save">
+							<a class="cancel" href="/cgi-bin/koha/members/housebound.pl?borrowernumber=<!-- TMPL_VAR name="borrowernumber" -->">Cancel</a>
+						</fieldset>
+					</form>
+
+
+
+
+
+
+
+
+			</div>
+		</div>
+		<div class="yui-b">
+			<!-- TMPL_INCLUDE NAME="circ-menu.inc" -->
+		</div>
+	</div>
+</div>
+<!-- TMPL_INCLUDE NAME="intranet-bottom.inc" -->
