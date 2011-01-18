@@ -23,7 +23,6 @@
     <!-- TMPL_IF NAME="city" -->
             <!-- TMPL_VAR NAME="city" -->
 	    <!-- TMPL_VAR NAME="zipcode" -->
-	    <!-- TMPL_IF NAME="country" -->, <!-- TMPL_VAR NAME="country" --><!-- /TMPL_IF -->
     <!-- TMPL_ELSE -->
         <span class="empty">No city stored.</span>
     <!-- /TMPL_IF --></li>
@@ -62,11 +61,13 @@
 	<!-- TMPL_IF NAME="finesview" --><li class="active"><!-- TMPL_ELSE --><li><!-- /TMPL_IF --><a href="/cgi-bin/koha/members/boraccount.pl?borrowernumber=<!-- TMPL_VAR NAME="borrowernumber" -->">Fines</a></li>
 	<!-- /TMPL_IF -->
 	<!-- TMPL_IF NAME="intranetreadinghistory" --><!-- TMPL_IF NAME="readingrecordview" --><li class="active"><!-- TMPL_ELSE --><li><!-- /TMPL_IF --><a href="/cgi-bin/koha/members/readingrec.pl?borrowernumber=<!-- TMPL_VAR NAME="borrowernumber" -->">Circulation History</a></li><!-- /TMPL_IF -->
-	<!-- TMPL_IF NAME="CAN_user_parameters"--><!-- TMPL_IF NAME="logview" --><li class="active"><!-- TMPL_ELSE --><li><!-- /TMPL_IF --><a href="/cgi-bin/koha/tools/viewlog.pl?do_it=1&amp;modules=MEMBERS&amp;action=MODIFY&amp;object=<!-- TMPL_VAR NAME="borrowernumber" -->&amp;src=circ">Modification Log</a></li><!-- /TMPL_IF -->
-    <!-- TMPL_IF NAME="EnhancedMessagingPreferences" -->
-    <!-- TMPL_IF NAME="messagingview" --><li class="active"><!-- TMPL_ELSE --><li><!-- /TMPL_IF --><a href="/cgi-bin/koha/members/messaging.pl?borrowernumber=<!-- TMPL_VAR NAME="borrowernumber" -->">Messaging</a></li>
-    <!-- /TMPL_IF -->	
-	<!-- TMPL_IF NAME="sentnotices" --><li class="active"><!-- TMPL_ELSE --><li><!-- /TMPL_IF --><a href="/cgi-bin/koha/members/notices.pl?borrowernumber=<!-- TMPL_VAR NAME="borrowernumber" -->">Notices</a></li>
+	<!-- TMPL_IF NAME="CAN_user_parameters"--><!-- TMPL_IF NAME="logview" --><li class="active"><!-- TMPL_ELSE --><li><!-- /TMPL_IF --><a href="/cgi-bin/koha/tools/viewlog.pl?do_it=1&amp;module=MEMBERS&amp;action=MODIFY&amp;object=<!-- TMPL_VAR NAME="borrowernumber" -->&amp;src=circ">Modification Log</a></li><!-- /TMPL_IF -->
+	<!-- TMPL_IF NAME="useHouseboundModule" -->
+	  <!-- TMPL_IF NAME="houseboundview" --><li class="active"><!-- TMPL_ELSE --><li><!-- /TMPL_IF --><a href="/cgi-bin/koha/members/housebound.pl?borrowernumber=<!-- TMPL_VAR NAME="borrowernumber" -->">Housebound</a></li>
+	<!-- /TMPL_IF -->
+        <!-- TMPL_IF NAME="EnhancedMessagingPreferences" -->
+          <!-- TMPL_IF NAME="messagingview" --><li class="active"><!-- TMPL_ELSE --><li><!-- /TMPL_IF --><a href="/cgi-bin/koha/members/messaging.pl?borrowernumber=<!-- TMPL_VAR NAME="borrowernumber" -->">Messaging</a></li>
+        <!-- /TMPL_IF -->
 </ul></div>
 <!-- /TMPL_IF -->
 

@@ -13,9 +13,9 @@
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
 # A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along
-# with Koha; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# You should have received a copy of the GNU General Public License along with
+# Koha; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
+# Suite 330, Boston, MA  02111-1307 USA
 
 # pragma
 use strict;
@@ -38,7 +38,6 @@ use C4::Input;
 use C4::Log;
 use C4::Letters;
 use C4::Branch; # GetBranches
-use C4::Form::MessagingPreferences;
 
 use vars qw($debug);
 
@@ -69,11 +68,8 @@ my $op             = $input->param('op');
 my $destination    = $input->param('destination');
 my $cardnumber     = $input->param('cardnumber');
 my $check_member   = $input->param('check_member');
-my $nodouble       = $input->param('nodouble');
-$nodouble = 1 if $op eq 'modify'; # FIXME hack to represent fact that if we're
-                                  # modifying an existing patron, it ipso facto
-                                  # isn't a duplicate.  Marking FIXME because this
-                                  # script needs to be refactored.
+my $name_city      = $input->param('name_city');
+my $nodouble       = $input->param('nodouble')||$op eq 'modify';
 my $select_city    = $input->param('select_city');
 my $nok            = $input->param('nok');
 my $guarantorinfo  = $input->param('guarantorinfo');
@@ -100,7 +96,7 @@ foreach (@field_check) {
 }
 $template->param("add"=>1) if ($op eq 'add');
 $template->param("checked" => 1) if (defined($nodouble) && $nodouble eq 1);
-($borrower_data = GetMember( 'borrowernumber'=>$borrowernumber )) if ($op eq 'modify' or $op eq 'save');
+($borrower_data = GetMember($borrowernumber,'borrowernumber')) if ($op eq 'modify' or $op eq 'save');
 my $categorycode  = $input->param('categorycode') || $borrower_data->{'categorycode'};
 my $category_type = $input->param('category_type');
 my $new_c_type = $category_type; #if we have input param, then we've already chosen the cat_type.
@@ -115,7 +111,6 @@ $category_type="A" unless $category_type; # FIXME we should display a error mess
 # if a add or modify is requested => check validity of data.
 %data = %$borrower_data if ($borrower_data);
 
-# initialize %newdata
 my %newdata;	# comes from $input->param()
 if ($op eq 'insert' || $op eq 'modify' || $op eq 'save') {
     my @names= ($borrower_data && $op ne 'save') ? keys %$borrower_data : $input->param();
@@ -129,7 +124,6 @@ if ($op eq 'insert' || $op eq 'modify' || $op eq 'save') {
     my $syspref = $dateobject->regexp();		# same syspref format for all 3 dates
     my $iso     = $dateobject->regexp('iso');	#
     foreach (qw(dateenrolled dateexpiry dateofbirth)) {
-        next unless exists $newdata{$_};
         my $userdate = $newdata{$_} or next;
         if ($userdate =~ /$syspref/) {
             $newdata{$_} = format_date_in_iso($userdate);	# if they match syspref format, then convert to ISO
@@ -144,35 +138,6 @@ if ($op eq 'insert' || $op eq 'modify' || $op eq 'save') {
   # check permission to modify login info.
     if (ref($borrower_data) && ($borrower_data->{'category_type'} eq 'S') && ! (C4::Auth::haspermission($userenv->{'id'},{'staffaccess'=>1})) )  {
         $NoUpdateLogin = 1;
-    }
-}
-
-# remove keys from %newdata that ModMember() doesn't like
-{
-    my @keys_to_delete = (
-        qr/^BorrowerMandatoryField$/,
-        qr/^category_type$/,
-        qr/^check_member$/,
-        qr/^destination$/,
-        qr/^nodouble$/,
-        qr/^op$/,
-        qr/^save$/,
-        qr/^select_roadtype$/,
-        qr/^updtype$/,
-        qr/^SMSnumber$/,
-        qr/^setting_extended_patron_attributes$/,
-        qr/^setting_messaging_prefs$/,
-        qr/^digest$/,
-        qr/^modify$/,
-        qr/^step$/,
-        qr/^\d+$/,
-        qr/^\d+-DAYS/,
-        qr/^patron_attr_/,
-    );
-    for my $regexp (@keys_to_delete) {
-        for (keys %newdata) {
-            delete($newdata{$_}) if /$regexp/;
-        }
     }
 }
 
@@ -202,7 +167,7 @@ if ( defined($guarantorid) and
      ( $category_type eq 'C' || $category_type eq 'P' ) and
      $guarantorid ne ''  and
      $guarantorid ne '0' ) {
-    if (my $guarantordata=GetMember(borrowernumber => $guarantorid)) {
+    if (my $guarantordata=GetMember($guarantorid)) {
         $guarantorinfo=$guarantordata->{'surname'}." , ".$guarantordata->{'firstname'};
         if ( !defined($data{'contactname'}) or $data{'contactname'} eq '' or
              $data{'contactname'} ne $guarantordata->{'surname'} ) {
@@ -210,19 +175,18 @@ if ( defined($guarantorid) and
             $newdata{'contactname'}     = $guarantordata->{'surname'};
             $newdata{'contacttitle'}    = $guarantordata->{'title'};
 	        foreach (qw(streetnumber address streettype address2
-                        zipcode country city phone phonepro mobile fax email emailpro branchcode)) {
+                        zipcode city phone phonepro mobile fax email emailpro branchcode)) {
 		        $newdata{$_} = $guarantordata->{$_};
 	        }
         }
     }
 }
 
-###############test to take the right zipcode, country and city name ##############
+###############test to take the right zipcode and city name ##############
 if (!defined($guarantorid) or $guarantorid eq '' or $guarantorid eq '0') {
     # set only if parameter was passed from the form
     $newdata{'city'}    = $input->param('city')    if defined($input->param('city'));
     $newdata{'zipcode'} = $input->param('zipcode') if defined($input->param('zipcode'));
-    $newdata{'country'} = $input->param('country') if defined($input->param('country'));
 }
 
 #builds default userid
@@ -246,13 +210,8 @@ if ($op eq 'save' || $op eq 'insert'){
 	  $template->param('ERROR_age_limitations' => "$low to $high");
     }
   }
-  
-    if($newdata{surname} && C4::Context->preference('uppercasesurnames')) {
-        $newdata{'surname'} = uc($newdata{'surname'});
-    }
-
   if (C4::Context->preference("IndependantBranches")) {
-    if ($userenv && $userenv->{flags} % 2 != 1){
+    if ($userenv && $userenv->{flags} != 1){
       $debug and print STDERR "  $newdata{'branchcode'} : ".$userenv->{flags}.":".$userenv->{branch};
       unless (!$newdata{'branchcode'} || $userenv->{branch} eq $newdata{'branchcode'}){
         push @errors, "ERROR_branch";
@@ -278,15 +237,11 @@ if ($op eq 'save' || $op eq 'insert'){
   }
 }
 
-if ( ($op eq 'modify' || $op eq 'insert' || $op eq 'save') and ($step == 0 or $step == 3 )){
-    if (exists ($newdata{'dateexpiry'}) && !($newdata{'dateexpiry'})){
+if ($op eq 'modify' || $op eq 'insert' || $op eq 'save' ){
+    unless ($newdata{'dateexpiry'}){
         my $arg2 = $newdata{'dateenrolled'} || C4::Dates->today('iso');
         $newdata{'dateexpiry'} = GetExpiryDate($newdata{'categorycode'},$arg2);
     }
-}
-
-if ( ( defined $input->param('SMSnumber') ) && ( $input->param('SMSnumber') ne $newdata{'mobile'} ) ) {
-    $newdata{smsalertnumber} = $input->param('SMSnumber');
 }
 
 ###  Error checks should happen before this line.
@@ -332,23 +287,14 @@ if ((!$nok) and $nodouble and ($op eq 'insert' or $op eq 'save')){
         if (C4::Context->preference('ExtendedPatronAttributes') and $input->param('setting_extended_patron_attributes')) {
             C4::Members::Attributes::SetBorrowerAttributes($borrowernumber, $extended_patron_attributes);
         }
-        if (C4::Context->preference('EnhancedMessagingPreferences') and $input->param('setting_messaging_prefs')) {
-            C4::Form::MessagingPreferences::handle_form_action($input, { borrowernumber => $borrowernumber }, $template);
-        }
 	} elsif ($op eq 'save'){ 
 		if ($NoUpdateLogin) {
 			delete $newdata{'password'};
 			delete $newdata{'userid'};
 		}
-		&ModMember(%newdata) unless scalar(keys %newdata) <= 1; # bug 4508 - avoid crash if we're not
-                                                                # updating any columns in the borrowers table,
-                                                                # which can happen if we're only editing the
-                                                                # patron attributes or messaging preferences sections
+		&ModMember(%newdata);    
         if (C4::Context->preference('ExtendedPatronAttributes') and $input->param('setting_extended_patron_attributes')) {
             C4::Members::Attributes::SetBorrowerAttributes($borrowernumber, $extended_patron_attributes);
-        }
-        if (C4::Context->preference('EnhancedMessagingPreferences') and $input->param('setting_messaging_prefs')) {
-            C4::Form::MessagingPreferences::handle_form_action($input, { borrowernumber => $borrowernumber }, $template);
         }
 	}
 	print scalar ($destination eq "circ") ? 
@@ -368,12 +314,12 @@ if ($nok or !$nodouble){
     %data=%newdata; 
     $template->param( updtype => ($op eq 'add' ?'I':'M'));	# used to check for $op eq "insert"... but we just changed $op!
     unless ($step){  
-        $template->param( step_1 => 1,step_2 => 1,step_3 => 1, step_4 => 1, step_5 => 1, step_6 => 1);
+        $template->param( step_1 => 1,step_2 => 1,step_3 => 1, step_4 => 1);
     }  
 } 
 if (C4::Context->preference("IndependantBranches")) {
     my $userenv = C4::Context->userenv;
-    if ($userenv->{flags} % 2 != 1 && $data{branchcode}){
+    if ($userenv->{flags} != 1 && $data{branchcode}){
         unless ($userenv->{branch} eq $data{'branchcode'}){
             print $input->redirect("/cgi-bin/koha/members/members-home.pl");
             exit;
@@ -381,11 +327,13 @@ if (C4::Context->preference("IndependantBranches")) {
     }
 }
 if ($op eq 'add'){
-    $template->param( updtype => 'I', step_1=>1, step_2=>1, step_3=>1, step_4=>1, step_5 => 1, step_6 => 1);
+    my $arg2 = $newdata{'dateenrolled'} || C4::Dates->today('iso');
+    $data{'dateexpiry'} = GetExpiryDate($newdata{'categorycode'},$arg2);
+    $template->param( updtype => 'I', step_1=>1, step_2=>1, step_3=>1, step_4=>1);
 }
 if ($op eq "modify")  {
     $template->param( updtype => 'M',modify => 1 );
-    $template->param( step_1=>1, step_2=>1, step_3=>1, step_4=>1, step_5 => 1, step_6 => 1) unless $step;
+    $template->param( step_1=>1, step_2=>1, step_3=>1, step_4=>1) unless $step;
 }
 # my $cardnumber=$data{'cardnumber'};
 $data{'cardnumber'}=fixup_cardnumber($data{'cardnumber'}) if $op eq 'add';
@@ -429,10 +377,8 @@ foreach (qw(C A S P I X)) {
 	}
 	my %typehash;
 	$typehash{'typename'}=$_;
-    my $typedescription = "typename_".$typehash{'typename'};
 	$typehash{'categoryloop'}=\@categoryloop;
 	push @typeloop,{'typename' => $_,
-        $typedescription => 1,
 	  'categoryloop' => \@categoryloop};
 }  
 $template->param('typeloop' => \@typeloop);
@@ -443,20 +389,15 @@ $select_city=getidcity($data{'city'}) if defined $guarantorid and ($guarantorid 
 if (!defined($select_city) or $select_city eq '' ){
 	$default_city = &getidcity($data{'city'});
 }
-
-my $city_arrayref = GetCities();
-if (@{$city_arrayref} ) {
-    $template->param( city_cgipopup => 1);
-
-    if ($default_city) { # flag the current or default val
-        for my $city ( @{$city_arrayref} ) {
-            if ($default_city == $city->{cityid}) {
-                $city->{selected} = 1;
-                last;
-            }
-        }
-    }
-}
+my($cityid);
+($cityid,$name_city)=GetCities();
+$template->param( city_cgipopup => 1) if ($cityid );
+my $citypopup = CGI::popup_menu(-name=>'select_city',
+        -id => 'select_city',
+        '-values' =>$cityid,
+        -labels=>$name_city,
+        -default=>$default_city,
+        );  
   
 my $default_roadtype;
 $default_roadtype=$data{'streettype'} ;
@@ -480,6 +421,8 @@ my $borrotitlepopup = CGI::popup_menu(-name=>'title',
         -override => 1,
         -default=>$default_borrowertitle
         );    
+
+
 
 my @relationships = split /,|\|/, C4::Context->preference('BorrowerRelationship');
 my @relshipdata;
@@ -522,7 +465,7 @@ my %select_branches;
 
 my $onlymine=(C4::Context->preference('IndependantBranches') && 
               C4::Context->userenv && 
-              C4::Context->userenv->{flags} % 2 !=1  && 
+              C4::Context->userenv->{flags} !=1  && 
               C4::Context->userenv->{branch}?1:0);
               
 my $branches=GetBranches($onlymine);
@@ -557,7 +500,7 @@ if (C4::Context->preference("memberofinstitution")){
         $org_labels{$organisation}=$organisations->{$organisation}->{'surname'};
     }
     $member_of_institution=1;
-
+    
     $CGIorganisations = CGI::scrolling_list( -id => 'organisations',
         -name     => 'organisations',
         -labels   => \%org_labels,
@@ -609,16 +552,6 @@ if (C4::Context->preference('ExtendedPatronAttributes')) {
     patron_attributes_form($template, $borrowernumber);
 }
 
-if (C4::Context->preference('EnhancedMessagingPreferences')) {
-    if ($op eq 'add') {
-        C4::Form::MessagingPreferences::set_form_values({ categorycode => $categorycode }, $template);
-    } else {
-        C4::Form::MessagingPreferences::set_form_values({ borrowernumber => $borrowernumber }, $template);
-    }
-    $template->param(SMSSendDriver => C4::Context->preference("SMSSendDriver"));
-    $template->param(SMSnumber     => defined $data{'smsalertnumber'} ? $data{'smsalertnumber'} : $data{'mobile'});
-}
-
 $template->param( "showguarantor"  => ($category_type=~/A|I|S|X/) ? 0 : 1); # associate with step to know where you are
 $debug and warn "memberentry step: $step";
 $template->param(%data);
@@ -642,7 +575,7 @@ $template->param(
   guarantorid => (defined($borrower_data->{'guarantorid'})) ? $borrower_data->{'guarantorid'} : $guarantorid,
   ethcatpopup => $ethcatpopup,
   relshiploop => \@relshipdata,
-  city_loop => $city_arrayref,
+  citypopup => $citypopup,
   roadpopup => $roadpopup,  
   borrotitlepopup => $borrotitlepopup,
   guarantorinfo   => $guarantorinfo,
@@ -650,7 +583,6 @@ $template->param(
   dateformat      => C4::Dates->new()->visual(),
   C4::Context->preference('dateformat') => 1,
   check_categorytype =>$check_categorytype,#to recover the category type with checkcategorytype function
-  category_type =>$category_type,
   modify          => $modify,
   nok     => $nok,#flag to konw if an error 
   CGIbranch => $CGIbranch,
