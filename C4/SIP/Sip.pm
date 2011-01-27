@@ -8,7 +8,6 @@ use strict;
 use warnings;
 use English;
 use Exporter;
-use Readonly;
 
 use Sys::Syslog qw(syslog);
 use POSIX qw(strftime);
@@ -21,7 +20,7 @@ use Sip::Checksum qw(checksum);
 use vars qw($VERSION @ISA @EXPORT_OK %EXPORT_TAGS);
 
 BEGIN {
-    $VERSION = 3.07.00.049;
+	$VERSION = 1.00;
 	@ISA = qw(Exporter);
 
 	@EXPORT_OK = qw(y_or_n timestamp add_field maybe_add add_count
@@ -39,16 +38,7 @@ BEGIN {
 
 our $error_detection = 0;
 our $protocol_version = 1;
-our $field_delimiter = '|'; # Protocol Default
-# The message terminator for a SIP message is '\r' in the standard doc
-# However most sip devices in the wild send a CR LF pair
-# This is required by Telnet if that is your carrier mechanism
-# On raw connections it may also be required because the buffer is
-# only flushed on linefeed and its absence causes enough delay for
-# client machines to go into an error state
-# The below works for almost all machines if however you have one
-# which does not like the additional linefeed change value to $CR
-Readonly my $msg_terminator => $CRLF;
+our $field_delimiter = '|'; 	# Protocol Default
 
 # We need to keep a copy of the last message we sent to the SC,
 # in case there's a transmission error and the SC sends us a
@@ -60,9 +50,7 @@ our $last_response = '';
 
 sub timestamp {
     my $time = $_[0] || time();
-    if ( ref $time eq 'DateTime') {
-        return $time->strftime(SIP_DATETIME);
-    } elsif ($time=~m/^(\d{4})\-(\d{2})\-(\d{2})/) {
+    if ($time=~m/^(\d{4})\-(\d{2})\-(\d{2})/) {
         # passing a db returned date as is + bogus time
         return sprintf( '%04d%02d%02d    235900', $1, $2, $3);
     }
@@ -98,8 +86,7 @@ sub add_field {
 #
 # maybe_add(field_id, value):
 #    If value is defined and non-empty, then return the
-#    constructed field value, otherwise return the empty string.
-#    NOTE: if zero is a valid value for your field, don't use maybe_add!
+#    constructed field value, otherwise return the empty string
 #
 sub maybe_add {
     my ($fid, $value) = @_;
@@ -156,55 +143,46 @@ sub boolspace {
 }
 
 
-# read_SIP_packet($file)
-#
 # Read a packet from $file, using the correct record separator
 #
 sub read_SIP_packet {
     my $record;
-    my $fh = shift or syslog("LOG_ERR", "read_SIP_packet: no filehandle argument!");
-    my $len1 = 999;
-
-    # local $/ = "\r";      # don't need any of these here.  use whatever the prevailing $/ is.
-    local $/ = "\015";    # proper SPEC: (octal) \015 = (hex) x0D = (dec) 13 = (ascii) carriage return
-    {    # adapted from http://perldoc.perl.org/5.8.8/functions/readline.html
-            undef $!;
-            $record = readline($fh);
-            if ( defined($record) ) {
-                while ( chomp($record) ) { 1; }
-                $len1 = length($record);
-                syslog( "LOG_DEBUG", "read_SIP_packet, INPUT MSG: '$record'" );
-                $record =~ s/^\s*[^A-z0-9]+//s; # Every line must start with a "real" character.  Not whitespace, control chars, etc. 
-                $record =~ s/[^A-z0-9]+$//s;    # Same for the end.  Note this catches the problem some clients have sending empty fields at the end, like |||
-                $record =~ s/\015?\012//g;      # Extra line breaks must die
-                $record =~ s/\015?\012//s;      # Extra line breaks must die
-                $record =~ s/\015*\012*$//s;    # treat as one line to include the extra linebreaks we are trying to remove!
-                while ( chomp($record) ) { 1; }
-
-                $record and last;    # success
-            }
-    }
-    if ($record) {
-        my $len2 = length($record);
-        syslog("LOG_INFO", "read_SIP_packet, INPUT MSG: '$record'") if $record;
-        ($len1 != $len2) and syslog("LOG_DEBUG", "read_SIP_packet, trimmed %s character(s) (after chomps).", $len1-$len2);
-    } else {
-        syslog("LOG_WARNING", "read_SIP_packet input %s, end of input.", (defined($record) ? "empty ($record)" : 'undefined'));
-    }
-    #
-    # Cen-Tec self-check terminals transmit '\r\n' line terminators.
-    # This is actually very hard to deal with in perl in a reasonable
-    # since every OTHER piece of hardware out there gets the protocol
-    # right.
-    # 
-    # The incorrect line terminator presents as a \r at the end of the
-    # first record, and then a \n at the BEGINNING of the next record.
-    # So, the simplest thing to do is just throw away a leading newline
-    # on the input.
-    #  
-    # This is now handled by the vigorous cleansing above.
-    # syslog("LOG_INFO", encode_utf8("INPUT MSG: '$record'")) if $record;
-    syslog("LOG_INFO", "INPUT MSG: '$record'") if $record;
+	my $fh = shift or syslog("LOG_ERR", "read_SIP_packet: no filehandle argument!");
+	my $len1 = 999;
+	# local $/ = "\012";	# Internet Record Separator (lax version)
+	{		# adapted from http://perldoc.perl.org/5.8.8/functions/readline.html
+		for (my $tries=1; $tries<=3; $tries++) {
+			undef $!;
+			$record = readline($fh);
+			if (defined($record)) {
+				while(chomp($record)){1;}
+				$len1 = length($record);
+				syslog("LOG_DEBUG", "read_SIP_packet, INPUT MSG: '$record'");
+				$record =~ s/^\s*[^A-z0-9]+//s;
+				$record =~ s/[^A-z0-9]+$//s;
+				$record =~ s/\015?\012//g;
+				$record =~ s/\015?\012//s;
+				$record =~ s/\015*\012*$//s;	# treat as one line to include the extra linebreaks we are trying to remove!
+				while(chomp($record)){1;}
+				if ($record) {
+					last;	# success
+				}
+			} else {
+				if ($!) {
+    				syslog("LOG_DEBUG", "read_SIP_packet (try #$tries) ERROR: $!");
+					# die "read_SIP_packet ERROR: $!";
+					warn "read_SIP_packet ERROR: $!";
+				}
+			}
+		}
+	}
+	if ($record) {
+		my $len2 = length($record);
+		syslog("LOG_INFO", "read_SIP_packet, INPUT MSG: '$record'") if $record;
+		($len1 != $len2) and syslog("LOG_DEBUG", "read_SIP_packet, trimmed %s character(s) (after chomps).", $len1-$len2);
+	} else {
+		syslog("LOG_WARNING", "read_SIP_packet input %s, end of input.", (defined($record)? "empty ($record)" : 'undefined')); 
+	}
     return $record;
 }
 
@@ -223,25 +201,24 @@ sub write_msg {
     my ($self, $msg, $file) = @_;
     my $cksum;
 
-    # $msg = encode_utf8($msg);
     if ($error_detection) {
-        if (defined($self->{seqno})) {
-            $msg .= 'AY' . $self->{seqno};
-        }
-        $msg .= 'AZ';
-        $cksum = checksum($msg);
-        $msg .= sprintf('%04.4X', $cksum);
+		if (defined($self->{seqno})) {
+		    $msg .= 'AY' . $self->{seqno};
+		}
+		$msg .= 'AZ';
+		$cksum = checksum($msg);
+		$msg .= sprintf('%04.4X', $cksum);
     }
-
 
     if ($file) {
         $file->autoflush(1);
-        print $file $msg, $msg_terminator;
+        print $file "$msg\r";
     } else {
         STDOUT->autoflush(1);
-        print $msg, $msg_terminator;
+        print $msg, "\r";
         syslog("LOG_INFO", "OUTPUT MSG: '$msg'");
     }
+	syslog("LOG_INFO", "OUTPUT MSG: '$msg'");
 
     $last_response = $msg;
 }
