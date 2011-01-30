@@ -30,7 +30,7 @@ sub new {
     return bless $self, $class;
 }
 
-sub do_renew_for  {
+sub do_renew_for ($$) {
     my $self = shift;
     my $borrower = shift;
     my ($renewokay,$renewerror) = CanBookBeRenewed($borrower->{borrowernumber},$self->{item}->{itemnumber});
@@ -41,14 +41,20 @@ sub do_renew_for  {
             $self->{due} = $due_date;
         }
         $self->renewal_ok(1);
+        my ($charge, undef) = GetIssuingCharges($self->{item}->{itemnumber}, $self->{patron}->{borrowernumber});
+        if ($charge) {
+            #$self->{sip_fee_type} = $charge;
+            $self->{fee_amount} = sprintf '%.2f',$charge;
+        }
     } else {
         $renewerror=~s/on_reserve/Item unavailable due to outstanding holds/;
-        $renewerror=~s/too_many/Item has reached maximum renewals/;
+        $renewerror=~s/too_many/Item has reached maximum renewals/
         $self->screen_msg($renewerror);
         $self->renewal_ok(0);
     }
-    $self->ok(1);
-    return;
+    $! and warn "do_renew_for error: $!";
+    $self->ok(1) unless $!;
+    return $self;
 }
 
 sub do_renew {
