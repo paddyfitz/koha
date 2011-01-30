@@ -39,7 +39,12 @@ sub do_renew_for ($$) {
 	if ($renewokay){
 		my $datedue = AddIssue( $borrower, $self->{item}->id, undef, 0 );
 		$self->{due} = $datedue;
-		$self->renewal_ok(1);
+        $self->renewal_ok(1);
+        my ($charge, undef) = GetIssuingCharges($self->{item}->{itemnumber}, $self->{patron}->{borrowernumber});
+        if ($charge) {
+            #$self->{sip_fee_type} = $charge;
+            $self->{fee_amount} = sprintf '%.2f',$charge;
+        }
 	} else {
 		$self->screen_msg(($self->screen_msg || '') . " " . $renewerror);
 		$self->renewal_ok(0);
