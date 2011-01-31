@@ -715,7 +715,7 @@ $template->param(CGIbranch=>$CGIbranch) if ($CGIbranch);
 $template->param(
   nodouble  => $nodouble,
   borrowernumber  => $borrowernumber, #register number
-  guarantorid => ($borrower_data->{'guarantorid'} || $guarantorid),
+  guarantorid => (($borrower_data->{'guarantorid'})) ? $borrower_data->{'guarantorid'} : $guarantorid,
   ethcatpopup => $ethcatpopup,
   relshiploop => \@relshipdata,
   city_loop => $city_arrayref,
