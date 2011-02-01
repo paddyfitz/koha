@@ -2,15 +2,14 @@
   [% IF ( opacuserlogin ) %]
 	<ul>
 [% UNLESS ( loggedinusername ) %]
-               <li><a href="/cgi-bin/koha/opac-user.pl">Log in to your account</a></li>[% END %]
+               <li><a href="https://kohalibrary.halton.gov.uk/cgi-bin/koha/opac-user.pl">Log in to Your Account</a></li>[% END %]
             [% IF ( loggedinusername ) %]
                 <li><span class="members">Welcome, <a href="/cgi-bin/koha/opac-user.pl"><span class="loggedinusername">[% FOREACH USER_INF IN USER_INFO %][% USER_INF.title %] [% USER_INF.firstname %] [% USER_INF.surname %][% END %]</span></a></span></li>
-
             [% END %]
             [% IF ( ShowOpacRecentSearchLink ) %]
                 <li><a href="/cgi-bin/koha/opac-search-history.pl" title="View your search history">Search history</a> [<a class="logout" href="/cgi-bin/koha/opac-search-history.pl?action=delete" title="Delete your search history" onclick="return confirm(_('Are you sure you want to delete your search history?'));">x</a>]</li>
             [% END %]
-			[% IF ( loggedinusername ) %]<li><a class="logout" id="logout" href="/cgi-bin/koha/opac-main.pl?logout.x=1">Log Out</a></li>[% END %]
+			[% IF ( loggedinusername ) %]<li><a class="logout" id="logout" href="http://kohalibrary.halton.gov.uk/cgi-bin/koha/opac-main.pl?logout.x=1">Log Out</a></li>[% END %]
    	</ul>	
   [% END %]
 </div>
