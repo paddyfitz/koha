@@ -509,7 +509,7 @@ echo ======================================================================
 				compression "$BACKUPDIR/monthly/$MDB/${MDB}_$DATE.$M.$MDB.sql"
 				BACKUPFILES="$BACKUPFILES $BACKUPDIR/monthly/$MDB/${MDB}_$DATE.$M.$MDB.sql$SUFFIX"
 rsync -av --del $BACKUPDIR/ $BU_SERV_ID:Backup/$CUST_ID
-ssh root@localhost /etc/init.d/mysql restart
+sudo /etc/init.d/mysql restart
 ##ssh $BU_SERV_ID sudo rsync -rltv --del Backup/$CUST_ID/ /mnt/koha-bu/Backups/$CUST_ID
 #ssh $BU_SERV_ID sudo rsync -rltv Backup/$CUST_ID/ /mnt/koha-bu/Backups/$CUST_ID
 			echo ----------------------------------------------------------------------
@@ -556,7 +556,7 @@ cd $CURDIR
 			compression "$BACKUPDIR/weekly/$DB/${DB}_week.$W.$DATE.sql"
 			BACKUPFILES="$BACKUPFILES $BACKUPDIR/weekly/$DB/${DB}_week.$W.$DATE.sql$SUFFIX"
 rsync -av --del $BACKUPDIR/ $BU_SERV_ID:Backup/$CUST_ID
-ssh root@localhost /etc/init.d/mysql restart
+sudo /etc/init.d/mysql restart
 #ssh $BU_SERV_ID sudo rsync -rltv --del Backup/$CUST_ID/ /mnt/koha-bu/Backups/$CUST_ID
 #dd if=$BACKUPDIR/weekly/$DB/${DB}_week.$W.$DATE.sql$SUFFIX | ssh koha@81.108.84.246 sudo dd of=/mnt/koha-bu/Backups/$CUST_ID/weekly/$DB/${DB}_week.$W.$DATE.sql$SUFFIX
 #dd if=$BACKUPDIR/weekly/tar_week.$W.$DATE.tar.gz | ssh koha@81.108.84.246 sudo dd of=/mnt/koha-bu/Backups/$CUST_ID/weekly/tar_week.$W.$DATE.tar.gz
@@ -572,7 +572,7 @@ ssh root@localhost /etc/init.d/mysql restart
 			compression "$BACKUPDIR/daily/$DB/${DB}_$DATE.$DOW.sql"
 			BACKUPFILES="$BACKUPFILES $BACKUPDIR/daily/$DB/${DB}_$DATE.$DOW.sql$SUFFIX"
 rsync -av --del $BACKUPDIR/ $BU_SERV_ID:Backup/$CUST_ID
-ssh root@localhost /etc/init.d/mysql restart
+sudo /etc/init.d/mysql restart
 #ssh $BU_SERV_ID sudo rsync -rltv --del Backup/$CUST_ID/ /mnt/koha-bu/Backups/$CUST_ID
 #dd if=$BACKUPDIR/daily/$DB/${DB}_$DATE.$DOW.sql$SUFFIX | ssh koha@81.108.84.246 sudo dd of=/mnt/koha-bu/Backups/$CUST_ID/daily/$DB/${DB}_$DATE.$DOW.sql$SUFFIX
 		echo ----------------------------------------------------------------------
@@ -592,7 +592,7 @@ echo ======================================================================
 			compression "$BACKUPDIR/monthly/$DATE.$M.all-databases.sql"
 			BACKUPFILES="$BACKUPFILES $BACKUPDIR/monthly/$DATE.$M.all-databases.sql$SUFFIX"
 rsync -av --del $BACKUPDIR/ $BU_SERV_ID:Backup/$CUST_ID
-ssh root@localhost /etc/init.d/mysql restart
+sudo /etc/init.d/mysql restart
 #ssh $BU_SERV_ID sudo rsync -rltv --del Backup/$CUST_ID/ /mnt/koha-bu/Backups/$CUST_ID
 #dd if=$BACKUPDIR/monthly/$DATE.$M.all-databases.sql$SUFFIX | ssh koha@81.108.84.246 sudo dd of=/mnt/koha-bu/Backups/$CUST_ID/monthly/$DATE.$M.all-databases.sql$SUFFIX
 		echo ----------------------------------------------------------------------
@@ -616,7 +616,7 @@ ssh root@localhost /etc/init.d/mysql restart
 			compression "$BACKUPDIR/weekly/week.$W.$DATE.sql"
 			BACKUPFILES="$BACKUPFILES $BACKUPDIR/weekly/week.$W.$DATE.sql$SUFFIX"
 rsync -av --del $BACKUPDIR/ $BU_SERV_ID:Backup/$CUST_ID
-ssh root@localhost /etc/init.d/mysql restart
+sudo /etc/init.d/mysql restart
 #ssh $BU_SERV_ID sudo rsync -rltv --del Backup/$CUST_ID/ /mnt/koha-bu/Backups/$CUST_ID
 		echo ----------------------------------------------------------------------
 		
@@ -631,7 +631,7 @@ ssh root@localhost /etc/init.d/mysql restart
 			compression "$BACKUPDIR/daily/$DATE.$DOW.sql"
 			BACKUPFILES="$BACKUPFILES $BACKUPDIR/daily/$DATE.$DOW.sql$SUFFIX"
 rsync -av --del $BACKUPDIR/ $BU_SERV_ID:Backup/$CUST_ID
-ssh root@localhost /etc/init.d/mysql restart
+sudo /etc/init.d/mysql restart
 #ssh $BU_SERV_ID sudo rsync -rltv --del Backup/$CUST_ID/ /mnt/koha-bu/Backups/$CUST_ID
 #dd if=$BACKUPDIR/daily/$DATE.$DOW.sql$SUFFIX | ssh koha@81.108.84.246 sudo dd of=/mnt/koha-bu/Backups/$CUST_ID/daily/$DATE.$DOW.sql$SUFFIX
 		echo ----------------------------------------------------------------------
