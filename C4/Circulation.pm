@@ -2272,20 +2272,46 @@ sub GetIssuingCharges {
     if ( my $data1 = $sth1->fetchrow_hashref ) {
         $item_type = $data1->{'itemtype'};
         $charge    = $data1->{'rentalcharge'};
-        my $q2 = "SELECT rentaldiscount FROM borrowers
-            LEFT JOIN issuingrules ON borrowers.categorycode = issuingrules.categorycode
-            WHERE borrowers.borrowernumber = ?
-            AND (issuingrules.itemtype = ? OR issuingrules.itemtype = '*')";
+        my $branch = C4::Branch::mybranch();
+        my $q2 = "SELECT rentaldiscount, 
+        issuingrules.itemtype, issuingrules.branchcode
+        FROM borrowers
+        LEFT JOIN issuingrules ON borrowers.categorycode = issuingrules.categorycode
+        WHERE borrowers.borrowernumber = ?
+        AND (issuingrules.itemtype = ? OR issuingrules.itemtype = '*')
+        AND (issuingrules.branchcode = ? OR issuingrules.branchcode = '*')";
         my $sth2 = $dbh->prepare($q2);
-        $sth2->execute( $borrowernumber, $item_type );
-        if ( my $data2 = $sth2->fetchrow_hashref ) {
-            my $discount = $data2->{'rentaldiscount'};
-            if ( $discount eq 'NULL' ) {
-                $discount = 0;
+        $sth2->execute( $borrowernumber, $item_type, $branch );
+        my $discount_rules = $sth2->fetchall_arrayref({});
+        if (@{$discount_rules}) {
+            my $discount = 0;
+            if (@{$discount_rules} > 1) { # Have we got a rule for this itemtype ??
+                my @d = grep { $_->{itemtype} eq $item_type } @{$discount_rules};
+                if (@d > 1) { # must be default + branch
+                    @d = grep { $_->{branchcode} eq $branch } @d;
+                }
+                if (@d == 1) {
+                    if ($d[0]->{rentaldiscount}) {
+                        $discount = $d[0]->{rentaldiscount};
+                    }
+                }
+                else { #looks like we have branch + default
+                    my @d = grep { $_->{branchcode} eq $branch } @{$discount_rules};
+                    if (@d == 1) {
+                        if ($d[0]->{rentaldiscount}) {
+                            $discount = $d[0]->{rentaldiscount};
+                        }
+                    }
+
+                }
+            }
+            else {
+                if ($discount_rules->[0]->{rentaldiscount}) {
+                    $discount =$discount_rules->[0]->{rentaldiscount};
+                }
             }
             $charge = ( $charge * ( 100 - $discount ) ) / 100;
         }
-        $sth2->finish;
     }
 
     $sth1->finish;
