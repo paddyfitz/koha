@@ -542,7 +542,7 @@ END_SQL
                             {   letter                 => $letter,
                                 borrowernumber         => $borrowernumber,
                                 message_transport_type => 'email',
-                                from_address           => $admin_email_address,
+                                from_address           => 'no-replies@halton.gov.uk',
                             }
                         );
                     } else {
