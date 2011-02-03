@@ -2274,42 +2274,18 @@ sub GetIssuingCharges {
         $charge    = $data1->{'rentalcharge'};
         my $branch = C4::Branch::mybranch();
         my $q2 = "SELECT rentaldiscount, 
-        issuingrules.itemtype, issuingrules.branchcode
-        FROM borrowers
-        LEFT JOIN issuingrules ON borrowers.categorycode = issuingrules.categorycode
-        WHERE borrowers.borrowernumber = ?
-        AND (issuingrules.itemtype = ? OR issuingrules.itemtype = '*')
-        AND (issuingrules.branchcode = ? OR issuingrules.branchcode = '*')";
+            issuingrules.itemtype, issuingrules.branchcode
+            FROM borrowers
+            LEFT JOIN issuingrules ON borrowers.categorycode = issuingrules.categorycode
+            WHERE borrowers.borrowernumber = ?
+            AND (issuingrules.itemtype = ? OR issuingrules.itemtype = '*')
+            AND (issuingrules.branchcode = ? OR issuingrules.branchcode = '*')";
         my $sth2 = $dbh->prepare($q2);
         $sth2->execute( $borrowernumber, $item_type, $branch );
         my $discount_rules = $sth2->fetchall_arrayref({});
         if (@{$discount_rules}) {
-            my $discount = 0;
-            if (@{$discount_rules} > 1) { # Have we got a rule for this itemtype ??
-                my @d = grep { $_->{itemtype} eq $item_type } @{$discount_rules};
-                if (@d > 1) { # must be default + branch
-                    @d = grep { $_->{branchcode} eq $branch } @d;
-                }
-                if (@d == 1) {
-                    if ($d[0]->{rentaldiscount}) {
-                        $discount = $d[0]->{rentaldiscount};
-                    }
-                }
-                else { #looks like we have branch + default
-                    my @d = grep { $_->{branchcode} eq $branch } @{$discount_rules};
-                    if (@d == 1) {
-                        if ($d[0]->{rentaldiscount}) {
-                            $discount = $d[0]->{rentaldiscount};
-                        }
-                    }
-
-                }
-            }
-            else {
-                if ($discount_rules->[0]->{rentaldiscount}) {
-                    $discount =$discount_rules->[0]->{rentaldiscount};
-                }
-            }
+            # We may have multiple rules so get the most specific
+            my $discount = _get_discount_from_rule($discount_rules, $branch, $item_type);
             $charge = ( $charge * ( 100 - $discount ) ) / 100;
         }
     }
@@ -2317,6 +2293,44 @@ sub GetIssuingCharges {
     $sth1->finish;
     return ( $charge, $item_type );
 }
+#my $discount = _get_discount_from_rule($discount_rules, $branch, $item_type);
+
+sub _get_discount_from_rule {
+    my ($rules_ref, $branch, $itemtype) = @_;
+    my $discount;
+
+    if (@{$rules_ref} == 1) { # only 1 applicable rule use it
+        $discount = $rules_ref->[0]->{rentaldiscount};
+        return (defined $discount) ? $discount : 0;
+    }
+    # could have up to 4 does one match $branch and $itemtype
+    my @d = grep { $_->{branchcode} eq $branch && $_->{itemtype} eq $itemtype } @{$rules_ref};
+    if (@d) {
+        $discount = $d[0]->{rentaldiscount};
+        return (defined $discount) ? $discount : 0;
+    }
+    # do we have item type + all branches
+    @d = grep { $_->{branchcode} eq q{*} && $_->{itemtype} eq $itemtype } @{$rules_ref};
+    if (@d) {
+        $discount = $d[0]->{rentaldiscount};
+        return (defined $discount) ? $discount : 0;
+    }
+    # do we all item types + this branche
+    @d = grep { $_->{branchcode} eq $branch && $_->{itemtype} eq q{*} } @{$rules_ref};
+    if (@d) {
+        $discount = $d[0]->{rentaldiscount};
+        return (defined $discount) ? $discount : 0;
+    }
+    # so all and all (surly we wont get here)
+    @d = grep { $_->{branchcode} eq q{*} && $_->{itemtype} eq q{*} } @{$rules_ref};
+    if (@d) {
+        $discount = $d[0]->{rentaldiscount};
+        return (defined $discount) ? $discount : 0;
+    }
+    # none of the above
+    return 0;
+}
+
 
 =head2 AddIssuingCharge
 
