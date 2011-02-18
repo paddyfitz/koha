@@ -48,6 +48,9 @@ sub do_checkin {
     my $barcode = $self->{item}->id;
     $debug and warn "do_checkin() calling AddReturn($barcode, $branch)";
     my ($return, $messages, $iteminformation, $borrower) = AddReturn($barcode, $branch);
+    if (!$return && $messages->{NotIssued} ) {
+        $return = 1;
+    }
     $self->alert(!$return);
     # ignoring messages: NotIssued, IsPermanent, WasLost, WasTransfered
 
