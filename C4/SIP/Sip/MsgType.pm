@@ -635,7 +635,7 @@ sub handle_checkin {
     $patron = $status->patron;
     $item   = $status->item;
 
-    $resp .= $status->ok ? '1' : '0';
+    $resp .= '1';
     $resp .= $status->resensitize ? 'Y' : 'N';
     if ($item && $ils->supports('magnetic media')) {
 		$resp .= sipbool($item->magnetic_media);
