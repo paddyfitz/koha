@@ -28,6 +28,7 @@ use C4::Output;
 use CGI;
 use C4::Acquisition;
 use C4::Budgets;
+use C4::EDI;
 use C4::Bookseller qw( GetBookSellerFromId);
 use C4::Debug;
 use C4::Biblio;
@@ -94,6 +95,10 @@ if (!defined $op) {
 
 my $confirm_pref= C4::Context->preference("BasketConfirmations") || '1';
 $template->param( skip_confirm_reopen => 1) if $confirm_pref eq '2';
+if ( $op eq 'ediorder') {
+	my $edifile=CreateEDIOrder($basketno,$booksellerid);
+	$template->param(edifile => $edifile);
+}
 
 if ( $op eq 'delete_confirm' ) {
     my $basketno = $query->param('basketno');
