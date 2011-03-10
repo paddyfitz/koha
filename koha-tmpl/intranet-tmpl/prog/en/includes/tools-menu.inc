@@ -88,4 +88,7 @@
     <!-- TMPL_IF NAME="CAN_user_tools_schedule_tasks" -->
 	<li><a href="/cgi-bin/koha/tools/scheduler.pl">Task scheduler</a></li>
     <!-- /TMPL_IF -->
+    <!-- TMPL_IF NAME="CAN_user_tools_edi_manage" -->
+	<li><a href="/cgi-bin/koha/tools/edi.pl">EDIfact messages</a></li>
+    <!-- /TMPL_IF -->
 </ul></div></div>

@@ -1,0 +1,46 @@
+<!-- TMPL_INCLUDE NAME="doc-head-open.inc" -->
+<title>Koha &rsaquo; Administration - EDI Accounts</title>
+<!-- TMPL_INCLUDE NAME="doc-head-close.inc" -->
+
+</head>
+<body>
+<!-- TMPL_INCLUDE NAME="header.inc" -->
+<!-- TMPL_INCLUDE NAME="cat-search.inc" -->
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/admin/admin-home.pl">Administration</a> &rsaquo; <a href="/cgi-bin/koha/admin/edi-accounts.pl">EDI Accounts</a></div>
+
+<div id="doc3" class="yui-t2">
+    <div id="bd">
+        <div id="yui-main">
+            <div class="yui-b"
+				<h1>Vendor EDI Accounts</h1>
+				<!-- TMPL_IF name="ediaccounts" -->
+                <div id="ediaccounts" class="rows">
+                    <!-- TMPL_IF name="opdelsubmit" -->
+                    <div class="dialog alert">The account was successfully deleted</div>
+                    <!-- /TMPL_IF -->
+                    <!-- TMPL_IF name="opaddsubmit" -->
+                    <div class="dialog alert">The account was successfully added</div>
+                    <!-- /TMPL_IF -->
+                    <!-- TMPL_IF name="opeditsubmit" -->
+                    <div class="dialog alert">The account was successfully updated</div>
+                    <!-- /TMPL_IF -->
+                        <div><ul class="toolbar"><li><span class="yui-button yui-link-button"><span class="first-child"><a href="/cgi-bin/koha/admin/edi-edit.pl?op=add">Add a new account</a></span></span></li></ul></div>
+                        <table border="0" width="100%" cellpadding="3" cellspacing="0">
+                        <th><strong>ID</strong></th><th><strong>Vendor</strong></th><th><strong>Description</strong></th><th><strong>Last activity</strong></th><th><strong>Actions</strong></th></tr>
+                        <!-- TMPL_LOOP NAME="ediaccounts" -->
+                            <tr><td><!-- TMPL_VAR name="id" --></td><td><a href="/cgi-bin/koha/acqui/supplier.pl?supplierid=<!--TMPL_VAR name="providerid" -->"><!-- TMPL_VAR name="vendor" --></a></td><td><!-- TMPL_VAR name="description" --></td><td><!-- TMPL_VAR name="last_activity" --></td><td align="center"><a href="/cgi-bin/koha/admin/edi-edit.pl?op=edit&id=<!-- TMPL_VAR name="id" -->&providerid=<!-- TMPL_VAR name="providerid" -->">Edit</a> | <a href="/cgi-bin/koha/admin/edi-edit.pl?op=del&id=<!-- TMPL_VAR name="id" -->">Delete</a></td></tr>
+                        <!-- /TMPL_LOOP -->
+                        </table>
+                </div>
+                <!-- TMPL_ELSE -->
+                <p>You currently do not have any Vendor EDI Accounts. To add a new account <a href="/cgi-bin/koha/admin/edi-edit.pl?op=add">click here</a>.</p>
+                <!-- /TMPL_IF -->
+            </div>
+        </div>
+        <div class="yui-b">
+            <!-- TMPL_INCLUDE NAME="admin-menu.inc" -->
+        </div>
+    </div>
+</div>
+<!-- TMPL_INCLUDE NAME="intranet-bottom.inc" -->

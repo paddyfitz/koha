@@ -87,6 +87,7 @@
                             new YAHOO.widget.Button("basketheadbutton");
                             new YAHOO.widget.Button("exportbutton");
                             new YAHOO.widget.Button("delbasketbutton");
+                            new YAHOO.widget.Button("ediorderbutton");
                         }
                         //]]>
                     </script>
@@ -102,6 +103,7 @@
                         <li><a href="<!-- TMPL_VAR name="script_name" -->?op=close&amp;basketno=<!-- TMPL_VAR name="basketno" -->&amp;booksellerid=<!-- TMPL_VAR name="booksellerid" -->" class="button" id="closebutton">Close this basket</a></li>
                     <!-- /TMPL_IF -->
                         <li><a href="<!-- TMPL_VAR name="script_name" -->?op=export&amp;basketno=<!-- TMPL_VAR name="basketno" -->&amp;booksellerid=<!-- TMPL_VAR name="booksellerid" -->" class="button" id="exportbutton">Export this basket as CSV</a></li>
+                        <li><a href="<!-- TMPL_VAR name="script_name" -->?op=ediorder&amp;basketno=<!-- TMPL_VAR name="basketno" -->&amp;booksellerid=<!-- TMPL_VAR name="booksellerid" -->" class="button" id="ediorderbutton">EDIfact order</a></li>
                     </ul>
 
                 </div>
@@ -127,7 +129,9 @@
                 <!-- /TMPL_UNLESS -->
             <!-- /TMPL_UNLESS -->
             <!-- /TMPL_UNLESS -->
-
+	<!-- TMPL_IF NAME="edifile" -->
+	<div id="edifile" class="dialog alert">EDIfact order created. Filename: <strong><!--TMPL_VAR NAME="edifile" --></strong></div>
+	<!-- /TMPL_IF -->
     <!-- TMPL_IF NAME="NO_BOOKSELLER" -->
     <h2>Vendor not found</h2>
     <!-- TMPL_ELSE -->
