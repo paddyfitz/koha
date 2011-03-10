@@ -28,6 +28,7 @@ use C4::Output;
 use CGI;
 use C4::Acquisition;
 use C4::Budgets;
+use C4::EDI;
 
 use C4::Bookseller;
 use C4::Dates qw/format_date/;
@@ -88,6 +89,11 @@ my ($bookseller) = GetBookSellerFromId($booksellerid);
 my $op = $query->param('op');
 if (!defined $op) {
     $op = q{};
+}
+
+if ( $op eq 'ediorder') {
+	my $edifile=CreateEDIOrder($basketno,$booksellerid);
+	$template->param(edifile => $edifile);
 }
 
 if ( $op eq 'delete_confirm' ) {
