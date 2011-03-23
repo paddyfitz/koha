@@ -95,6 +95,10 @@ if ( $op eq 'ediorder') {
 	my $edifile=CreateEDIOrder($basketno,$booksellerid);
 	$template->param(edifile => $edifile);
 }
+if ( $op eq 'edisend') {
+	my $edisend=SendEDIOrder($basketno,$booksellerid);
+	$template->param(edisend => $edisend);
+}
 
 if ( $op eq 'delete_confirm' ) {
     my $basketno = $query->param('basketno');
