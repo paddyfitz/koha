@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS `edifact_messages`
   `date_sent` date default NULL,
   `provider` int(11) default NULL,
   `status` text,
+  `basketno` int(11) NOT NULL default '0',
   PRIMARY KEY  (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

@@ -190,8 +190,11 @@
             [% END %]
             [% END %]
 	[% IF ( edifile ) %]
-	<div id="edifile" class="dialog alert">EDIfact order created. Filename: <strong>[% edifile %]</strong></div>
+	<div id="edifile" class="dialog alert">EDIfact order created and will be sent overnight. Filename: <strong>[% edifile %]</strong> - <a href="/cgi-bin/koha/acqui/basket.pl?op=edisend&basketno=[% basketno %]&booksellerid=[% booksellerid %]">Send this order now?</a></div>
  	[% END %]
+	[% IF ( edisend ) %]
+	<div id="edisend" class="dialog alert"><strong>[% edisend %]</strong></div>
+        [% END %]
     [% IF ( NO_BOOKSELLER ) %]
     <h2>Vendor not found</h2>
     [% ELSE %]
