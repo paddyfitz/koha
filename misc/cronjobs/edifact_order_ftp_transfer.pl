@@ -28,9 +28,14 @@ use Net::FTP;
 my $ftpaccounts=C4::EDI::GetEDIFTPAccounts;
 	
 my @ERRORS;
+my @putdirlist;
 my $newerr;
 my @files;
+my $f;
 my $putdir = "$ENV{'PERL5LIB'}misc/edi_files/";
+opendir(CURRENT, $putdir);
+@putdirlist=readdir CURRENT;
+closedir CURRENT;
 
 foreach my $accounts(@$ftpaccounts)
 {
@@ -62,12 +67,27 @@ foreach my $accounts(@$ftpaccounts)
 				{
 					print "Got  file list\n";   
 					foreach(@files) {
-						print "$_\n";
-						chdir "$putdir";
-						$ftp->get($_) or $newerr=1;
-						push @ERRORS, "Can't transfer file ($_) from $accounts->{host} $!\n" if $newerr;
-						$ftp->quit if $newerr;
-						myerr() if $newerr;
+						if ((index lc($_),'.ceq') > -1)
+						{
+							my $match;
+							foreach $f (@putdirlist)
+							{
+								if ($f eq $_)
+								{
+									$match=1;
+									last;
+								}
+							}
+							if ($match ne 1)
+							{
+								print "$_\n";
+								chdir "$putdir";
+								$ftp->get($_) or $newerr=1;
+								push @ERRORS, "Can't transfer file ($_) from $accounts->{host} $!\n" if $newerr;
+								$ftp->quit if $newerr;
+								myerr() if $newerr;
+							}
+						}
 					}
 				}
 		}
@@ -84,19 +104,12 @@ print "\n@ERRORS\n";
 print "$ENV{'PERL5LIB'}\n";
 
 if (@ERRORS) {
-	open LOGFILE, ">>$ENV{'PERL5LIB'}/misc/edi_ftp_error.log";
+	open LOGFILE, ">>$ENV{'PERL5LIB'}/misc/edi_files/edi_ftp_error.log";
 	my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
 	printf LOGFILE "%4d-%02d-%02d %02d:%02d:%02d\n-----\n",$year+1900,$mon+1,$mday,$hour,$min,$sec;
 	print LOGFILE "@ERRORS\n";
 	close LOGFILE;
 }
-
-# loop through files in ftp files folder
-# create order details in edfact_messages
-# create item bib records
-# create order
-# create baskets with items attached
-# delete files from ftp folders (are the messages deleted from the vendor site? If not, there needs to be a log of filenames)
 
 sub myerr {
   print "Error: ";

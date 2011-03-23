@@ -130,7 +130,10 @@
             <!-- /TMPL_UNLESS -->
             <!-- /TMPL_UNLESS -->
 	<!-- TMPL_IF NAME="edifile" -->
-	<div id="edifile" class="dialog alert">EDIfact order created. Filename: <strong><!--TMPL_VAR NAME="edifile" --></strong></div>
+	<div id="edifile" class="dialog alert">EDIfact order created and will be sent overnight. Filename: <strong><!--TMPL_VAR NAME="edifile" --></strong> - <a href="/cgi-bin/koha/acqui/basket.pl?op=edisend&basketno=<!-- TMPL_VAR NAME="basketno" -->&booksellerid=<!-- TMPL_VAR NAME="booksellerid" -->">Send this order now?</a></div>
+	<!-- /TMPL_IF -->
+	<!-- TMPL_IF NAME="edisend" -->
+	<div id="edisend" class="dialog alert"><strong><!--TMPL_VAR NAME="edisend" --></strong></div>
 	<!-- /TMPL_IF -->
     <!-- TMPL_IF NAME="NO_BOOKSELLER" -->
     <h2>Vendor not found</h2>
