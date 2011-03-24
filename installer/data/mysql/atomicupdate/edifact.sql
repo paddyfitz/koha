@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `vendor_edi_accounts` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `edifact_messages`  
+CREATE TABLE IF NOT EXISTS `edifact_messages` (
   `key` int(11) NOT NULL auto_increment,
   `message_type` text NOT NULL,
   `date_sent` date default NULL,
