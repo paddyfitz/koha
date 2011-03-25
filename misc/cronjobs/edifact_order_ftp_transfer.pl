@@ -32,7 +32,7 @@ my @putdirlist;
 my $newerr;
 my @files;
 my $f;
-my $putdir = "$ENV{'PERL5LIB'}misc/edi_files/";
+my $putdir = "$ENV{'PERL5LIB'}/misc/edi_files/";
 opendir(CURRENT, $putdir);
 @putdirlist=readdir CURRENT;
 closedir CURRENT;
@@ -101,7 +101,6 @@ foreach my $accounts(@$ftpaccounts)
 }
 
 print "\n@ERRORS\n";
-print "$ENV{'PERL5LIB'}\n";
 
 if (@ERRORS) {
 	open LOGFILE, ">>$ENV{'PERL5LIB'}/misc/edi_files/edi_ftp_error.log";
