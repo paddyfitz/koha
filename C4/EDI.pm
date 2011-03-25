@@ -37,6 +37,7 @@ our @EXPORT  = qw(
   GetEDIfactMessageList
   GetEDIFTPAccounts
   LogEDITransaction
+  GetVendorSAN
   CreateEDIOrder
   SendEDIOrder
   SendQueuedEDIOrders
@@ -196,6 +197,21 @@ sub LogEDITransaction {
 	return;
 }
 
+sub GetVendorSAN {
+	my $booksellerid=$_[0];
+	my $dbh = C4::Context->dbh;
+    my $sth;
+    my @result;
+    my $san;
+    $sth = $dbh->prepare("select san from vendor_edi_accounts where provider=?");
+    $sth->execute($booksellerid);
+    while (@result=$sth->fetchrow_array())
+    {
+    	$san=$result[0];
+    }
+    return $san;
+}
+
 sub CreateEDIOrder {
 	my ($basketno,$booksellerid) = @_;
 	my @datetime=localtime(time);
@@ -209,16 +225,20 @@ sub CreateEDIOrder {
 	my $filename="ediorder_".$basketno.".CEP";
 	my $exchange=int(rand(99999999999999));
 	my $ref=int(rand(99999999999999));
+	#my $edidetails=GetEDIAccountDetails($booksellerid);
+	my $san=GetVendorSAN($booksellerid);
 	
 	open(EDIORDER,">$ENV{'PERL5LIB'}/misc/edi_files/$filename");
 
 	print EDIORDER "UNA:+.? '";																										# print opening header
-	print EDIORDER "UNB+UNOC:2+5013546121974:14+5013546025078:14+$shortyear$date:$hourmin+".$exchange."++ORDERS+++EANCOM'";		# print identifying EANs, date/time, exchange reference number
+	#print EDIORDER "UNB+UNOC:2+5013546121974:14+5013546025078:14+$shortyear$date:$hourmin+".$exchange."++ORDERS+++EANCOM'";		# print identifying EANs, date/time, exchange reference number
+	print EDIORDER "UNB+UNOC:2+5013546121974:14+$san:31B+$shortyear$date:$hourmin+".$exchange."++ORDERS+++EANCOM'";		# print identifying EANs/SANs, date/time, exchange reference number
 	print EDIORDER "UNH+".$ref."+ORDERS:D:96A:UN:EAN008'";																# print message reference number
 	print EDIORDER "BGM+220+".$basketno."+9'";																						# print order number
 	print EDIORDER "DTM+137:$longyear$date:102'";																					# print date of message
 	print EDIORDER "NAD+BY+5013546121974::9'";																						# print buyer EAN  ) 9 denotes EAN for both - check if number changes if alternative to EAN used
-	print EDIORDER "NAD+SU+5013546025078::9'";																						# print vendor EAN )
+	#print EDIORDER "NAD+SU+5013546025078::9'";																						# print vendor EAN )
+	print EDIORDER "NAD+SU+".$san."::31B'";																						# print vendor SAN )
 	print EDIORDER "NAD+SU+".$booksellerid."::92'";																						# print internal ID assigned by Halton
 
 	# get items from basket
