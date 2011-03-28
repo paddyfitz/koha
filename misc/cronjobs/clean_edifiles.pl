@@ -20,7 +20,7 @@
 use strict;
 use warnings;
 
-my $edidir="$ENV{'PERL5LIB'}misc/edi_files";
+my $edidir="$ENV{'PERL5LIB'}/misc/edi_files";
 opendir(EDIDIR,$edidir);
 my @files=readdir(EDIDIR);
 close EDIDIR;
