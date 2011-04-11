@@ -64,7 +64,6 @@ if ( $op eq "edit" ) {
 		user			=> $edi_details->{'username'},
 		pass			=> $edi_details->{'password'},
 		provider		=> $edi_details->{'provider'},
-		path			=> $edi_details->{'path'},
 		in_dir			=> $edi_details->{'in_dir'},
 		san				=> $edi_details->{'san'}
 		);
