@@ -55,7 +55,7 @@ foreach my $accounts(@$ftpaccounts)
 		if (!$newerr)
 		{
 			print "Logged in\n";
-			$ftp->cwd($accounts->{path}) or $newerr=1; 
+			$ftp->cwd($accounts->{in_dir}) or $newerr=1; 
 			push @ERRORS, "Can't cd in server $accounts->{host} $!\n" if $newerr;
 			myerr() if $newerr;
 			$ftp->quit if $newerr;
@@ -80,12 +80,15 @@ foreach my $accounts(@$ftpaccounts)
 							}
 							if ($match ne 1)
 							{
-								print "$_\n";
 								chdir "$putdir";
 								$ftp->get($_) or $newerr=1;
 								push @ERRORS, "Can't transfer file ($_) from $accounts->{host} $!\n" if $newerr;
 								$ftp->quit if $newerr;
 								myerr() if $newerr;
+								if (!$newerr)
+								{
+									my $ediparse=ParseEDIQuote($_,$accounts->{provider});
+								}
 							}
 						}
 					}
@@ -113,7 +116,5 @@ if (@ERRORS) {
 sub myerr {
   print "Error: ";
   print @ERRORS;
-  #undef(@ERRORS);
-  #exit 0;
 }
  

@@ -22,9 +22,13 @@ use warnings;
 use C4::Context;
 use C4::Acquisition;
 use Net::FTP;
+use Edifact::Interchange;
+use C4::Biblio;
+use C4::Items;
+use Business::ISBN;
 use parent qw(Exporter);
 
-our $VERSION = 1.00;
+our $VERSION = 0.01;
 our $debug   = $ENV{DEBUG} || 0;
 our @EXPORT  = qw(
   GetEDIAccounts
@@ -32,6 +36,7 @@ our @EXPORT  = qw(
   CreateEDIDetails
   UpdateEDIDetails
   LogEDIFactOrder
+  LogEDIFactQuote
   DeleteEDIDetails
   GetVendorList
   GetEDIfactMessageList
@@ -41,11 +46,21 @@ our @EXPORT  = qw(
   CreateEDIOrder
   SendEDIOrder
   SendQueuedEDIOrders
+  ParseEDIQuote
+  GetDiscountedPrice
+  GetBudgetID
+  CheckOrderItemExists
+  GetBranchCode
+  GetCollectionCode
 );
 
 =head1 NAME
 
-C4::EDI - Perl Module containing functions for Vendor EDI accounts
+C4::EDI - Perl Module containing functions for Vendor EDI accounts and EDIfact messages
+
+=head1 VERSION
+
+Version 0.01
 
 =head1 SYNOPSIS
 
@@ -53,7 +68,11 @@ use C4::EDI;
 
 =head1 DESCRIPTION
 
-This module contains routines for adding, modifying and deleting EDI account details for vendors
+This module contains routines for adding, modifying and deleting EDI account details for vendors, interacting with vendor FTP sites to send/retrieve quote and order messages, formatting EDIfact orders, and parsing EDIfact quotes to baskets
+
+=head2 GetVendorList
+
+Returns a list of vendors from aqbooksellers to populate drop down select menu
 
 =cut
 
@@ -66,19 +85,31 @@ sub GetVendorList {
     return $vendorlist;
 }
 
+=head2 CreateEDIDetails
+
+Inserts a new EDI vendor FTP account
+
+=cut
+
 sub CreateEDIDetails {
-    my ( $provider, $description, $host, $user, $pass, $path, $in_dir, $san ) = @_;
+    my ( $provider, $description, $host, $user, $pass, $in_dir, $san ) = @_;
     my $dbh = C4::Context->dbh;
     my $sth;
     if ($provider) {
         $sth = $dbh->prepare(
-"insert into vendor_edi_accounts (description, host, username, password, provider, path, in_dir, san) values (?,?,?,?,?,?,?,?)"
+"insert into vendor_edi_accounts (description, host, username, password, provider, in_dir, san) values (?,?,?,?,?,?,?)"
         );
         $sth->execute( $description, $host, $user,
-            $pass, $provider, $path, $in_dir, $san );
+            $pass, $provider, $in_dir, $san );
     }
     return;
 }
+
+=head2 GetEDIAccounts
+
+Returns all vendor FTP accounts
+
+=cut
 
 sub GetEDIAccounts {
     my $dbh = C4::Context->dbh;
@@ -90,6 +121,12 @@ sub GetEDIAccounts {
     my $ediaccounts = $sth->fetchall_arrayref( {} );
     return $ediaccounts;
 }
+
+=head2 DeleteEDIDetails
+
+Remove a vendor's FTP account
+
+=cut
 
 sub DeleteEDIDetails {
     my ($id) = @_;
@@ -103,18 +140,30 @@ sub DeleteEDIDetails {
     return;
 }
 
+=head2 UpdateEDIDetails
+
+Update a vendor's FTP account
+
+=cut
+
 sub UpdateEDIDetails {
-    my ($editid, $description, $host, $user, $pass, $provider, $path, $in_dir, $san) = @_;
+    my ($editid, $description, $host, $user, $pass, $provider, $in_dir, $san) = @_;
     my $dbh = C4::Context->dbh;
     my $sth;
     if ($editid) {
         $sth = $dbh->prepare(
-"update vendor_edi_accounts set description=?, host=?, username=?, password=?, provider=?, path=?, in_dir=?, san=? where id=?"
+"update vendor_edi_accounts set description=?, host=?, username=?, password=?, provider=?, in_dir=?, san=? where id=?"
         );
-        $sth->execute($description, $host, $user, $pass, $provider, $path, $in_dir, $san, $editid);
+        $sth->execute($description, $host, $user, $pass, $provider, $in_dir, $san, $editid);
     }
     return;
 }
+
+=head2 LogEDIFactOrder
+
+Updates or inserts to the edifact_messages table when processing an order and assigns a status and basket number
+
+=cut
 
 sub LogEDIFactOrder {
 	my ($provider,$status,$basketno) = @_;
@@ -145,6 +194,40 @@ sub LogEDIFactOrder {
     }
 }
 
+=head2 LogEDIFactOrder
+
+Updates or inserts to the edifact_messages table when processing a quote and assigns a status and basket number
+
+=cut
+
+sub LogEDIFactQuote {
+	my ($provider,$status,$basketno,$key) = @_;
+	my $dbh = C4::Context->dbh;
+    my $sth;
+    my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
+	$year=1900+$year;
+	$mon=1+$mon;
+	my $date_sent = $year."-".$mon."-$mday";
+    if ($key != 0)
+    {
+    	$sth=$dbh->prepare("update edifact_messages set date_sent=?, status=?, basketno=? where edifact_messages.key=?");
+   		$sth->execute($date_sent,$status,$basketno,$key);
+    }
+    else
+    {
+    	$sth=$dbh->prepare("insert into edifact_messages (message_type,date_sent,provider,status,basketno) values (?,?,?,?,?)");
+   		$sth->execute('QUOTE',$date_sent,$provider,$status,$basketno);
+   		$key = $dbh->last_insert_id(undef,undef,qw(edifact_messages key),undef);
+    }
+    return $key;
+}
+
+=head2 GetEDIAccountDetails
+
+Returns FTP account details for a given vendor
+
+=cut
+
 sub GetEDIAccountDetails {
     my ($id) = @_;
     my $dbh = C4::Context->dbh;
@@ -158,11 +241,16 @@ sub GetEDIAccountDetails {
     return;
 }
 
+=head2 GetEDIfactMessageList
+
+Returns a list of edifact_messages that have been processed, including the type (quote/order) and status
+
+=cut
+
 sub GetEDIfactMessageList {
     my $dbh = C4::Context->dbh;
     my $sth;
     $sth = $dbh->prepare(
-    #"select edifact_messages.key, edifact_messages.message_type, DATE_FORMAT(edifact_messages.date_sent,'%d/%m/%Y') as date_sent, aqbooksellers.id as providerid, aqbooksellers.name as providername, edifact_messages.status from edifact_messages inner join aqbooksellers on edifact_messages.provider = aqbooksellers.id order by edifact_messages.date_sent desc"
     "select edifact_messages.key, edifact_messages.message_type, DATE_FORMAT(edifact_messages.date_sent,'%d/%m/%Y') as date_sent, aqbooksellers.id as providerid, aqbooksellers.name as providername, edifact_messages.status, edifact_messages.basketno from edifact_messages inner join aqbooksellers on edifact_messages.provider = aqbooksellers.id order by edifact_messages.date_sent desc"
     );
     $sth->execute();
@@ -170,17 +258,28 @@ sub GetEDIfactMessageList {
     return $messagelist;
 }
 
+=head2 GetEDIFTPAccounts
+
+Returns all vendor FTP accounts. Used when retrieving quotes messages overnight
+
+=cut
+
 sub GetEDIFTPAccounts {
     my $dbh = C4::Context->dbh;
     my $sth;
     $sth = $dbh->prepare(
-"select id, host, username, password, provider, path from vendor_edi_accounts order by id asc"
+"select id, host, username, password, provider, in_dir from vendor_edi_accounts order by id asc"
     );
     $sth->execute();
     my $ftpaccounts = $sth->fetchall_arrayref( {} );
-    #my $ftpaccounts = $sth->fetchrow_hashref;
     return $ftpaccounts;
 }
+
+=head2 LogEDITransaction
+
+Updates the timestamp for a given vendor FTP account whenever there is activity
+
+=cut
 
 sub LogEDITransaction {
 	my $id = $_[0];
@@ -197,6 +296,12 @@ sub LogEDITransaction {
 	return;
 }
 
+=head2 GetVendorSAN
+
+Returns the stored SAN number for a given vendor
+
+=cut
+
 sub GetVendorSAN {
 	my $booksellerid=$_[0];
 	my $dbh = C4::Context->dbh;
@@ -212,6 +317,12 @@ sub GetVendorSAN {
     return $san;
 }
 
+=head2 CreateEDIOrder
+
+Formats an EDIfact order message from a given basket and stores as a file on the server
+
+=cut
+
 sub CreateEDIOrder {
 	my ($basketno,$booksellerid) = @_;
 	my @datetime=localtime(time);
@@ -225,21 +336,18 @@ sub CreateEDIOrder {
 	my $filename="ediorder_".$basketno.".CEP";
 	my $exchange=int(rand(99999999999999));
 	my $ref=int(rand(99999999999999));
-	#my $edidetails=GetEDIAccountDetails($booksellerid);
 	my $san=GetVendorSAN($booksellerid);
 	
 	open(EDIORDER,">$ENV{'PERL5LIB'}/misc/edi_files/$filename");
 
-	print EDIORDER "UNA:+.? '";																										# print opening header
-	#print EDIORDER "UNB+UNOC:2+5013546121974:14+5013546025078:14+$shortyear$date:$hourmin+".$exchange."++ORDERS+++EANCOM'";		# print identifying EANs, date/time, exchange reference number
+	print EDIORDER "UNA:+.? '";																							# print opening header
 	print EDIORDER "UNB+UNOC:2+5013546121974:14+$san:31B+$shortyear$date:$hourmin+".$exchange."++ORDERS+++EANCOM'";		# print identifying EANs/SANs, date/time, exchange reference number
 	print EDIORDER "UNH+".$ref."+ORDERS:D:96A:UN:EAN008'";																# print message reference number
-	print EDIORDER "BGM+220+".$basketno."+9'";																						# print order number
-	print EDIORDER "DTM+137:$longyear$date:102'";																					# print date of message
-	print EDIORDER "NAD+BY+5013546121974::9'";																						# print buyer EAN  ) 9 denotes EAN for both - check if number changes if alternative to EAN used
-	#print EDIORDER "NAD+SU+5013546025078::9'";																						# print vendor EAN )
-	print EDIORDER "NAD+SU+".$san."::31B'";																						# print vendor SAN )
-	print EDIORDER "NAD+SU+".$booksellerid."::92'";																						# print internal ID assigned by Halton
+	print EDIORDER "BGM+220+".$basketno."+9'";																			# print order number
+	print EDIORDER "DTM+137:$longyear$date:102'";																		# print date of message
+	print EDIORDER "NAD+BY+5013546121974::9'";																			# print buyer EAN  
+	print EDIORDER "NAD+SU+".$san."::31B'";																				# print vendor SAN
+	print EDIORDER "NAD+SU+".$booksellerid."::92'";																		# print internal ID 
 
 	# get items from basket
 	my @results = GetOrders( $basketno );
@@ -252,29 +360,33 @@ sub CreateEDIOrder {
 		my $publisher=escape($item->{publishercode});
 		$price=sprintf "%.2f",$item->{listprice};
 		my $isbn=cleanisbn($item->{isbn});
+		$isbn=Business::ISBN->new($isbn);
+		$isbn=$isbn->as_isbn13;
 		my $copyrightdate=escape($item->{copyrightdate});
 		my $quantity=escape($item->{quantity});
 		my $ordernumber=escape($item->{ordernumber});
-		print EDIORDER "LIN+$linecount++$isbn:EN'";									# line number, isbn
-		print EDIORDER "PIA+5+$isbn:IB'";									# isbn as main product identification
-		print EDIORDER "IMD+L+050+:::$title'";										# title
-		print EDIORDER "IMD+L+009+:::$author'";										# full name of author
-		print EDIORDER "IMD+L+109+:::$publisher'";								# publisher
-		print EDIORDER "IMD+L+170+:::$copyrightdate'";								# date of publication (if)
-		print EDIORDER "IMD+L+220+:::O'";													# binding (e.g. PB) (O if not specified)
-		print EDIORDER "QTY+21:$quantity'";															# quantity
-		print EDIORDER "GIR+001+HLE:LLO+AGHBK:LSQ+HBK:LST'";									# branch code, sequence or collection code, stock category
-		print EDIORDER "FTX+LIN++$linecount:10B:28'";												# freetext
-		print EDIORDER "PRI+AAB:$price'";														# price per item
-		print EDIORDER "CUX+2:GBP:9'";														# currency (GBP)
-		print EDIORDER "RFF+LI:$ordernumber'";														# Halton order number
+		my $branchcode=escape(GetBranchCode($item->{biblioitemnumber}));
+		my $halton_collection=escape(GetCollectionCode($item->{biblioitemnumber},$item->{budget_name}));
+		print EDIORDER "LIN+$linecount++".$isbn->isbn.":EN'";											# line number, isbn
+		print EDIORDER "PIA+5+".$isbn->isbn.":IB'";														# isbn as main product identification
+		print EDIORDER "IMD+L+050+:::$title'";															# title
+		print EDIORDER "IMD+L+009+:::$author'";															# full name of author
+		print EDIORDER "IMD+L+109+:::$publisher'";														# publisher
+		print EDIORDER "IMD+L+170+:::$copyrightdate'";													# date of publication
+		print EDIORDER "IMD+L+220+:::O'";																# binding (e.g. PB) (O if not specified)
+		print EDIORDER "QTY+21:$quantity'";																# quantity
+		print EDIORDER "GIR+001+$branchcode:LLO+$halton_collection:LFN+".$item->{itemtype}.":LST'";	# branch code, sequence or collection code, stock category
+		print EDIORDER "FTX+LIN++$linecount:10B:28'";													# freetext
+		print EDIORDER "PRI+AAB:$price'";																# price per item
+		print EDIORDER "CUX+2:GBP:9'";																	# currency (GBP)
+		print EDIORDER "RFF+LI:$ordernumber'";															# Local order number
 	}
-	print EDIORDER "UNS+S'";															# print summary section header
-	print EDIORDER "CNT+2:$linecount'";										# print number of line items in the message
+	print EDIORDER "UNS+S'";																			# print summary section header
+	print EDIORDER "CNT+2:$linecount'";																	# print number of line items in the message
 	my $segments=(($linecount*13)+9);
-	print EDIORDER "UNT+$segments+".$ref."'";						# No. of segments in message (UNH+UNT elements included, UNA, UNB, UNZ excluded)
-																		# Message ref number as line 15
-	print EDIORDER "UNZ+1+".$exchange."'\n";										# Exchange ref number as line 14
+	print EDIORDER "UNT+$segments+".$ref."'";															# No. of segments in message (UNH+UNT elements included, UNA, UNB, UNZ excluded)
+																										# Message ref number 
+	print EDIORDER "UNZ+1+".$exchange."'\n";															# Exchange ref number
 
 	close EDIORDER;
 	
@@ -321,6 +433,59 @@ sub CreateEDIOrder {
 	}
 
 }
+
+=head2 GetBranchCode
+
+Return branchcode for an order when formatting an EDIfact order message
+
+=cut
+
+sub GetBranchCode {
+	my $biblioitemnumber=shift;
+	my $dbh = C4::Context->dbh;
+    my $sth;
+    my $branchcode;
+    my @row;
+    $sth = $dbh->prepare(
+    "select homebranch from items where biblioitemnumber=?"
+    );
+    $sth->execute($biblioitemnumber);
+    while (@row=$sth->fetchrow_array())
+    {
+    	$branchcode=$row[0];
+    }
+	return $branchcode;
+}
+
+=head2 GetCollectionCode
+
+Halton specific - Return budgetcode/collectioncode combination to use as sequence/collection code when formatting EDIfact order message
+
+=cut
+
+sub GetCollectionCode {
+	my ($biblioitemnumber,$budgetcode)=@_;
+	my $dbh = C4::Context->dbh;
+    my $sth;
+    my $ccode;
+    my @row;
+    $sth = $dbh->prepare(
+    "select ccode from items where biblioitemnumber=?"
+    );
+    $sth->execute($biblioitemnumber);
+    while (@row=$sth->fetchrow_array())
+    {
+    	$ccode=$row[0];
+    }
+    my $formattedcode=$budgetcode."_".$ccode;
+	return $formattedcode;
+}
+
+=head2 SendEDIOrder
+
+Transfers an EDIfact order message to the relevant vendor's FTP site
+
+=cut
 
 sub SendEDIOrder {
 	my ($basketno,$booksellerid) = @_;
@@ -428,6 +593,12 @@ sub SendEDIOrder {
 	}
 }
 
+=head2 SendQueuedEDIOrders
+
+Sends all EDIfact orders that are held in the Queued
+
+=cut
+
 sub SendQueuedEDIOrders {
     my $dbh = C4::Context->dbh;
     my $sth;
@@ -441,6 +612,199 @@ sub SendQueuedEDIOrders {
     	SendEDIOrder($orders[0],$orders[1]);
     }
     return;
+}
+
+=head2 ParseEDIQuote
+
+Uses Edifact::Interchange to parse a stored EDIfact quote message, creates basket, biblios, biblioitems, and items
+
+=cut
+
+sub ParseEDIQuote {
+	my ($filename,$booksellerid) = @_;
+	my $ordernumber;
+	my $basketno;
+	print "file: $filename\n";
+	my $edi=Edifact::Interchange->new;
+	$edi->parse_file("$ENV{'PERL5LIB'}/misc/edi_files/$filename");
+	my $messages=$edi->messages();
+	my $msg_cnt=@{$messages};
+	print "messages: $msg_cnt\n";
+	print "type: ".$messages->[0]->type()."\n";
+	print "function: ".$messages->[0]->function()."\n";
+	print "date: ".$messages->[0]->date_of_message()."\n";
+	my $items=$messages->[0]->items();
+	my $ref_num=$messages->[0]->{ref_num};
+	
+	# create default edifact_messages entry
+	my $messagekey=LogEDIFactQuote($booksellerid,'Failed',0,0);
+	
+	#create basket
+	if ($msg_cnt>0 && $booksellerid)
+	{
+		$basketno=NewBasket($booksellerid, 0, $ref_num, '', '', '');
+	}	
+	
+	foreach my $item (@{$items})
+	{
+		my $author=$item->author_surname.", ".$item->author_firstname;
+		
+		my $ecost=GetDiscountedPrice($booksellerid,$item->{price}->{price});
+        #my $budgetstring='WIDAFI_T';
+        my $budgetstring=$item->{related_numbers}[2][0];
+        my @budgetccode=split(/_/,$budgetstring);
+        my $budget_id=GetBudgetID($budgetccode[0]);
+        my $ccode=$budgetccode[1];
+        #Halton default for unmatched budget code
+        if (!defined $budget_id)
+        {
+        	$budget_id=28;
+        }
+		
+		# create biblio record
+		my $record = TransformKohaToMarc(
+        {
+            "biblio.title"                => $item->title,
+            "biblio.author"               => $author			          ? $author			           : "",
+            "biblio.seriestitle"          => "",
+            "biblioitems.isbn"            => $item->{item_number}         ? $item->{item_number}       : "",
+            "biblioitems.publishercode"   => $item->publisher			  ? $item->publisher		   : "",
+            "biblioitems.publicationyear" => $item->date_of_publication   ? $item->date_of_publication : "",
+            "biblio.copyrightdate"        => $item->date_of_publication   ? $item->date_of_publication : "",
+            "biblioitems.itemtype"		  => uc($item->item_format),
+            "biblioitems.cn_source"		  => "ddc",
+            "items.cn_source"			  => "ddc",
+            "items.notforloan"			  => "-1",
+            "items.ccode"				  => $ccode,
+            "items.homebranch"			  => $item->{related_numbers}[1][0],
+            "items.holdingbranch"		  => $item->{related_numbers}[1][0],
+            "items.booksellerid"		  => $booksellerid,
+            "items.price"				  => $item->{price}->{price},
+            "items.replacementprice"	  => $item->{price}->{price},
+            "items.itemcallnumber"		  => $item->shelfmark,
+            "items.itype"				  => uc($item->item_format),
+            "items.cn_sort"				  => "",
+        });
+        
+        #check if item already exists in catalogue
+		my $biblionumber;
+		my $bibitemnumber;
+		($biblionumber,$bibitemnumber)=CheckOrderItemExists($item->{item_number});
+        
+        if (!defined $biblionumber)
+		{
+	        # create the record in catalogue, with framework ''
+	        ($biblionumber,$bibitemnumber) = AddBiblio($record,'');
+        }
+        
+        my %orderinfo = (
+        	basketno				=> $basketno,
+        	ordernumber				=> "",
+        	subscription			=> "no",
+        	uncertainprice			=> 0,
+        	biblionumber			=> $biblionumber,
+        	title					=> $item->title,
+        	quantity				=> $item->{quantity},
+        	biblioitemnumber		=> $bibitemnumber,
+        	rrp						=> $item->{price}->{price},
+        	ecost					=> $ecost,
+        	sort1					=> "",
+        	sort2					=> "",
+        	booksellerinvoicenumber	=> $item->{item_reference}[0][1],
+        	listprice				=> $item->{price}->{price},
+        	branchcode				=> $item->{related_numbers}[1][0],
+        	budget_id				=> $budget_id,
+        );
+        
+        my $orderinfo = \%orderinfo;
+        
+        my ($retbasketno, $ordernumber ) = NewOrder($orderinfo); 
+		
+	    # now, add items if applicable
+	    if (C4::Context->preference('AcqCreateItem') eq 'ordering')
+	    {
+	    	my $itemnumber;
+	    	($biblionumber,$bibitemnumber,$itemnumber) = AddItemFromMarc($record,$biblionumber);
+            NewOrderItem($itemnumber, $ordernumber);
+	    }
+		
+	}
+	# update edifact_messages entry
+	$messagekey=LogEDIFactQuote($booksellerid,'Received',$basketno,$messagekey);
+}
+
+=head2 GetDiscountedPrice
+
+Returns the discounted price for an order based on the discount rate for a given vendor
+
+=cut
+
+sub GetDiscountedPrice {
+	my ($booksellerid, $price) = @_;
+	my $dbh = C4::Context->dbh;
+    my $sth;
+    my @discount;
+    my $ecost;
+    my $percentage;
+    $sth = $dbh->prepare(
+    "select discount from aqbooksellers where id=?"
+    );
+    $sth->execute($booksellerid);
+    while (@discount=$sth->fetchrow_array())
+    {
+    	$percentage=$discount[0];
+    }
+    $ecost=($price-(($percentage*$price)/100));
+    return $ecost;
+}
+
+=head2 GetBudgetID
+
+Returns the budget_id for a given budget_code
+
+=cut
+
+sub GetBudgetID {
+	my $fundcode=shift;
+	my $dbh = C4::Context->dbh;
+    my $sth;
+    my @funds;
+    my $ecost;
+    my $budget_id;
+    $sth = $dbh->prepare(
+    "select budget_id from aqbudgets where budget_code=?"
+    );
+    $sth->execute($fundcode);
+    while (@funds=$sth->fetchrow_array())
+    {
+    	$budget_id=$funds[0];
+    }
+    return $budget_id;
+}
+
+=head2 CheckOrderItemExists
+
+Checks to see if a biblio record already exists in the catalogue when parsing a quotes message
+
+=cut
+
+sub CheckOrderItemExists {
+	my $isbn=shift;
+	my $dbh = C4::Context->dbh;
+    my $sth;
+    my @matches;
+    my $biblionumber;
+    my $bibitemnumber;
+    $sth = $dbh->prepare(
+    "select biblionumber, biblioitemnumber from biblioitems where isbn=?"
+    );
+    $sth->execute($isbn);
+    while (@matches=$sth->fetchrow_array())
+    {
+    	$biblionumber=$matches[0];
+    	$bibitemnumber=$matches[1];
+    }
+    return $biblionumber,$bibitemnumber;
 }
 
 1;
