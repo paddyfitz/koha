@@ -6,7 +6,6 @@ CREATE TABLE IF NOT EXISTS `vendor_edi_accounts` (
   `password` text,
   `last_activity` date default NULL,
   `provider` int(11) default NULL,
-  `path` text,
   `in_dir` text,
   `san` varchar(10) default NULL,
   PRIMARY KEY  (`id`)
