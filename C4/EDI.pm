@@ -52,6 +52,7 @@ our @EXPORT  = qw(
   CheckOrderItemExists
   GetBranchCode
   GetCollectionCode
+  string35escape
 );
 
 =head1 NAME
@@ -328,22 +329,30 @@ sub CreateEDIOrder {
 	my @datetime=localtime(time);
 	my $longyear=($datetime[5]+1900);
 	my $shortyear=sprintf "%02d",($datetime[5]-100);
-	my $date=sprintf "%02d%02d",$datetime[4],$datetime[3];
+	my $date=sprintf "%02d%02d",($datetime[4]+1),$datetime[3];
 	my $hourmin=sprintf "%02d%02d",$datetime[2],$datetime[1];
 	my $year=($datetime[5]-100);
-	my $month=sprintf "%02d",$datetime[4];
+	my $month=sprintf "%02d",($datetime[4]+1);
 	my $linecount=0;
 	my $filename="ediorder_".$basketno.".CEP";
 	my $exchange=int(rand(99999999999999));
 	my $ref=int(rand(99999999999999));
 	my $san=GetVendorSAN($booksellerid);
+	my $message_type=GetMessageType($basketno);
 	
 	open(EDIORDER,">$ENV{'PERL5LIB'}/misc/edi_files/$filename");
-
+	
 	print EDIORDER "UNA:+.? '";																							# print opening header
 	print EDIORDER "UNB+UNOC:2+5013546121974:14+$san:31B+$shortyear$date:$hourmin+".$exchange."++ORDERS+++EANCOM'";		# print identifying EANs/SANs, date/time, exchange reference number
 	print EDIORDER "UNH+".$ref."+ORDERS:D:96A:UN:EAN008'";																# print message reference number
-	print EDIORDER "BGM+220+".$basketno."+9'";																			# print order number
+	if ($message_type eq 'QUOTE')
+	{
+		print EDIORDER "BGM+22V+".$basketno."+9'";																		# print order number and quote confirmation ref
+	}
+	else
+	{
+		print EDIORDER "BGM+220+".$basketno."+9'";																		# print order number
+	}
 	print EDIORDER "DTM+137:$longyear$date:102'";																		# print date of message
 	print EDIORDER "NAD+BY+5013546121974::9'";																			# print buyer EAN  
 	print EDIORDER "NAD+SU+".$san."::31B'";																				# print vendor SAN
@@ -355,18 +364,21 @@ sub CreateEDIOrder {
 	{
 		$linecount++;
 		my $price;
-		my $title=escape($item->{title});
-		my $author=escape($item->{author});
-		my $publisher=escape($item->{publishercode});
+		my $title=string35escape(escape($item->{title}));
+		my $author=string35escape(escape($item->{author}));
+		my $publisher=string35escape(escape($item->{publishercode}));
 		$price=sprintf "%.2f",$item->{listprice};
 		my $isbn=cleanisbn($item->{isbn});
 		$isbn=Business::ISBN->new($isbn);
-		$isbn=$isbn->as_isbn13;
+		if ($isbn ne '')
+		{
+			$isbn=$isbn->as_isbn13;
+		}
 		my $copyrightdate=escape($item->{copyrightdate});
 		my $quantity=escape($item->{quantity});
 		my $ordernumber=escape($item->{ordernumber});
 		my $branchcode=escape(GetBranchCode($item->{biblioitemnumber}));
-		my $halton_collection=escape(GetCollectionCode($item->{biblioitemnumber},$item->{budget_name}));
+		my $halton_collection=escape(GetCollectionCode($item->{biblioitemnumber},$item->{budget_code}));
 		print EDIORDER "LIN+$linecount++".$isbn->isbn.":EN'";											# line number, isbn
 		print EDIORDER "PIA+5+".$isbn->isbn.":IB'";														# isbn as main product identification
 		print EDIORDER "IMD+L+050+:::$title'";															# title
@@ -376,10 +388,17 @@ sub CreateEDIOrder {
 		print EDIORDER "IMD+L+220+:::O'";																# binding (e.g. PB) (O if not specified)
 		print EDIORDER "QTY+21:$quantity'";																# quantity
 		print EDIORDER "GIR+001+$branchcode:LLO+$halton_collection:LFN+".$item->{itemtype}.":LST'";	# branch code, sequence or collection code, stock category
-		print EDIORDER "FTX+LIN++$linecount:10B:28'";													# freetext
+		if ($message_type ne 'QUOTE')
+		{
+			print EDIORDER "FTX+LIN++$linecount:10B:28'";													# freetext
+		}
 		print EDIORDER "PRI+AAB:$price'";																# price per item
 		print EDIORDER "CUX+2:GBP:9'";																	# currency (GBP)
 		print EDIORDER "RFF+LI:$ordernumber'";															# Local order number
+		if ($message_type eq 'QUOTE')
+		{
+			print EDIORDER "RFF+QLI:".$item->{booksellerinvoicenumber}."'";								# If QUOTE confirmation, include booksellerinvoicenumber
+		}
 	}
 	print EDIORDER "UNS+S'";																			# print summary section header
 	print EDIORDER "CNT+2:$linecount'";																	# print number of line items in the message
@@ -393,6 +412,24 @@ sub CreateEDIOrder {
     LogEDIFactOrder($booksellerid,'Queued',$basketno);
 	
 	return $filename;
+	
+	sub GetMessageType
+	{
+		my $basketno=shift;
+		my $dbh = C4::Context->dbh;
+	    my $sth;
+	    my $message_type;
+	    my @row;
+	    $sth = $dbh->prepare(
+	    "select message_type from edifact_messages where basketno=?"
+	    );
+	    $sth->execute($basketno);
+	    while (@row=$sth->fetchrow_array())
+	    {
+	    	$message_type=$row[0];
+	    }
+		return $message_type;
+	}
 
 	sub cleanisbn
 	{
@@ -806,6 +843,32 @@ sub CheckOrderItemExists {
     }
     return $biblionumber,$bibitemnumber;
 }
+
+sub string35escape {
+	my $string=shift;
+	my $section;
+	my $colon_string;
+	my @sections;
+	if (length($string)>35)
+	{
+		my ($chunk,$stringlength)=(35,length($string));
+		for (my $counter=0;$counter<$stringlength;$counter+=$chunk)
+		{
+			push @sections,substr($string,$counter,$chunk);
+		}
+		foreach $section (@sections)
+		{
+			$colon_string.=$section.":";
+		}
+		chop($colon_string);
+	}
+	else
+	{
+		$colon_string=$string;
+	}
+	return $colon_string;
+}
+
 
 1;
 
