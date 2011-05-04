@@ -768,6 +768,7 @@ sub ParseEDIQuote {
 	}
 	# update edifact_messages entry
 	$messagekey=LogEDIFactQuote($booksellerid,'Received',$basketno,$messagekey);
+	return 1;
 }
 
 =head2 GetDiscountedPrice
