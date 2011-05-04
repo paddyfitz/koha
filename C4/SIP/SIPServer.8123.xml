@@ -31,7 +31,7 @@
   </listeners>
 
   <accounts>
-      <login id="SIP"  password="SIP" delimiter="|" error-detect="enabled" institution="HLE" />
+      <login id="SIP"  password="SIP" delimiter="|" error-detect="enabled" institution="DIT" />
   </accounts>
 
 <!--
@@ -42,7 +42,7 @@ in our case "ILS".
 -->
 
 <institutions>
-    <institution id="HLE" implementation="ILS" parms="">
+    <institution id="DIT" implementation="ILS" parms="">
           <policy checkin="true" renewal="true" checkout="true"
 	  	  status_update="false" offline="false"
 		  timeout="100"
