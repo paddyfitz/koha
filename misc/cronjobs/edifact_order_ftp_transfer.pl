@@ -33,6 +33,7 @@ my $newerr;
 my @files;
 my $f;
 my $putdir = "$ENV{'PERL5LIB'}/misc/edi_files/";
+my $ediparse;
 opendir(CURRENT, $putdir);
 @putdirlist=readdir CURRENT;
 closedir CURRENT;
@@ -87,7 +88,15 @@ foreach my $accounts(@$ftpaccounts)
 								myerr() if $newerr;
 								if (!$newerr)
 								{
-									my $ediparse=ParseEDIQuote($_,$accounts->{provider});
+									$ediparse=ParseEDIQuote($_,$accounts->{provider});
+								}
+								if ($ediparse eq "1")
+								{
+									my $qext=".ceq";
+									my $rext=".eeq";
+									my $renamed=lc($_);
+									$renamed=~ s/$qext/$rext/g;
+									$ftp->rename($_,$renamed);
 								}
 							}
 						}
