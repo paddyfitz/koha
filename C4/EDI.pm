@@ -53,6 +53,7 @@ our @EXPORT  = qw(
   GetBranchCode
   GetCollectionCode
   string35escape
+  GetLSQCollectionCode
 );
 
 =head1 NAME
@@ -379,6 +380,7 @@ sub CreateEDIOrder {
 		my $ordernumber=escape($item->{ordernumber});
 		my $branchcode=escape(GetBranchCode($item->{biblioitemnumber}));
 		my $halton_collection=escape(GetCollectionCode($item->{biblioitemnumber},$item->{budget_code}));
+		my $lsqccode=escape(GetLSQCollectionCode($item->{biblioitemnumber}));
 		print EDIORDER "LIN+$linecount++".$isbn->isbn.":EN'";											# line number, isbn
 		print EDIORDER "PIA+5+".$isbn->isbn.":IB'";														# isbn as main product identification
 		print EDIORDER "IMD+L+050+:::$title'";															# title
@@ -387,11 +389,12 @@ sub CreateEDIOrder {
 		print EDIORDER "IMD+L+170+:::$copyrightdate'";													# date of publication
 		print EDIORDER "IMD+L+220+:::O'";																# binding (e.g. PB) (O if not specified)
 		print EDIORDER "QTY+21:$quantity'";																# quantity
-		print EDIORDER "GIR+001+$branchcode:LLO+$halton_collection:LFN+".$item->{itemtype}.":LST'";	# branch code, sequence or collection code, stock category
-		if ($message_type ne 'QUOTE')
-		{
-			print EDIORDER "FTX+LIN++$linecount:10B:28'";													# freetext
-		}
+		print EDIORDER "GIR+001+$branchcode:LLO+$halton_collection:LFN+".$item->{itemtype}.":LST+$lsqccode:LSQ'";	# branch code, sequence or collection code, stock category
+		###REQUEST ORDERS TO REVISIT
+		#if ($message_type ne 'QUOTE')
+		#{
+		#	print EDIORDER "FTX+LIN++$linecount:10B:28'";													# freetext ** used for request orders to denote priority (to revisit)
+		#}
 		print EDIORDER "PRI+AAB:$price'";																# price per item
 		print EDIORDER "CUX+2:GBP:9'";																	# currency (GBP)
 		print EDIORDER "RFF+LI:$ordernumber'";															# Local order number
@@ -516,6 +519,29 @@ sub GetCollectionCode {
     }
     my $formattedcode=$budgetcode."_".$ccode;
 	return $formattedcode;
+}
+
+=head2 GetLSQCollectionCode
+
+Returns the collection code for the LSQ identifier
+
+=cut
+
+sub GetLSQCollectionCode {
+	my ($biblioitemnumber)=@_;
+	my $dbh = C4::Context->dbh;
+    my $sth;
+    my $ccode;
+    my @row;
+    $sth = $dbh->prepare(
+    "select ccode from items where biblioitemnumber=?"
+    );
+    $sth->execute($biblioitemnumber);
+    while (@row=$sth->fetchrow_array())
+    {
+    	$ccode=$row[0];
+    }
+    return $ccode;
 }
 
 =head2 SendEDIOrder
