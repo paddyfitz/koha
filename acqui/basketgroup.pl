@@ -221,6 +221,7 @@ sub printbasketgrouppdf{
                 }
                 push(@ba_order, $bookseller->{discount});
                 push(@ba_order, $bookseller->{gstrate}*100 || C4::Context->preference("gist") || 0);
+                push(@ba_order, $ord->{ordernumber});
                 push(@ba_orders, \@ba_order);
                 # Editor Number
                 my $en;
