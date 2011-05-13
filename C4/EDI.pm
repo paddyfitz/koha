@@ -693,11 +693,9 @@ sub ParseEDIQuote {
 	my $messages=$edi->messages();
 	my $msg_cnt=@{$messages};
 	print "messages: $msg_cnt\n";
-	print "type: ".$messages->[0]->type()."\n";
-	print "function: ".$messages->[0]->function()."\n";
-	print "date: ".$messages->[0]->date_of_message()."\n";
-	my $items=$messages->[0]->items();
-	my $ref_num=$messages->[0]->{ref_num};
+	#print "type: ".$messages->[0]->type()."\n";
+	#print "function: ".$messages->[0]->function()."\n";
+	#print "date: ".$messages->[0]->date_of_message()."\n";
 	
 	# create default edifact_messages entry
 	my $messagekey=LogEDIFactQuote($booksellerid,'Failed',0,0);
@@ -705,92 +703,98 @@ sub ParseEDIQuote {
 	#create basket
 	if ($msg_cnt>0 && $booksellerid)
 	{
-		$basketno=NewBasket($booksellerid, 0, $ref_num, '', '', '');
+		$basketno=NewBasket($booksellerid, 0, $filename, '', '', '');
 	}	
 	
-	foreach my $item (@{$items})
+	my $count;
+	for ($count=0; $count<$msg_cnt; $count++)
 	{
-		my $author=$item->author_surname.", ".$item->author_firstname;
-		
-		my $ecost=GetDiscountedPrice($booksellerid,$item->{price}->{price});
-        #my $budgetstring='WIDAFI_T';
-        my $budgetstring=$item->{related_numbers}[2][0];
-        my @budgetccode=split(/_/,$budgetstring);
-        my $budget_id=GetBudgetID($budgetccode[0]);
-        my $ccode=$budgetccode[1];
-        #Halton default for unmatched budget code
-        if (!defined $budget_id)
-        {
-        	$budget_id=28;
-        }
-		
-		# create biblio record
-		my $record = TransformKohaToMarc(
-        {
-            "biblio.title"                => $item->title,
-            "biblio.author"               => $author			          ? $author			           : "",
-            "biblio.seriestitle"          => "",
-            "biblioitems.isbn"            => $item->{item_number}         ? $item->{item_number}       : "",
-            "biblioitems.publishercode"   => $item->publisher			  ? $item->publisher		   : "",
-            "biblioitems.publicationyear" => $item->date_of_publication   ? $item->date_of_publication : "",
-            "biblio.copyrightdate"        => $item->date_of_publication   ? $item->date_of_publication : "",
-            "biblioitems.itemtype"		  => uc($item->item_format),
-            "biblioitems.cn_source"		  => "ddc",
-            "items.cn_source"			  => "ddc",
-            "items.notforloan"			  => "-1",
-            "items.ccode"				  => $ccode,
-            "items.homebranch"			  => $item->{related_numbers}[1][0],
-            "items.holdingbranch"		  => $item->{related_numbers}[1][0],
-            "items.booksellerid"		  => $booksellerid,
-            "items.price"				  => $item->{price}->{price},
-            "items.replacementprice"	  => $item->{price}->{price},
-            "items.itemcallnumber"		  => $item->shelfmark,
-            "items.itype"				  => uc($item->item_format),
-            "items.cn_sort"				  => "",
-        });
-        
-        #check if item already exists in catalogue
-		my $biblionumber;
-		my $bibitemnumber;
-		($biblionumber,$bibitemnumber)=CheckOrderItemExists($item->{item_number});
-        
-        if (!defined $biblionumber)
+		my $items=$messages->[$count]->items();
+		my $ref_num=$messages->[$count]->{ref_num};
+	
+		foreach my $item (@{$items})
 		{
-	        # create the record in catalogue, with framework ''
-	        ($biblionumber,$bibitemnumber) = AddBiblio($record,'');
-        }
-        
-        my %orderinfo = (
-        	basketno				=> $basketno,
-        	ordernumber				=> "",
-        	subscription			=> "no",
-        	uncertainprice			=> 0,
-        	biblionumber			=> $biblionumber,
-        	title					=> $item->title,
-        	quantity				=> $item->{quantity},
-        	biblioitemnumber		=> $bibitemnumber,
-        	rrp						=> $item->{price}->{price},
-        	ecost					=> $ecost,
-        	sort1					=> "",
-        	sort2					=> "",
-        	booksellerinvoicenumber	=> $item->{item_reference}[0][1],
-        	listprice				=> $item->{price}->{price},
-        	branchcode				=> $item->{related_numbers}[1][0],
-        	budget_id				=> $budget_id,
-        );
-        
-        my $orderinfo = \%orderinfo;
-        
-        my ($retbasketno, $ordernumber ) = NewOrder($orderinfo); 
+			my $author=$item->author_surname.", ".$item->author_firstname;
+			
+			my $ecost=GetDiscountedPrice($booksellerid,$item->{price}->{price});
+	        #my $budgetstring='WIDAFI_T';
+	        my $budgetstring=$item->{related_numbers}[2][0];
+    	    my @budgetccode=split(/_/,$budgetstring);
+	        my $budget_id=GetBudgetID($budgetccode[0]);
+	        my $ccode=$budgetccode[1];
+	        #Halton default for unmatched budget code
+	        if (!defined $budget_id)
+	        {
+	        	$budget_id=28;
+	        }
 		
-	    # now, add items if applicable
-	    if (C4::Context->preference('AcqCreateItem') eq 'ordering')
-	    {
-	    	my $itemnumber;
-	    	($biblionumber,$bibitemnumber,$itemnumber) = AddItemFromMarc($record,$biblionumber);
-            NewOrderItem($itemnumber, $ordernumber);
-	    }
+			# create biblio record
+			my $record = TransformKohaToMarc(
+	        {
+	            "biblio.title"                => $item->title,
+	            "biblio.author"               => $author			          ? $author			           : "",
+	            "biblio.seriestitle"          => "",
+	            "biblioitems.isbn"            => $item->{item_number}         ? $item->{item_number}       : "",
+	            "biblioitems.publishercode"   => $item->publisher			  ? $item->publisher		   : "",
+	            "biblioitems.publicationyear" => $item->date_of_publication   ? $item->date_of_publication : "",
+	            "biblio.copyrightdate"        => $item->date_of_publication   ? $item->date_of_publication : "",
+	            "biblioitems.itemtype"		  => uc($item->item_format),
+	            "biblioitems.cn_source"		  => "ddc",
+	            "items.cn_source"			  => "ddc",
+	            "items.notforloan"			  => "-1",
+	            "items.ccode"				  => $ccode,
+	            "items.homebranch"			  => $item->{related_numbers}[1][0],
+	            "items.holdingbranch"		  => $item->{related_numbers}[1][0],
+	            "items.booksellerid"		  => $booksellerid,
+	            "items.price"				  => $item->{price}->{price},
+	            "items.replacementprice"	  => $item->{price}->{price},
+	            "items.itemcallnumber"		  => $item->shelfmark,
+	            "items.itype"				  => uc($item->item_format),
+	            "items.cn_sort"				  => "",
+	        });
+        
+	        #check if item already exists in catalogue
+			my $biblionumber;
+			my $bibitemnumber;
+			($biblionumber,$bibitemnumber)=CheckOrderItemExists($item->{item_number});
+        
+	        if (!defined $biblionumber)
+			{
+		        # create the record in catalogue, with framework ''
+		        ($biblionumber,$bibitemnumber) = AddBiblio($record,'');
+	        }
+	        
+	        my %orderinfo = (
+	        	basketno				=> $basketno,
+	        	ordernumber				=> "",
+	        	subscription			=> "no",
+	        	uncertainprice			=> 0,
+	        	biblionumber			=> $biblionumber,
+	        	title					=> $item->title,
+	        	quantity				=> $item->{quantity},
+	        	biblioitemnumber		=> $bibitemnumber,
+	        	rrp						=> $item->{price}->{price},
+	        	ecost					=> $ecost,
+	 	       	sort1					=> "",
+	 	       	sort2					=> "",
+	        	booksellerinvoicenumber	=> $item->{item_reference}[0][1],
+	        	listprice				=> $item->{price}->{price},
+	        	branchcode				=> $item->{related_numbers}[1][0],
+	        	budget_id				=> $budget_id,
+	        );
+        
+	        my $orderinfo = \%orderinfo;
+        
+	        my ($retbasketno, $ordernumber ) = NewOrder($orderinfo); 
 		
+		    # now, add items if applicable
+		    if (C4::Context->preference('AcqCreateItem') eq 'ordering')
+		    {
+		    	my $itemnumber;
+		    	($biblionumber,$bibitemnumber,$itemnumber) = AddItemFromMarc($record,$biblionumber);
+	            NewOrderItem($itemnumber, $ordernumber);
+		    }
+		}
 	}
 	# update edifact_messages entry
 	$messagekey=LogEDIFactQuote($booksellerid,'Received',$basketno,$messagekey);
