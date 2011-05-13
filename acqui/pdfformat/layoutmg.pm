@@ -177,72 +177,72 @@ sub printhead {
     
     # print billing infos
     $text->translate(44.5/mm, ($height-85)/mm);
-    my $libandservice = "$libraryname (".$billingdetails->{branchname}.")";
+    my $libandservice = "$libraryname";
     $text->text($libandservice);
-    $text->translate(44.5/mm, ($height-97.75)/mm);
-    $text->text($billingdetails->{branchaddress1});
-    $text->translate(44.5/mm, ($height-102)/mm);
-    $text->text($billingdetails->{branchaddress2});
-    $text->translate(44.5/mm, ($height-106.25)/mm);
-    $text->text($billingdetails->{branchaddress3});
-    $text->translate(44.5/mm, ($height-110.5)/mm);
-    $text->text($billingdetails->{branchcity});
-    $text->translate(44.5/mm, ($height-114.75)/mm);
-    $text->text($billingdetails->{branchzip});
-    $text->translate(129.55/mm, ($height-97.25)/mm);
-    $text->text($billingdetails->{branchphone});
-    $text->translate(129.55/mm, ($height-105.5)/mm);
-    $text->text($billingdetails->{branchfax});
-    $text->translate(129.55/mm, ($height-113.75)/mm);
-    $text->text($billingdetails->{branchemail});  
+    #$text->translate(44.5/mm, ($height-97.75)/mm);
+    #$text->text($billingdetails->{branchaddress1});
+    #$text->translate(44.5/mm, ($height-102)/mm);
+    #$text->text($billingdetails->{branchaddress2});
+    #$text->translate(44.5/mm, ($height-106.25)/mm);
+    #$text->text($billingdetails->{branchaddress3});
+    #$text->translate(44.5/mm, ($height-110.5)/mm);
+    #$text->text($billingdetails->{branchcity});
+    #$text->translate(44.5/mm, ($height-114.75)/mm);
+    #$text->text($billingdetails->{branchzip});
+    #$text->translate(129.55/mm, ($height-97.25)/mm);
+    #$text->text($billingdetails->{branchphone});
+    #$text->translate(129.55/mm, ($height-105.5)/mm);
+    #$text->text($billingdetails->{branchfax});
+    #$text->translate(129.55/mm, ($height-113.75)/mm);
+    #$text->text($billingdetails->{branchemail});  
     
     # print delivery infos
-    $text->font( $pdf->corefont("Arial", -encoding => "utf8"), 3.5/mm );
-    $text->translate(44.5/mm, ($height-134.25)/mm);
-    $text->text($deliverydetails->{branchaddress1});
-    $text->translate(44.5/mm, ($height-138.5)/mm);
-    $text->text($deliverydetails->{branchaddress2});
-    $text->translate(44.5/mm, ($height-142.75)/mm);
-    $text->text($deliverydetails->{branchaddress3});
-    $text->translate(44.5/mm, ($height-147)/mm);
-    $text->text($deliverydetails->{branchcity});
-    $text->translate(44.5/mm, ($height-151.25)/mm);
-    $text->text($deliverydetails->{branchzip});
-    $text->translate(129.55/mm, ($height-134)/mm);
-    $text->text($deliverydetails->{branchphone});
-    $text->translate(129.55/mm, ($height-142.25)/mm);
-    $text->text($deliverydetails->{branchfax});
-    $text->translate(129.55/mm, ($height-150.25)/mm);
-    $text->text($deliverydetails->{branchemail});
+    #$text->font( $pdf->corefont("Arial", -encoding => "utf8"), 3.5/mm );
+    #$text->translate(44.5/mm, ($height-134.25)/mm);
+    #$text->text($deliverydetails->{branchaddress1});
+    #$text->translate(44.5/mm, ($height-138.5)/mm);
+    #$text->text($deliverydetails->{branchaddress2});
+    #$text->translate(44.5/mm, ($height-142.75)/mm);
+    #$text->text($deliverydetails->{branchaddress3});
+    #$text->translate(44.5/mm, ($height-147)/mm);
+    #$text->text($deliverydetails->{branchcity});
+    #$text->translate(44.5/mm, ($height-151.25)/mm);
+    #$text->text($deliverydetails->{branchzip});
+    #$text->translate(129.55/mm, ($height-134)/mm);
+    #$text->text($deliverydetails->{branchphone});
+    #$text->translate(129.55/mm, ($height-142.25)/mm);
+    #$text->text($deliverydetails->{branchfax});
+    #$text->translate(129.55/mm, ($height-150.25)/mm);
+    #$text->text($deliverydetails->{branchemail});
     
 
-    my (@dc)=split(/\n/,$basketgroup->{deliverycomment});
-    my $countdc=207.75;
-    my $incdc=4;
-    foreach my $val (@dc)
-	{
-		if (length($val)>75)
-		{
-			my @chunks=($val=~ m/(.{1,75})/gs);
-			foreach my $chunk (@chunks)
-			{
-				$text->translate(44.5/mm, ($height-$countdc)/mm);
-				$text->text($chunk."-");
-				$countdc=$countdc+$incdc;
-			}
-		}
-		else
-		{
-	    	$text->translate(44.5/mm, ($height-$countdc)/mm);
-	    	$text->text($val);
-			$countdc=$countdc+$incdc;
-	    }
-	}
-	if ($basketgroup->{deliverycomment} eq '')
-	{
-		$text->translate(44.5/mm, ($height-$countdc)/mm);
-	    $text->text('N/A');
-	}
+    #my (@dc)=split(/\n/,$basketgroup->{deliverycomment});
+    #my $countdc=207.75;
+    #my $incdc=4;
+    #foreach my $val (@dc)
+	#{
+	#	if (length($val)>75)
+	#	{
+	#		my @chunks=($val=~ m/(.{1,75})/gs);
+	#		foreach my $chunk (@chunks)
+	#		{
+	#			$text->translate(44.5/mm, ($height-$countdc)/mm);
+	#			$text->text($chunk."-");
+	#			$countdc=$countdc+$incdc;
+	#		}
+	#	}
+	#	else
+	#	{
+	#	   	$text->translate(44.5/mm, ($height-$countdc)/mm);
+	#    	$text->text($val);
+	#		$countdc=$countdc+$incdc;
+	#    }
+	#}
+	#if ($basketgroup->{deliverycomment} eq '')
+	#{
+	#	$text->translate(44.5/mm, ($height-$countdc)/mm);
+	#    $text->text('N/A');
+	#}
     
     # print subject
     $text->translate(100/mm, ($height-145.5)/mm);
