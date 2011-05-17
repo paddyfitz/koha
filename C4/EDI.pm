@@ -54,6 +54,7 @@ our @EXPORT  = qw(
   GetCollectionCode
   string35escape
   GetLSQCollectionCode
+  GetCallNumber
 );
 
 =head1 NAME
@@ -381,6 +382,7 @@ sub CreateEDIOrder {
 		my $branchcode=escape(GetBranchCode($item->{biblioitemnumber}));
 		my $halton_collection=escape(GetCollectionCode($item->{biblioitemnumber},$item->{budget_code}));
 		my $lsqccode=escape(GetLSQCollectionCode($item->{biblioitemnumber}));
+		my $callnumber=GetCallNumber($item->{'biblionumber'},$item->{'ordernumber'});
 		print EDIORDER "LIN+$linecount++".$isbn->isbn.":EN'";											# line number, isbn
 		print EDIORDER "PIA+5+".$isbn->isbn.":IB'";														# isbn as main product identification
 		print EDIORDER "IMD+L+050+:::$title'";															# title
@@ -388,8 +390,17 @@ sub CreateEDIOrder {
 		print EDIORDER "IMD+L+109+:::$publisher'";														# publisher
 		print EDIORDER "IMD+L+170+:::$copyrightdate'";													# date of publication
 		print EDIORDER "IMD+L+220+:::O'";																# binding (e.g. PB) (O if not specified)
+		if ($callnumber ne '')
+		{
+			print EDIORDER "IMD+L+230+:::$callnumber'";													# shelfmark
+		}
 		print EDIORDER "QTY+21:$quantity'";																# quantity
-		print EDIORDER "GIR+001+$branchcode:LLO+$halton_collection:LFN+".$item->{itemtype}.":LST+$lsqccode:LSQ'";	# branch code, sequence or collection code, stock category
+		print EDIORDER "GIR+001+$branchcode:LLO+$halton_collection:LFN+"								# branchcode, sequence or collection code
+		if ($callnumber ne '')
+		{
+			print EDIORDER "641.594:LCL+";																# shelfmark
+		}
+		print EDIORDER $item->{itemtype}.":LST+$lsqccode:LSQ'";											# stock category
 		###REQUEST ORDERS TO REVISIT
 		#if ($message_type ne 'QUOTE')
 		#{
@@ -873,6 +884,31 @@ sub CheckOrderItemExists {
     	$bibitemnumber=$matches[1];
     }
     return $biblionumber,$bibitemnumber;
+}
+
+=head2 GetCallNumber
+
+Returns aqorders_items.itemcallnumber for a given biblioitemnumber
+
+=cut
+
+sub GetCallNumber {
+	my $biblioitemnumber=shift;
+	my $ordernumber=shift;
+	my $dbh = C4::Context->dbh;
+	my $sth;
+	my @rows;
+	my $callnumber;
+	$sth = $dbh->prepare(
+	"select items.itemcallnumber from items inner join aqorders_items on 
+	aqorders_items.itemnumber=items.itemnumber 
+	where items.biblioitemnumber=? and aqorders_items.ordernumber=?");
+	$sth->execute($biblioitemnumber,$ordernumber);
+	while (@rows=$sth->fetchrow_array())
+	{
+		$callnumber=$rows[0];
+	}
+	return $callnumber;
 }
 
 sub string35escape {
