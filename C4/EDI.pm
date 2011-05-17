@@ -398,7 +398,7 @@ sub CreateEDIOrder {
 		print EDIORDER "GIR+001+$branchcode:LLO+$halton_collection:LFN+";								# branchcode, sequence or collection code
 		if ($callnumber ne '')
 		{
-			print EDIORDER "641.594:LCL+";																# shelfmark
+			print EDIORDER "$callnumber:LCL+";																# shelfmark
 		}
 		print EDIORDER $item->{itemtype}.":LST+$lsqccode:LSQ'";											# stock category
 		###REQUEST ORDERS TO REVISIT
