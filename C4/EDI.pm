@@ -51,7 +51,6 @@ our @EXPORT  = qw(
   GetBudgetID
   CheckOrderItemExists
   GetBranchCode
-  GetCollectionCode
   string35escape
   GetLSQCollectionCode
   GetCallNumber
@@ -380,7 +379,7 @@ sub CreateEDIOrder {
 		my $quantity=escape($item->{quantity});
 		my $ordernumber=escape($item->{ordernumber});
 		my $branchcode=escape(GetBranchCode($item->{biblioitemnumber}));
-		my $halton_collection=escape(GetCollectionCode($item->{biblioitemnumber},$item->{budget_code}));
+		my $fund=escape($item->{budget_code});
 		my $lsqccode=escape(GetLSQCollectionCode($item->{biblioitemnumber}));
 		my $callnumber=GetCallNumber($item->{'biblionumber'},$item->{'ordernumber'});
 		print EDIORDER "LIN+$linecount++".$isbn->isbn.":EN'";											# line number, isbn
@@ -395,12 +394,12 @@ sub CreateEDIOrder {
 			print EDIORDER "IMD+L+230+:::$callnumber'";													# shelfmark
 		}
 		print EDIORDER "QTY+21:$quantity'";																# quantity
-		print EDIORDER "GIR+001+$branchcode:LLO+$halton_collection:LFN+";								# branchcode, sequence or collection code
+		print EDIORDER "GIR+001+$branchcode:LLO+$fund:LFN+";											# branchcode, fund code
 		if ($callnumber ne '')
 		{
 			print EDIORDER "$callnumber:LCL+";																# shelfmark
 		}
-		print EDIORDER $item->{itemtype}.":LST+$lsqccode:LSQ'";											# stock category
+		print EDIORDER $item->{itemtype}.":LST+$lsqccode:LSQ'";											# stock category, sequence
 		###REQUEST ORDERS TO REVISIT
 		#if ($message_type ne 'QUOTE')
 		#{
@@ -508,29 +507,6 @@ sub GetBranchCode {
 	return $branchcode;
 }
 
-=head2 GetCollectionCode
-
-Halton specific - Return budgetcode/collectioncode combination to use as sequence/collection code when formatting EDIfact order message
-
-=cut
-
-sub GetCollectionCode {
-	my ($biblioitemnumber,$budgetcode)=@_;
-	my $dbh = C4::Context->dbh;
-    my $sth;
-    my $ccode;
-    my @row;
-    $sth = $dbh->prepare(
-    "select ccode from items where biblioitemnumber=?"
-    );
-    $sth->execute($biblioitemnumber);
-    while (@row=$sth->fetchrow_array())
-    {
-    	$ccode=$row[0];
-    }
-    my $formattedcode=$budgetcode."_".$ccode;
-	return $formattedcode;
-}
 
 =head2 GetLSQCollectionCode
 
@@ -733,11 +709,12 @@ sub ParseEDIQuote {
     	    my @budgetccode=split(/_/,$budgetstring);
 	        my $budget_id=GetBudgetID($budgetccode[0]);
 	        my $ccode=$budgetccode[1];
-	        #Halton default for unmatched budget code
-	        if (!defined $budget_id)
-	        {
-	        	$budget_id=28;
-	        }
+	        
+	        #Uncomment section below to define a default budget_id if there is no match
+	        #if (!defined $budget_id)
+	        #{
+	        #	$budget_id=0;
+	        #}
 		
 			# create biblio record
 			my $record = TransformKohaToMarc(
