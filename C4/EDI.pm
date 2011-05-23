@@ -704,11 +704,24 @@ sub ParseEDIQuote {
 			my $author=$item->author_surname.", ".$item->author_firstname;
 			
 			my $ecost=GetDiscountedPrice($booksellerid,$item->{price}->{price});
-	        #my $budgetstring='WIDAFI_T';
-	        my $budgetstring=$item->{related_numbers}[2][0];
-    	    my @budgetccode=split(/_/,$budgetstring);
-	        my $budget_id=GetBudgetID($budgetccode[0]);
-	        my $ccode=$budgetccode[1];
+	        
+	        my ($lsq,$lfn,$llo);
+	        foreach my $rn (@{$item->{related_numbers}})
+			{
+				if ($rn->[1] eq 'LSQ')
+				{
+					$lsq=$rn->[0];
+				}
+				if ($rn->[1] eq 'LFN')
+				{
+					$lfn=$rn->[0];
+				}
+				if ($rn->[1] eq 'LLO')
+				{
+					$llo=$rn->[0];
+				}
+			}
+			my $budget_id=GetBudgetID($lfn);
 	        
 	        #Uncomment section below to define a default budget_id if there is no match
 	        #if (!defined $budget_id)
@@ -730,9 +743,9 @@ sub ParseEDIQuote {
 	            "biblioitems.cn_source"		  => "ddc",
 	            "items.cn_source"			  => "ddc",
 	            "items.notforloan"			  => "-1",
-	            "items.ccode"				  => $ccode,
-	            "items.homebranch"			  => $item->{related_numbers}[1][0],
-	            "items.holdingbranch"		  => $item->{related_numbers}[1][0],
+	            "items.ccode"				  => $lsq,
+	            "items.homebranch"			  => $llo,
+	            "items.holdingbranch"		  => $llo,
 	            "items.booksellerid"		  => $booksellerid,
 	            "items.price"				  => $item->{price}->{price},
 	            "items.replacementprice"	  => $item->{price}->{price},
@@ -767,7 +780,7 @@ sub ParseEDIQuote {
 	 	       	sort2					=> "",
 	        	booksellerinvoicenumber	=> $item->{item_reference}[0][1],
 	        	listprice				=> $item->{price}->{price},
-	        	branchcode				=> $item->{related_numbers}[1][0],
+	        	branchcode				=> $llo,
 	        	budget_id				=> $budget_id,
 	        );
         
