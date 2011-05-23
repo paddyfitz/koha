@@ -94,6 +94,7 @@
                             new YAHOO.widget.Button("basketheadbutton");
                             new YAHOO.widget.Button("exportbutton");
                             new YAHOO.widget.Button("delbasketbutton");
+                            new YAHOO.widget.Button("ediorderbutton");
                         }
                         //]]>
                     </script>
@@ -109,6 +110,7 @@
                         <li><a href="[% script_name %]?op=close&amp;basketno=[% basketno %]&amp;booksellerid=[% booksellerid %]" class="button" id="closebutton">Close this basket</a></li>
                     [% END %]
                         <li><a href="[% script_name %]?op=export&amp;basketno=[% basketno %]&amp;booksellerid=[% booksellerid %]" class="button" id="exportbutton">Export this basket as CSV</a></li>
+                        <li><a href="[% script_name %]?op=ediorder&amp;basketno=[% basketno %]&amp;booksellerid=[% booksellerid %]" class="button" id="ediorderbutton">EDIfact order</a></li>
                     </ul>
 
                 </div>
@@ -134,7 +136,12 @@
                 [% END %]
             [% END %]
             [% END %]
-
+	[% IF ( edifile ) %]
+	<div id="edifile" class="dialog alert">EDIfact order created and will be sent overnight. Filename: <strong>[% edifile %]</strong> - <a href="/cgi-bin/koha/acqui/basket.pl?op=edisend&basketno=[% basketno %]&booksellerid=[% booksellerid %]">Send this order now?</a></div>
+	[% END %]
+	[% IF ( edisend ) %]
+	<div id="edisend" class="dialog alert"><strong>[% edisend %]</strong></div>
+	[% END %]
     [% IF ( NO_BOOKSELLER ) %]
     <h2>Vendor not found</h2>
     [% ELSE %]
