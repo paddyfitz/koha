@@ -47,4 +47,5 @@
 	[% IF ( NoZebra ) %]<li><a href="/cgi-bin/koha/admin/stopwords.pl">Stop Words</a></li>[% END %]
 	<!-- <li><a href="/cgi-bin/koha/admin/printers.pl">Network Printers</a></li> -->
 	<li><a href="/cgi-bin/koha/admin/z3950servers.pl">Z39.50 Client Targets</a></li>
+	<li><a href="/cgi-bin/koha/admin/edi-accounts.pl">EDI Accounts</a></li>
 </ul>
