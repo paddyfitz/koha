@@ -521,7 +521,7 @@ sub GetLSQCollectionCode {
     my $ccode;
     my @row;
     $sth = $dbh->prepare(
-    "select ccode from items where biblioitemnumber=?"
+    "select location from items where biblioitemnumber=?"
     );
     $sth->execute($biblioitemnumber);
     while (@row=$sth->fetchrow_array())
