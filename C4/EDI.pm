@@ -53,6 +53,7 @@ our @EXPORT  = qw(
   GetBranchCode
   string35escape
   GetOrderItemInfo
+  CheckVendorFTPAccountExists
 );
 
 =head1 NAME
@@ -905,6 +906,29 @@ sub GetOrderItemInfo {
 		$fund=$rows[0];
 	}
 	return $homebranch,$callnumber,$itype,$ccode,$fund;
+}
+
+sub CheckVendorFTPAccountExists {
+	my $booksellerid=shift;
+	my $dbh = C4::Context->dbh;
+	my $sth;
+	my @rows;
+	my $cnt;
+	$sth = $dbh->prepare(
+	"select count(id) from vendor_edi_accounts where provider=?");
+	$sth->execute($booksellerid);
+	while (@rows=$sth->fetchrow_array())
+	{
+		$cnt=$rows[0];
+	}
+	if ($cnt != 0)
+	{
+		return 1;
+	}
+	else
+	{
+		return undef;
+	}
 }
 
 1;
