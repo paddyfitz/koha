@@ -680,9 +680,8 @@ sub ParseEDIQuote {
 	my $messages=$edi->messages();
 	my $msg_cnt=@{$messages};
 	print "messages: $msg_cnt\n";
-	#print "type: ".$messages->[0]->type()."\n";
-	#print "function: ".$messages->[0]->function()."\n";
-	#print "date: ".$messages->[0]->date_of_message()."\n";
+	print "type: ".$messages->[0]->type()."\n";
+	print "date: ".$messages->[0]->date_of_message()."\n";
 	
 	# create default edifact_messages entry
 	my $messagekey=LogEDIFactQuote($booksellerid,'Failed',0,0);
@@ -701,26 +700,26 @@ sub ParseEDIQuote {
 	
 		foreach my $item (@{$items})
 		{
+			for (my $i=0; $i<$item->{quantity}; $i++)
+			{
+				ParseEDIQuoteItem($item,$i,$booksellerid,$basketno);
+			}
+		}
+	}
+	# update edifact_messages entry
+	$messagekey=LogEDIFactQuote($booksellerid,'Received',$basketno,$messagekey);
+	return 1;
+	
+	sub ParseEDIQuoteItem {
+			my ($item,$gir,$booksellerid)=@_;
 			my $author=$item->author_surname.", ".$item->author_firstname;
 			
 			my $ecost=GetDiscountedPrice($booksellerid,$item->{price}->{price});
 	        
-	        my ($lsq,$lfn,$llo);
-	        foreach my $rn (@{$item->{related_numbers}})
-			{
-				if ($rn->[1] eq 'LSQ')
-				{
-					$lsq=$rn->[0];
-				}
-				if ($rn->[1] eq 'LFN')
-				{
-					$lfn=$rn->[0];
-				}
-				if ($rn->[1] eq 'LLO')
-				{
-					$llo=$rn->[0];
-				}
-			}
+	        my $llo=$item->{related_numbers}->[$gir]->{LLO}->[0];
+			my $lfn=$item->{related_numbers}->[$gir]->{LFN}->[0];
+			my $lsq=$item->{related_numbers}->[$gir]->{LSQ}->[0];
+			
 			my $budget_id=GetBudgetID($lfn);
 	        
 	        #Uncomment section below to define a default budget_id if there is no match
@@ -754,7 +753,7 @@ sub ParseEDIQuote {
 	            "items.itype"				  => uc($item->item_format),
 	            "items.cn_sort"				  => "",
 	        });
-        
+	        
 	        #check if item already exists in catalogue
 			my $biblionumber;
 			my $bibitemnumber;
@@ -773,7 +772,7 @@ sub ParseEDIQuote {
 	        	uncertainprice			=> 0,
 	        	biblionumber			=> $biblionumber,
 	        	title					=> $item->title,
-	        	quantity				=> $item->{quantity},
+	        	quantity				=> 1,
 	        	biblioitemnumber		=> $bibitemnumber,
 	        	rrp						=> $item->{price}->{price},
 	        	ecost					=> $ecost,
@@ -795,12 +794,8 @@ sub ParseEDIQuote {
 		    	my $itemnumber;
 		    	($biblionumber,$bibitemnumber,$itemnumber) = AddItemFromMarc($record,$biblionumber);
 	            NewOrderItem($itemnumber, $ordernumber);
-		    }
-		}
+		    }		
 	}
-	# update edifact_messages entry
-	$messagekey=LogEDIFactQuote($booksellerid,'Received',$basketno,$messagekey);
-	return 1;
 }
 
 =head2 GetDiscountedPrice
