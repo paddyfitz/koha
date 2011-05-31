@@ -85,6 +85,8 @@ my $basket = GetBasket($basketno);
 # if no booksellerid in parameter, get it from basket
 # warn "=>".$basket->{booksellerid};
 $booksellerid = $basket->{booksellerid} unless $booksellerid;
+my $ediaccount = CheckVendorFTPAccountExists($booksellerid);
+$template->param(ediaccount=>$ediaccount);
 my ($bookseller) = GetBookSellerFromId($booksellerid);
 my $op = $query->param('op');
 if (!defined $op) {
