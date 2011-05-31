@@ -51,10 +51,8 @@ our @EXPORT  = qw(
   GetBudgetID
   CheckOrderItemExists
   GetBranchCode
-  GetCollectionCode
   string35escape
-  GetLSQCollectionCode
-  GetCallNumber
+  GetOrderItemInfo
 );
 
 =head1 NAME
@@ -379,10 +377,10 @@ sub CreateEDIOrder {
 		my $copyrightdate=escape($item->{copyrightdate});
 		my $quantity=escape($item->{quantity});
 		my $ordernumber=escape($item->{ordernumber});
-		my $branchcode=escape(GetBranchCode($item->{biblioitemnumber}));
-		my $halton_collection=escape(GetCollectionCode($item->{biblioitemnumber},$item->{budget_code}));
-		my $lsqccode=escape(GetLSQCollectionCode($item->{biblioitemnumber}));
-		my $callnumber=GetCallNumber($item->{'biblionumber'},$item->{'ordernumber'});
+		
+		my ($branchcode,$callnumber,$itype,$lsqccode,$fund) = GetOrderItemInfo($item->{'ordernumber'});
+		
+		my $halton_collection=escape($fund."_".$lsqccode);
 		print EDIORDER "LIN+$linecount++".$isbn->isbn.":EN'";											# line number, isbn
 		print EDIORDER "PIA+5+".$isbn->isbn.":IB'";														# isbn as main product identification
 		print EDIORDER "IMD+L+050+:::$title'";															# title
@@ -400,7 +398,7 @@ sub CreateEDIOrder {
 		{
 			print EDIORDER "$callnumber:LCL+";																# shelfmark
 		}
-		print EDIORDER $item->{itemtype}.":LST+$lsqccode:LSQ'";											# stock category, sequence
+		print EDIORDER $itype.":LST+$lsqccode:LSQ'";													# stock category, sequence
 		###REQUEST ORDERS TO REVISIT
 		#if ($message_type ne 'QUOTE')
 		#{
@@ -506,53 +504,6 @@ sub GetBranchCode {
     	$branchcode=$row[0];
     }
 	return $branchcode;
-}
-
-=head2 GetCollectionCode
-
-Halton specific - Return budgetcode/collectioncode combination to use as sequence/collection code when formatting EDIfact order message
-
-=cut
-
-sub GetCollectionCode {
-	my ($biblioitemnumber,$budgetcode)=@_;
-	my $dbh = C4::Context->dbh;
-    my $sth;
-    my $ccode;
-    my @row;
-    $sth = $dbh->prepare(
-    "select ccode from items where biblioitemnumber=?"
-    );
-    $sth->execute($biblioitemnumber);
-    while (@row=$sth->fetchrow_array())
-    {
-    	$ccode=$row[0];
-    }
-    my $formattedcode=$budgetcode."_".$ccode;
-	return $formattedcode;
-}
-
-=head2 GetLSQCollectionCode
-
-Returns the collection code for the LSQ identifier
-
-=cut
-
-sub GetLSQCollectionCode {
-	my ($biblioitemnumber)=@_;
-	my $dbh = C4::Context->dbh;
-    my $sth;
-    my $ccode;
-    my @row;
-    $sth = $dbh->prepare(
-    "select ccode from items where biblioitemnumber=?"
-    );
-    $sth->execute($biblioitemnumber);
-    while (@row=$sth->fetchrow_array())
-    {
-    	$ccode=$row[0];
-    }
-    return $ccode;
 }
 
 =head2 SendEDIOrder
@@ -898,31 +849,6 @@ sub CheckOrderItemExists {
     return $biblionumber,$bibitemnumber;
 }
 
-=head2 GetCallNumber
-
-Returns aqorders_items.itemcallnumber for a given biblioitemnumber
-
-=cut
-
-sub GetCallNumber {
-	my $biblioitemnumber=shift;
-	my $ordernumber=shift;
-	my $dbh = C4::Context->dbh;
-	my $sth;
-	my @rows;
-	my $callnumber;
-	$sth = $dbh->prepare(
-	"select items.itemcallnumber from items inner join aqorders_items on 
-	aqorders_items.itemnumber=items.itemnumber 
-	where items.biblioitemnumber=? and aqorders_items.ordernumber=?");
-	$sth->execute($biblioitemnumber,$ordernumber);
-	while (@rows=$sth->fetchrow_array())
-	{
-		$callnumber=$rows[0];
-	}
-	return $callnumber;
-}
-
 sub string35escape {
 	my $string=shift;
 	my $section;
@@ -948,6 +874,38 @@ sub string35escape {
 	return $colon_string;
 }
 
+sub GetOrderItemInfo {
+	my $ordernumber=shift;
+	my $dbh = C4::Context->dbh;
+	my $sth;
+	my @rows;
+	my $homebranch;
+	my $callnumber;
+	my $itype;
+	my $ccode;
+	my $fund;
+	$sth = $dbh->prepare(
+	"select items.homebranch, items.itemcallnumber, items.itype, items.ccode from items 
+	inner join aqorders_items on aqorders_items.itemnumber=items.itemnumber 
+	where aqorders_items.ordernumber=?");
+	$sth->execute($ordernumber);
+	while (@rows=$sth->fetchrow_array())
+	{
+		$homebranch=$rows[0];
+		$callnumber=$rows[1];
+		$itype=$rows[2];
+		$ccode=$rows[3];
+	}
+	$sth = $dbh->prepare(
+	"select aqbudgets.budget_code from aqbudgets inner join aqorders on 
+	aqorders.budget_id=aqbudgets.budget_id where aqorders.ordernumber=?");
+	$sth->execute($ordernumber);
+	while (@rows=$sth->fetchrow_array())
+	{
+		$fund=$rows[0];
+	}
+	return $homebranch,$callnumber,$itype,$ccode,$fund;
+}
 
 1;
 
