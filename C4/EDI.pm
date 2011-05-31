@@ -52,8 +52,6 @@ our @EXPORT  = qw(
   CheckOrderItemExists
   GetBranchCode
   string35escape
-  GetLSQCollectionCode
-  GetCallNumber
   GetOrderItemInfo
 );
 
@@ -381,8 +379,6 @@ sub CreateEDIOrder {
 		my $ordernumber=escape($item->{ordernumber});
 		#my $branchcode=escape(GetBranchCode($item->{biblioitemnumber}));
 		#my $fund=escape($item->{budget_code});
-		#my $lsqccode=escape(GetLSQCollectionCode($item->{biblioitemnumber}));
-		#my $callnumber=GetCallNumber($item->{'biblionumber'},$item->{'ordernumber'});
 		
 		my ($branchcode,$callnumber,$itype,$lsqccode,$fund) = GetOrderItemInfo($item->{'ordernumber'});
 		
@@ -509,30 +505,6 @@ sub GetBranchCode {
     	$branchcode=$row[0];
     }
 	return $branchcode;
-}
-
-
-=head2 GetLSQCollectionCode
-
-Returns the collection code for the LSQ identifier
-
-=cut
-
-sub GetLSQCollectionCode {
-	my ($biblioitemnumber)=@_;
-	my $dbh = C4::Context->dbh;
-    my $sth;
-    my $ccode;
-    my @row;
-    $sth = $dbh->prepare(
-    "select ccode from items where biblioitemnumber=?"
-    );
-    $sth->execute($biblioitemnumber);
-    while (@row=$sth->fetchrow_array())
-    {
-    	$ccode=$row[0];
-    }
-    return $ccode;
 }
 
 =head2 SendEDIOrder
@@ -873,31 +845,6 @@ sub CheckOrderItemExists {
     	$bibitemnumber=$matches[1];
     }
     return $biblionumber,$bibitemnumber;
-}
-
-=head2 GetCallNumber
-
-Returns aqorders_items.itemcallnumber for a given biblioitemnumber
-
-=cut
-
-sub GetCallNumber {
-	my $biblioitemnumber=shift;
-	my $ordernumber=shift;
-	my $dbh = C4::Context->dbh;
-	my $sth;
-	my @rows;
-	my $callnumber;
-	$sth = $dbh->prepare(
-	"select items.itemcallnumber from items inner join aqorders_items on 
-	aqorders_items.itemnumber=items.itemnumber 
-	where items.biblioitemnumber=? and aqorders_items.ordernumber=?");
-	$sth->execute($biblioitemnumber,$ordernumber);
-	while (@rows=$sth->fetchrow_array())
-	{
-		$callnumber=$rows[0];
-	}
-	return $callnumber;
 }
 
 sub string35escape {
