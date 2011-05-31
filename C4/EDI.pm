@@ -54,6 +54,7 @@ our @EXPORT  = qw(
   string35escape
   GetLSQCollectionCode
   GetCallNumber
+  GetOrderItemInfo
 );
 
 =head1 NAME
@@ -378,10 +379,13 @@ sub CreateEDIOrder {
 		my $copyrightdate=escape($item->{copyrightdate});
 		my $quantity=escape($item->{quantity});
 		my $ordernumber=escape($item->{ordernumber});
-		my $branchcode=escape(GetBranchCode($item->{biblioitemnumber}));
-		my $fund=escape($item->{budget_code});
-		my $lsqccode=escape(GetLSQCollectionCode($item->{biblioitemnumber}));
-		my $callnumber=GetCallNumber($item->{'biblionumber'},$item->{'ordernumber'});
+		#my $branchcode=escape(GetBranchCode($item->{biblioitemnumber}));
+		#my $fund=escape($item->{budget_code});
+		#my $lsqccode=escape(GetLSQCollectionCode($item->{biblioitemnumber}));
+		#my $callnumber=GetCallNumber($item->{'biblionumber'},$item->{'ordernumber'});
+		
+		my ($branchcode,$callnumber,$itype,$lsqccode,$fund) = GetOrderItemInfo($item->{'ordernumber'});
+		
 		print EDIORDER "LIN+$linecount++".$isbn->isbn.":EN'";											# line number, isbn
 		print EDIORDER "PIA+5+".$isbn->isbn.":IB'";														# isbn as main product identification
 		print EDIORDER "IMD+L+050+:::$title'";															# title
@@ -399,7 +403,7 @@ sub CreateEDIOrder {
 		{
 			print EDIORDER "$callnumber:LCL+";																# shelfmark
 		}
-		print EDIORDER $item->{itemtype}.":LST+$lsqccode:LSQ'";											# stock category, sequence
+		print EDIORDER $itype.":LST+$lsqccode:LSQ'";													# stock category, sequence
 		###REQUEST ORDERS TO REVISIT
 		#if ($message_type ne 'QUOTE')
 		#{
@@ -922,6 +926,38 @@ sub string35escape {
 	return $colon_string;
 }
 
+sub GetOrderItemInfo {
+	my $ordernumber=shift;
+	my $dbh = C4::Context->dbh;
+	my $sth;
+	my @rows;
+	my $homebranch;
+	my $callnumber;
+	my $itype;
+	my $ccode;
+	my $fund;
+	$sth = $dbh->prepare(
+	"select items.homebranch, items.itemcallnumber, items.itype, items.ccode from items 
+	inner join aqorders_items on aqorders_items.itemnumber=items.itemnumber 
+	where aqorders_items.ordernumber=?");
+	$sth->execute($ordernumber);
+	while (@rows=$sth->fetchrow_array())
+	{
+		$homebranch=$rows[0];
+		$callnumber=$rows[1];
+		$itype=$rows[2];
+		$ccode=$rows[3];
+	}
+	$sth = $dbh->prepare(
+	"select aqbudgets.budget_code from aqbudgets inner join aqorders on 
+	aqorders.budget_id=aqbudgets.budget_id where aqorders.ordernumber=?");
+	$sth->execute($ordernumber);
+	while (@rows=$sth->fetchrow_array())
+	{
+		$fund=$rows[0];
+	}
+	return $homebranch,$callnumber,$itype,$ccode,$fund;
+}
 
 1;
 
