@@ -110,7 +110,9 @@
                         <li><a href="[% script_name %]?op=close&amp;basketno=[% basketno %]&amp;booksellerid=[% booksellerid %]" class="button" id="closebutton">Close this basket</a></li>
                     [% END %]
                         <li><a href="[% script_name %]?op=export&amp;basketno=[% basketno %]&amp;booksellerid=[% booksellerid %]" class="button" id="exportbutton">Export this basket as CSV</a></li>
+                    [% IF ( ediaccount ) %]   
                         <li><a href="[% script_name %]?op=ediorder&amp;basketno=[% basketno %]&amp;booksellerid=[% booksellerid %]" class="button" id="ediorderbutton">EDIfact order</a></li>
+                    [% END %]
                     </ul>
 
                 </div>
