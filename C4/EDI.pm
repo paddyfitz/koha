@@ -378,8 +378,13 @@ sub CreateEDIOrder {
 		my $copyrightdate=escape($item->{copyrightdate});
 		my $quantity=escape($item->{quantity});
 		my $ordernumber=escape($item->{ordernumber});
-		#my $branchcode=escape(GetBranchCode($item->{biblioitemnumber}));
-		#my $fund=escape($item->{budget_code});
+		my $notes;
+		if ($item->{notes})
+		{
+			$notes=$item->{notes};
+			$notes =~ s/[\r\n]+//g;
+			$notes=string35escape(escape($notes));
+		}
 		
 		my ($branchcode,$callnumber,$itype,$lsqccode,$fund) = GetOrderItemInfo($item->{'ordernumber'});
 		
@@ -401,6 +406,10 @@ sub CreateEDIOrder {
 			print EDIORDER "$callnumber:LCL+";																# shelfmark
 		}
 		print EDIORDER $itype.":LST+$lsqccode:LSQ'";													# stock category, sequence
+		if ($notes)
+		{
+			print EDIORDER "FTX+LIN+++:::$notes'";
+		}
 		###REQUEST ORDERS TO REVISIT
 		#if ($message_type ne 'QUOTE')
 		#{
