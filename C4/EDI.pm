@@ -51,10 +51,9 @@ our @EXPORT  = qw(
   GetBudgetID
   CheckOrderItemExists
   GetBranchCode
-  GetCollectionCode
   string35escape
-  GetLSQCollectionCode
-  GetCallNumber
+  GetOrderItemInfo
+  CheckVendorFTPAccountExists
 );
 
 =head1 NAME
@@ -254,7 +253,7 @@ sub GetEDIfactMessageList {
     my $dbh = C4::Context->dbh;
     my $sth;
     $sth = $dbh->prepare(
-    "select edifact_messages.key, edifact_messages.message_type, DATE_FORMAT(edifact_messages.date_sent,'%d/%m/%Y') as date_sent, aqbooksellers.id as providerid, aqbooksellers.name as providername, edifact_messages.status, edifact_messages.basketno from edifact_messages inner join aqbooksellers on edifact_messages.provider = aqbooksellers.id order by edifact_messages.date_sent desc"
+    "select edifact_messages.key, edifact_messages.message_type, DATE_FORMAT(edifact_messages.date_sent,'%d/%m/%Y') as date_sent, aqbooksellers.id as providerid, aqbooksellers.name as providername, edifact_messages.status, edifact_messages.basketno from edifact_messages inner join aqbooksellers on edifact_messages.provider = aqbooksellers.id order by edifact_messages.date_sent desc, edifact_messages.key desc"
     );
     $sth->execute();
     my $messagelist = $sth->fetchall_arrayref( {} );
@@ -379,10 +378,10 @@ sub CreateEDIOrder {
 		my $copyrightdate=escape($item->{copyrightdate});
 		my $quantity=escape($item->{quantity});
 		my $ordernumber=escape($item->{ordernumber});
-		my $branchcode=escape(GetBranchCode($item->{biblioitemnumber}));
-		my $halton_collection=escape(GetCollectionCode($item->{biblioitemnumber},$item->{budget_code}));
-		my $lsqccode=escape(GetLSQCollectionCode($item->{biblioitemnumber}));
-		my $callnumber=GetCallNumber($item->{'biblionumber'},$item->{'ordernumber'});
+		
+		my ($branchcode,$callnumber,$itype,$lsqccode,$fund) = GetOrderItemInfo($item->{'ordernumber'});
+		
+		my $halton_collection=escape($fund."_".$lsqccode);
 		print EDIORDER "LIN+$linecount++".$isbn->isbn.":EN'";											# line number, isbn
 		print EDIORDER "PIA+5+".$isbn->isbn.":IB'";														# isbn as main product identification
 		print EDIORDER "IMD+L+050+:::$title'";															# title
@@ -400,7 +399,7 @@ sub CreateEDIOrder {
 		{
 			print EDIORDER "$callnumber:LCL+";																# shelfmark
 		}
-		print EDIORDER $item->{itemtype}.":LST+$lsqccode:LSQ'";											# stock category
+		print EDIORDER $itype.":LST+$lsqccode:LSQ'";													# stock category, sequence
 		###REQUEST ORDERS TO REVISIT
 		#if ($message_type ne 'QUOTE')
 		#{
@@ -506,53 +505,6 @@ sub GetBranchCode {
     	$branchcode=$row[0];
     }
 	return $branchcode;
-}
-
-=head2 GetCollectionCode
-
-Halton specific - Return budgetcode/collectioncode combination to use as sequence/collection code when formatting EDIfact order message
-
-=cut
-
-sub GetCollectionCode {
-	my ($biblioitemnumber,$budgetcode)=@_;
-	my $dbh = C4::Context->dbh;
-    my $sth;
-    my $ccode;
-    my @row;
-    $sth = $dbh->prepare(
-    "select ccode from items where biblioitemnumber=?"
-    );
-    $sth->execute($biblioitemnumber);
-    while (@row=$sth->fetchrow_array())
-    {
-    	$ccode=$row[0];
-    }
-    my $formattedcode=$budgetcode."_".$ccode;
-	return $formattedcode;
-}
-
-=head2 GetLSQCollectionCode
-
-Returns the collection code for the LSQ identifier
-
-=cut
-
-sub GetLSQCollectionCode {
-	my ($biblioitemnumber)=@_;
-	my $dbh = C4::Context->dbh;
-    my $sth;
-    my $ccode;
-    my @row;
-    $sth = $dbh->prepare(
-    "select ccode from items where biblioitemnumber=?"
-    );
-    $sth->execute($biblioitemnumber);
-    while (@row=$sth->fetchrow_array())
-    {
-    	$ccode=$row[0];
-    }
-    return $ccode;
 }
 
 =head2 SendEDIOrder
@@ -704,9 +656,8 @@ sub ParseEDIQuote {
 	my $messages=$edi->messages();
 	my $msg_cnt=@{$messages};
 	print "messages: $msg_cnt\n";
-	#print "type: ".$messages->[0]->type()."\n";
-	#print "function: ".$messages->[0]->function()."\n";
-	#print "date: ".$messages->[0]->date_of_message()."\n";
+	print "type: ".$messages->[0]->type()."\n";
+	print "date: ".$messages->[0]->date_of_message()."\n";
 	
 	# create default edifact_messages entry
 	my $messagekey=LogEDIFactQuote($booksellerid,'Failed',0,0);
@@ -725,15 +676,32 @@ sub ParseEDIQuote {
 	
 		foreach my $item (@{$items})
 		{
+			for (my $i=0; $i<$item->{quantity}; $i++)
+			{
+				ParseEDIQuoteItem($item,$i,$booksellerid,$basketno);
+			}
+		}
+	}
+	# update edifact_messages entry
+	$messagekey=LogEDIFactQuote($booksellerid,'Received',$basketno,$messagekey);
+	return 1;
+	
+	sub ParseEDIQuoteItem {
+			my ($item,$gir,$booksellerid)=@_;
 			my $author=$item->author_surname.", ".$item->author_firstname;
 			
 			my $ecost=GetDiscountedPrice($booksellerid,$item->{price}->{price});
-	        #my $budgetstring='WIDAFI_T';
-	        my $budgetstring=$item->{related_numbers}[2][0];
-    	    my @budgetccode=split(/_/,$budgetstring);
-	        my $budget_id=GetBudgetID($budgetccode[0]);
-	        my $ccode=$budgetccode[1];
-	        #Halton default for unmatched budget code
+	        
+	        my $llo=$item->{related_numbers}->[$gir]->{LLO}->[0];
+			my $lfn=$item->{related_numbers}->[$gir]->{LFN}->[0];
+			my $lsq=$item->{related_numbers}->[$gir]->{LSQ}->[0];
+			
+			#Halton specific
+			my @budgetccode=split(/_/,$lfn);
+			my $budget_id=GetBudgetID($budgetccode[0]);
+			my $ccode=$budgetccode[1];
+	        
+	        #Uncomment section below to define a default budget_id if there is no match
 	        if (!defined $budget_id)
 	        {
 	        	$budget_id=28;
@@ -754,8 +722,8 @@ sub ParseEDIQuote {
 	            "items.cn_source"			  => "ddc",
 	            "items.notforloan"			  => "-1",
 	            "items.ccode"				  => $ccode,
-	            "items.homebranch"			  => $item->{related_numbers}[1][0],
-	            "items.holdingbranch"		  => $item->{related_numbers}[1][0],
+	            "items.homebranch"			  => $llo,
+	            "items.holdingbranch"		  => $llo,
 	            "items.booksellerid"		  => $booksellerid,
 	            "items.price"				  => $item->{price}->{price},
 	            "items.replacementprice"	  => $item->{price}->{price},
@@ -763,7 +731,7 @@ sub ParseEDIQuote {
 	            "items.itype"				  => uc($item->item_format),
 	            "items.cn_sort"				  => "",
 	        });
-        
+	        
 	        #check if item already exists in catalogue
 			my $biblionumber;
 			my $bibitemnumber;
@@ -782,7 +750,7 @@ sub ParseEDIQuote {
 	        	uncertainprice			=> 0,
 	        	biblionumber			=> $biblionumber,
 	        	title					=> $item->title,
-	        	quantity				=> $item->{quantity},
+	        	quantity				=> 1,
 	        	biblioitemnumber		=> $bibitemnumber,
 	        	rrp						=> $item->{price}->{price},
 	        	ecost					=> $ecost,
@@ -790,7 +758,7 @@ sub ParseEDIQuote {
 	 	       	sort2					=> "",
 	        	booksellerinvoicenumber	=> $item->{item_reference}[0][1],
 	        	listprice				=> $item->{price}->{price},
-	        	branchcode				=> $item->{related_numbers}[1][0],
+	        	branchcode				=> $llo,
 	        	budget_id				=> $budget_id,
 	        );
         
@@ -804,12 +772,8 @@ sub ParseEDIQuote {
 		    	my $itemnumber;
 		    	($biblionumber,$bibitemnumber,$itemnumber) = AddItemFromMarc($record,$biblionumber);
 	            NewOrderItem($itemnumber, $ordernumber);
-		    }
-		}
+		    }		
 	}
-	# update edifact_messages entry
-	$messagekey=LogEDIFactQuote($booksellerid,'Received',$basketno,$messagekey);
-	return 1;
 }
 
 =head2 GetDiscountedPrice
@@ -886,31 +850,6 @@ sub CheckOrderItemExists {
     return $biblionumber,$bibitemnumber;
 }
 
-=head2 GetCallNumber
-
-Returns aqorders_items.itemcallnumber for a given biblioitemnumber
-
-=cut
-
-sub GetCallNumber {
-	my $biblioitemnumber=shift;
-	my $ordernumber=shift;
-	my $dbh = C4::Context->dbh;
-	my $sth;
-	my @rows;
-	my $callnumber;
-	$sth = $dbh->prepare(
-	"select items.itemcallnumber from items inner join aqorders_items on 
-	aqorders_items.itemnumber=items.itemnumber 
-	where items.biblioitemnumber=? and aqorders_items.ordernumber=?");
-	$sth->execute($biblioitemnumber,$ordernumber);
-	while (@rows=$sth->fetchrow_array())
-	{
-		$callnumber=$rows[0];
-	}
-	return $callnumber;
-}
-
 sub string35escape {
 	my $string=shift;
 	my $section;
@@ -936,6 +875,61 @@ sub string35escape {
 	return $colon_string;
 }
 
+sub GetOrderItemInfo {
+	my $ordernumber=shift;
+	my $dbh = C4::Context->dbh;
+	my $sth;
+	my @rows;
+	my $homebranch;
+	my $callnumber;
+	my $itype;
+	my $ccode;
+	my $fund;
+	$sth = $dbh->prepare(
+	"select items.homebranch, items.itemcallnumber, items.itype, items.ccode from items 
+	inner join aqorders_items on aqorders_items.itemnumber=items.itemnumber 
+	where aqorders_items.ordernumber=?");
+	$sth->execute($ordernumber);
+	while (@rows=$sth->fetchrow_array())
+	{
+		$homebranch=$rows[0];
+		$callnumber=$rows[1];
+		$itype=$rows[2];
+		$ccode=$rows[3];
+	}
+	$sth = $dbh->prepare(
+	"select aqbudgets.budget_code from aqbudgets inner join aqorders on 
+	aqorders.budget_id=aqbudgets.budget_id where aqorders.ordernumber=?");
+	$sth->execute($ordernumber);
+	while (@rows=$sth->fetchrow_array())
+	{
+		$fund=$rows[0];
+	}
+	return $homebranch,$callnumber,$itype,$ccode,$fund;
+}
+
+sub CheckVendorFTPAccountExists {
+	my $booksellerid=shift;
+	my $dbh = C4::Context->dbh;
+	my $sth;
+	my @rows;
+	my $cnt;
+	$sth = $dbh->prepare(
+	"select count(id) from vendor_edi_accounts where provider=?");
+	$sth->execute($booksellerid);
+	while (@rows=$sth->fetchrow_array())
+	{
+		$cnt=$rows[0];
+	}
+	if ($cnt != 0)
+	{
+		return 1;
+	}
+	else
+	{
+		return undef;
+	}
+}
 
 1;
 

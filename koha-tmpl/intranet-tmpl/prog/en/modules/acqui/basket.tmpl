@@ -103,7 +103,9 @@
                         <li><a href="<!-- TMPL_VAR name="script_name" -->?op=close&amp;basketno=<!-- TMPL_VAR name="basketno" -->&amp;booksellerid=<!-- TMPL_VAR name="booksellerid" -->" class="button" id="closebutton">Close this basket</a></li>
                     <!-- /TMPL_IF -->
                         <li><a href="<!-- TMPL_VAR name="script_name" -->?op=export&amp;basketno=<!-- TMPL_VAR name="basketno" -->&amp;booksellerid=<!-- TMPL_VAR name="booksellerid" -->" class="button" id="exportbutton">Export this basket as CSV</a></li>
+                    <!-- TMPL_IF name="ediaccount" -->    
                         <li><a href="<!-- TMPL_VAR name="script_name" -->?op=ediorder&amp;basketno=<!-- TMPL_VAR name="basketno" -->&amp;booksellerid=<!-- TMPL_VAR name="booksellerid" -->" class="button" id="ediorderbutton">EDIfact order</a></li>
+                    <!-- /TMPL_IF -->
                     </ul>
 
                 </div>
