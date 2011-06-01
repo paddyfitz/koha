@@ -894,7 +894,7 @@ sub GetOrderItemInfo {
 	my $ccode;
 	my $fund;
 	$sth = $dbh->prepare(
-	"select items.homebranch, items.itemcallnumber, items.itype, items.ccode from items 
+	"select items.homebranch, items.itemcallnumber, items.itype, items.location from items 
 	inner join aqorders_items on aqorders_items.itemnumber=items.itemnumber 
 	where aqorders_items.ordernumber=?");
 	$sth->execute($ordernumber);
