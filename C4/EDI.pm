@@ -375,7 +375,7 @@ sub CreateEDIOrder {
 		{
 			$isbn=$isbn->as_isbn13;
 		}
-		my $copyrightdate=escape($item->{copyrightdate});
+		my $copyrightdate=escape($item->{publicationyear});
 		my $quantity=escape($item->{quantity});
 		my $ordernumber=escape($item->{ordernumber});
 		my $notes;
