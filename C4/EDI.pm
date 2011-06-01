@@ -344,7 +344,7 @@ sub CreateEDIOrder {
 	open(EDIORDER,">$ENV{'PERL5LIB'}/misc/edi_files/$filename");
 	
 	print EDIORDER "UNA:+.? '";																							# print opening header
-	print EDIORDER "UNB+UNOC:2+5013546121974:14+$san:31B+$shortyear$date:$hourmin+".$exchange."++ORDERS+++EANCOM'";		# print identifying EANs/SANs, date/time, exchange reference number
+	print EDIORDER "UNB+UNOC:2+".C4::Context->preference("EDIfactEAN").":14+$san:31B+$shortyear$date:$hourmin+".$exchange."++ORDERS+++EANCOM'";		# print identifying EANs/SANs, date/time, exchange reference number
 	print EDIORDER "UNH+".$ref."+ORDERS:D:96A:UN:EAN008'";																# print message reference number
 	if ($message_type eq 'QUOTE')
 	{
@@ -355,7 +355,7 @@ sub CreateEDIOrder {
 		print EDIORDER "BGM+220+".$basketno."+9'";																		# print order number
 	}
 	print EDIORDER "DTM+137:$longyear$date:102'";																		# print date of message
-	print EDIORDER "NAD+BY+5013546121974::9'";																			# print buyer EAN  
+	print EDIORDER "NAD+BY+".C4::Context->preference("EDIfactEAN")."::9'";																			# print buyer EAN  
 	print EDIORDER "NAD+SU+".$san."::31B'";																				# print vendor SAN
 	print EDIORDER "NAD+SU+".$booksellerid."::92'";																		# print internal ID 
 

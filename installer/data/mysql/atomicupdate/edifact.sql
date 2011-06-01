@@ -22,3 +22,6 @@ CREATE TABLE IF NOT EXISTS `edifact_messages` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 insert into permissions (module_bit, code, description) values (13, 'edi_manage', 'Manage EDIFACT transmissions');
+
+INSERT INTO systempreferences (variable,value,options,explanation,type) VALUES 
+('EDIfactEAN', '56781234', '', 'EAN identifier for the library used in EDIfact messages', 'Textarea');
