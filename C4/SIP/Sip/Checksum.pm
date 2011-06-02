@@ -10,7 +10,7 @@ our $debug = 0;
 
 sub checksum {
     my $pkt = shift;
-    return (-unpack('%16C*', $pkt) & 0xFFFF);
+    return (-unpack('%16c*', $pkt) & 0xFFFF);
 }
 
 sub verify_cksum {
