@@ -29,6 +29,7 @@
 <script type="text/javascript" src="[% themelang %]/lib/jquery/jquery.js"></script>
 <script type="text/javascript" src="[% themelang %]/lib/jquery/jquery-ui.js"></script>
 <script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.hoverIntent.minified.js"></script>
+<script type="text/javascript" src="[% themelang %]/lib/jquery/plugins/jquery.iframe-auto-height.plugin.js"></script>
 <script type="text/javascript" language="javascript" src="[% themelang %]/js/script.js"></script>
 [% IF ( OPACAmazonCoverImages ) %]
 <script type="text/javascript" language="javascript">//<![CDATA[
