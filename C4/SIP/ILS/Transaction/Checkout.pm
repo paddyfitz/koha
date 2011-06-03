@@ -123,8 +123,8 @@ sub do_checkout {
 	$self->{item}->due_date($due);
 	$self->ok(1);
     my ($charge, undef) = GetIssuingCharges($itemnumber, $self->{patron}->{borrowernumber});
-    if ($charge) {
-        #$self->{sip_fee_type} = $charge;
+    if ($charge > 0.0) {
+        $self->{sip_fee_type} = '06';
         $self->{fee_amount} = sprintf '%.2f',$charge;
     }
 	return $self;

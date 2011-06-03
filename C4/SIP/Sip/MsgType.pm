@@ -562,13 +562,13 @@ sub handle_checkout {
 	    $resp .= maybe_add(FID_ITEM_PROPS, $item->sip_item_properties);
 
 	    # Financials
-	    if ($status->fee_amount) {
-		$resp .= add_field(FID_FEE_AMT, $status->fee_amount);
-		$resp .= maybe_add(FID_CURRENCY, $status->sip_currency);
-		$resp .= maybe_add(FID_FEE_TYPE, $status->sip_fee_type);
-		$resp .= maybe_add(FID_TRANSACTION_ID,
-				   $status->transaction_id);
-	    }
+        if ($status->fee_amount) {
+            $resp .= add_field(FID_FEE_AMT, $status->fee_amount);
+            $resp .= maybe_add(FID_CURRENCY, $status->sip_currency);
+            $resp .= maybe_add(FID_FEE_TYPE, $status->sip_fee_type);
+            $resp .= maybe_add(FID_TRANSACTION_ID,
+                $status->transaction_id);
+        }
 	}
 
     } else {
@@ -623,6 +623,7 @@ sub handle_checkin {
 	$cancel      = $fields->{(FID_CANCEL)};
 
     $ils->check_inst_id($inst_id, "handle_checkin");
+    $current_loc ||= $inst_id;
 
     if ($no_block eq 'Y') {
         # Off-line transactions, ick.
@@ -655,6 +656,11 @@ sub handle_checkin {
                 $status->alert_type('01');  # hold at this library
             }
         } elsif ($item->destination_loc and $item->destination_loc ne $current_loc) {
+            $status->alert(1);
+            $status->alert_type('04');  # no hold, just send it
+        }
+    # 3M dont send a current_loc
+	elsif ( $item && $item->permanent_location ne  $inst_id ) {
             $status->alert(1);
             $status->alert_type('04');  # no hold, just send it
         }

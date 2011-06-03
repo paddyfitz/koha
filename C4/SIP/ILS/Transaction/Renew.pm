@@ -41,8 +41,8 @@ sub do_renew_for ($$) {
 		$self->{due} = $datedue;
         $self->renewal_ok(1);
         my ($charge, undef) = GetIssuingCharges($self->{item}->{itemnumber}, $self->{patron}->{borrowernumber});
-        if ($charge) {
-            #$self->{sip_fee_type} = $charge;
+        if ($charge > 0.0) {
+            $self->{sip_fee_type} = '06';
             $self->{fee_amount} = sprintf '%.2f',$charge;
         }
 	} else {
