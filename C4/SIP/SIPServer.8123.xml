@@ -8,7 +8,7 @@
   For OpenSolaris, add: syslog_logsock=stream
 -->
   <server-params
-    min_servers='1'
+    min_servers='2'
     min_spare_servers='0' 
     log_file='Sys::Syslog'
     syslog_ident='sip_8123'
