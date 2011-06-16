@@ -660,6 +660,7 @@ sub ParseEDIQuote {
 	my ($filename,$booksellerid) = @_;
 	my $ordernumber;
 	my $basketno;
+	my $ParseEDIQuoteItem;
 	print "file: $filename\n";
 	my $edi=Edifact::Interchange->new;
 	$edi->parse_file("$ENV{'PERL5LIB'}/misc/edi_files/$filename");
@@ -678,25 +679,7 @@ sub ParseEDIQuote {
 		$basketno=NewBasket($booksellerid, 0, $filename, '', '', '');
 	}	
 	
-	my $count;
-	for ($count=0; $count<$msg_cnt; $count++)
-	{
-		my $items=$messages->[$count]->items();
-		my $ref_num=$messages->[$count]->{ref_num};
-	
-		foreach my $item (@{$items})
-		{
-			for (my $i=0; $i<$item->{quantity}; $i++)
-			{
-				ParseEDIQuoteItem($item,$i,$booksellerid,$basketno);
-			}
-		}
-	}
-	# update edifact_messages entry
-	$messagekey=LogEDIFactQuote($booksellerid,'Received',$basketno,$messagekey);
-	return 1;
-	
-	sub ParseEDIQuoteItem {
+	$ParseEDIQuoteItem = sub {
 			my ($item,$gir,$booksellerid)=@_;
 			my $author=$item->author_surname.", ".$item->author_firstname;
 			
@@ -781,7 +764,27 @@ sub ParseEDIQuote {
 		    	($biblionumber,$bibitemnumber,$itemnumber) = AddItemFromMarc($record,$biblionumber);
 	            NewOrderItem($itemnumber, $ordernumber);
 		    }		
+	};
+
+	
+	my $count;
+	for ($count=0; $count<$msg_cnt; $count++)
+	{
+		my $items=$messages->[$count]->items();
+		my $ref_num=$messages->[$count]->{ref_num};
+	
+		foreach my $item (@{$items})
+		{
+			for (my $i=0; $i<$item->{quantity}; $i++)
+			{
+				&$ParseEDIQuoteItem($item,$i,$booksellerid,$basketno);
+			}
+		}
 	}
+	# update edifact_messages entry
+	$messagekey=LogEDIFactQuote($booksellerid,'Received',$basketno,$messagekey);
+	return 1;
+	
 }
 
 =head2 GetDiscountedPrice
