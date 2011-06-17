@@ -316,6 +316,13 @@ YAHOO.util.Event.onContentReady("searchheader", function () {
             <p>
                 No results match your search [% IF ( query_desc ) %]for <span style="font-weight: bold;">'[% query_desc |html %]'</span>[% END %][% IF ( limit_desc ) %]&nbsp;with limit(s): <span style="font-weight: bold;">'[% limit_desc %]'</span>[% END %][% IF ( LibraryName ) %] in [% LibraryName %] Catalog[% END %].
             </p>
+            [% IF ( isbnfail ) %]
+            <p>
+            [% IF ( isbnnotvalid ) %]An ISBN specified in your search was not valid[% END %]
+            [% IF ( isbn10 ) %]<a href="/cgi-bin/koha/catalogue/search.pl?idx=nb&q=[% isbn10 %]&sort_by=relevance">Click here</a> to search for the 10 digit version of the ISBN ([% isbn10 %])[% END %]
+            [% IF ( isbn13 ) %]<a href="/cgi-bin/koha/catalogue/search.pl?idx=nb&q=<!-- TMPL_VAR NAME="isbn13" -->&sort_by=relevance">Click here</a> to search for the 13 digit version of the ISBN ([$ isbn13 %])[% END %]
+            </p>
+            [% END %]	
         [% ELSE %]
             <p>You did not specify any search criteria.</p>
         [% END %]
