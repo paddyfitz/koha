@@ -252,6 +252,13 @@ function GetZ3950Terms(){
             <p>
                 No results match your search <!-- TMPL_IF NAME="query_desc" -->for <span style="font-weight: bold;">'<!-- TMPL_VAR NAME="query_desc" ESCAPE="HTML"-->'</span><!-- /TMPL_IF --><!-- TMPL_IF NAME="limit_desc" -->&nbsp;with limit(s): <span style="font-weight: bold;">'<!-- TMPL_VAR NAME="limit_desc" -->'</span><!-- /TMPL_IF --><!-- TMPL_IF NAME="LibraryName" --> in <!-- TMPL_VAR NAME="LibraryName" --> Catalog<!-- /TMPL_IF -->.
             </p>
+            <!-- TMPL_IF NAME="isbnfail" -->
+            <p>
+            <!-- TMPL_IF NAME="isbnnotvalid" -->An ISBN specified in your search was not valid<!-- /TMPL_IF -->
+            <!-- TMPL_IF NAME="isbn10" --><a href="/cgi-bin/koha/catalogue/search.pl?idx=nb&q=<!-- TMPL_VAR NAME="isbn10" -->&sort_by=relevance">Click here</a> to search for the 10 digit version of the ISBN (<!-- TMPL_VAR NAME="isbn10" -->)<!-- /TMPL_IF -->
+            <!-- TMPL_IF NAME="isbn13" --><a href="/cgi-bin/koha/catalogue/search.pl?idx=nb&q=<!-- TMPL_VAR NAME="isbn13" -->&sort_by=relevance">Click here</a> to search for the 13 digit version of the ISBN (<!-- TMPL_VAR NAME="isbn13" -->)<!-- /TMPL_IF -->
+            </p>
+            <!-- /TMPL_IF -->
         <!-- TMPL_ELSE -->
             <p>You did not specify any search criteria.</p>
         <!-- /TMPL_IF -->
