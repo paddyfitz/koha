@@ -676,11 +676,9 @@ for ($i;$i<$count;$i++)
 		 my $isbn=$fail_params->[$i]->{'value'};
 		 my $isbnlen=length($isbn);
 		 $isbn=Business::ISBN->new($isbn);
-#		 print $isbn;
 		 if (!$isbn)
 		 {
 		 	$template->param( isbnnotvalid => 1);
-#		 	print "isbn wiped";
 		 }
 		 else
 		 {
@@ -688,7 +686,6 @@ for ($i;$i<$count;$i++)
 			 if (!$valid)
 			 {
 			 	$template->param( isbnnotvalid => 1);
-#			 	print "isbn not valid";
 			 }
 			 else
 			 {
@@ -698,8 +695,6 @@ for ($i;$i<$count;$i++)
 			 		$convisbn=$convisbn->as_string;
 			 		$convisbn=~ s/-//g;
 			 		$template->param( isbn13 => $convisbn);
-#			 		print "found isbn10";
-#			 		print $convisbn;
 			 	}
 			 	else
 			 	{
@@ -707,8 +702,6 @@ for ($i;$i<$count;$i++)
 			 		$convisbn=$convisbn->as_string;
 			 		$convisbn=~ s/-//g;
 			 		$template->param( isbn10 => $convisbn);
-#			 		print "found isbn13";
-#			 		print $convisbn;
 			 	}
 			 }
 		 }
@@ -716,8 +709,3 @@ for ($i;$i<$count;$i++)
 }
 output_html_with_http_headers $cgi, $cookie, $template->output;
 
-
-
-
-#use Data::Dumper;
-#print Dumper($fail_params);
