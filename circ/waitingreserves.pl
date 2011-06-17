@@ -48,6 +48,8 @@ my $tbr            = $input->param('tbr') || '';
 my $all_branches   = $input->param('allbranches') || '';
 my $cancelall      = $input->param('cancelall');
 
+my $mode=$input->param('mode') || 'w';
+
 my $cancel;
 
 my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
@@ -60,6 +62,15 @@ my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
         debug           => 1,
     }
 );
+
+if ($mode eq "w")
+{
+	$template->param(mode_w	=> 1);
+}
+if ($mode eq "o")
+{
+	$template->param(mode_o	=> 1);
+}
 
 my $default = C4::Context->userenv->{'branch'};
 

@@ -70,11 +70,30 @@ $.tablesorter.addParser({
             [% END %]
         [% END %]
     [% ELSE %]
+        <script type="text/javascript" language="JavaScript">
+               function switch_view(mode)
+               {
+                       window.location="/cgi-bin/koha/circ/waitingreserves.pl?mode="+mode;
+               }
+        </script>
+        <div id="toolbar">
+               <span id="yui-gen9" class="yui-button yui-button-button">
+                       <span class="first-child">
+                               <button id="yui-gen9-button" type="button" onclick="switch_view('w');">[% reservecount %] Hold(s) waiting</button>
+                       </span>
+               </span>
+               <span id="yui-gen9" class="yui-button yui-button-button">
+                       <span class="first-child">
+                               <button id="yui-gen9-button" type="button" onclick="switch_view('o');">[% overcount %] Hold(s) over</button>
+                       </span>
+               </span>
+        </div>
         <div id="resultlist" class="toptabs">
-            <ul>
-                <li><a href="#holdswaiting">[% reservecount %] Hold(s) waiting</a></li>
-                <li><a href="#holdsover">[% overcount %] Hold(s) over</a></li>
-            </ul>
+#            <ul>
+#                <li><a href="#holdswaiting">[% reservecount %] Hold(s) waiting</a></li>
+#                <li><a href="#holdsover">[% overcount %] Hold(s) over</a></li>
+#            </ul>
+	[% IF ( mode_w ) %]
             <div id="holdswaiting">
             [% IF ( reserveloop ) %]
                <table id="holdst">
@@ -123,6 +142,8 @@ $.tablesorter.addParser({
             <div class="dialog message">No holds found.</div>
         [% END %]
         </div>
+	[% END %]
+	[% IF ( mode_o ) %]
         <div id="holdsover">
                 <p>Holds listed here have been awaiting pickup for more than [% ReservesMaxPickUpDelay %] days.</p>
                [% IF ( overloop ) %]
@@ -181,6 +202,7 @@ $.tablesorter.addParser({
             <div class="dialog message">No holds found.</div>
                 [% END %]
         </div>
+	[% END %]
         </div>
     [% END %]
 
