@@ -12,7 +12,7 @@ $.tablesorter.addParser({
 });
      $(document).ready(function() {
          $('#resultlist > ul').tabs();
-         $("th a").hide();
+         //$("th a").hide();
          $.tablesorter.defaults.widgets = ['zebra'];
          $("#holdst,#holdso").tablesorter({<!-- TMPL_IF EXPR="dateformat eq 'metric'" -->
             dateFormat: 'uk',<!-- /TMPL_IF -->
@@ -66,11 +66,30 @@ $.tablesorter.addParser({
             </div>
         <!-- /TMPL_IF -->
         <!-- TMPL_UNLESS NAME="message" -->
+        <script type="text/javascript" language="JavaScript">
+        	function switch_view(mode)
+        	{
+        		window.location="/cgi-bin/koha/circ/waitingreserves.pl?mode="+mode;
+        	}
+        </script>
+        <div id="toolbar">
+        	<span id="yui-gen9" class="yui-button yui-button-button">
+        		<span class="first-child">
+        			<button id="yui-gen9-button" type="button" onclick="switch_view('w');"><!-- TMPL_VAR NAME="reservecount" --> Hold(s) waiting</button>
+        		</span>
+        	</span>
+        	<span id="yui-gen9" class="yui-button yui-button-button">
+        		<span class="first-child">
+        			<button id="yui-gen9-button" type="button" onclick="switch_view('o');"><!-- TMPL_VAR NAME="overcount" --> Hold(s) over</button>
+        		</span>
+        	</span>
+        </div>        
         <div id="resultlist" class="toptabs">
-            <ul>
+            <!--<ul>
                 <li><a href="/cgi-bin/koha/circ/waitingreserves.pl#holdswaiting"><!-- TMPL_VAR NAME="reservecount" --> Hold(s) waiting</a></li>
                 <li><a href="/cgi-bin/koha/circ/waitingreserves.pl#holdsover"><!-- TMPL_VAR NAME="overcount" --> Hold(s) over</a></li>
-            </ul>
+            </ul>-->
+            <!-- TMPL_IF NAME="mode_w" -->
             <div id="holdswaiting">
             <!-- TMPL_IF NAME="reserveloop" -->
                <table id="holdst">
@@ -115,6 +134,8 @@ $.tablesorter.addParser({
             <div class="dialog message">No holds found.</div>
         <!-- /TMPL_IF -->
         </div>
+        <!-- /TMPL_IF -->
+        <!-- TMPL_IF NAME="mode_o" -->
         <div id="holdsover">
                 <!-- TMPL_IF NAME="overloop" -->
                <table id="holdso">
@@ -156,7 +177,7 @@ $.tablesorter.addParser({
         <!-- TMPL_ELSE -->
             <div class="dialog message">No holds found.</div>
                 <!-- /TMPL_IF -->
-        </div>
+        </div><!-- /TMPL_IF -->
         </div>
     <!-- /TMPL_UNLESS -->
 
