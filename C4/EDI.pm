@@ -388,6 +388,7 @@ sub CreateEDIOrder {
 		}
 		
 		my ($branchcode,$callnumber,$itype,$lsqccode,$fund) = GetOrderItemInfo($item->{'ordernumber'});
+		$callnumber=escape($callnumber);
 		
 		my $halton_collection=escape($fund."_".$lsqccode);
 		print EDIORDER "LIN+$linecount++".$isbn->isbn.":EN'";											# line number, isbn
