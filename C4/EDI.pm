@@ -375,11 +375,20 @@ sub CreateEDIOrder {
 		{
 			$isbn=$isbn->as_isbn13;
 		}
-		my $copyrightdate=escape($item->{copyrightdate});
+		my $copyrightdate=escape($item->{publicationyear});
 		my $quantity=escape($item->{quantity});
 		my $ordernumber=escape($item->{ordernumber});
+
+		my $notes;
+		if ($item->{notes})
+		{
+			$notes=$item->{notes};
+			$notes =~ s/[\r\n]+//g;
+			$notes=string35escape(escape($notes));
+		}
 		
 		my ($branchcode,$callnumber,$itype,$lsqccode,$fund) = GetOrderItemInfo($item->{'ordernumber'});
+		$callnumber=escape($callnumber);
 		
 		my $halton_collection=escape($fund."_".$lsqccode);
 		print EDIORDER "LIN+$linecount++".$isbn->isbn.":EN'";											# line number, isbn
@@ -400,6 +409,10 @@ sub CreateEDIOrder {
 			print EDIORDER "$callnumber:LCL+";																# shelfmark
 		}
 		print EDIORDER $itype.":LST+$lsqccode:LSQ'";													# stock category, sequence
+		if ($notes)
+		{
+			print EDIORDER "FTX+LIN+++:::$notes'";
+		}
 		###REQUEST ORDERS TO REVISIT
 		#if ($message_type ne 'QUOTE')
 		#{

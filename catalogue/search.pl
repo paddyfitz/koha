@@ -148,6 +148,7 @@ use C4::Koha;
 use C4::VirtualShelves qw(GetRecentShelves);
 use POSIX qw(ceil floor);
 use C4::Branch; # GetBranches
+use Business::ISBN;
 
 my $DisplayMultiPlaceHold = C4::Context->preference("DisplayMultiPlaceHold");
 # create a new CGI object
@@ -664,6 +665,47 @@ if (@barshelves) {
         $template->param( addbarshelvesloop => @barshelves);
 }
 
-
-
+my $fail_params=C4::Search::z3950_search_args($z3950par || $query_desc);
+my $count= scalar @{$fail_params};
+my $i;
+for ($i;$i<$count;$i++)
+{
+	if ($fail_params->[$i]->{'name'} eq "isbn")
+	{
+		 $template->param( isbnfail => 1);
+		 my $isbn=$fail_params->[$i]->{'value'};
+		 my $isbnlen=length($isbn);
+		 $isbn=Business::ISBN->new($isbn);
+		 if (!$isbn)
+		 {
+		 	$template->param( isbnnotvalid => 1);
+		 }
+		 else
+		 {
+			 my $valid=$isbn->is_valid;
+			 if (!$valid)
+			 {
+			 	$template->param( isbnnotvalid => 1);
+			 }
+			 else
+			 {
+			 	if ($isbnlen==10)
+			 	{
+			 		my $convisbn=$isbn->as_isbn13;
+			 		$convisbn=$convisbn->as_string;
+			 		$convisbn=~ s/-//g;
+			 		$template->param( isbn13 => $convisbn);
+			 	}
+			 	else
+			 	{
+			 		my $convisbn=$isbn->as_isbn10;
+			 		$convisbn=$convisbn->as_string;
+			 		$convisbn=~ s/-//g;
+			 		$template->param( isbn10 => $convisbn);
+			 	}
+			 }
+		 }
+	}
+}
 output_html_with_http_headers $cgi, $cookie, $template->output;
+
