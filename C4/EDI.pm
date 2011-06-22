@@ -403,8 +403,8 @@ sub CreateEDIOrder {
 		$callnumber=escape($callnumber);
 		
 		my $halton_collection=escape($fund."_".$lsqccode);
-		print EDIORDER "LIN+$linecount++".$isbn->isbn.":EN'";											# line number, isbn
-		print EDIORDER "PIA+5+".$isbn->isbn.":IB'";														# isbn as main product identification
+		print EDIORDER "LIN+$linecount++".$isbn.":EN'";											# line number, isbn
+		print EDIORDER "PIA+5+".$isbn.":IB'";														# isbn as main product identification
 		print EDIORDER "IMD+L+050+:::$title'";															# title
 		print EDIORDER "IMD+L+009+:::$author'";															# full name of author
 		print EDIORDER "IMD+L+109+:::$publisher'";														# publisher
