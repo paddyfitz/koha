@@ -371,9 +371,21 @@ sub CreateEDIOrder {
 		$price=sprintf "%.2f",$item->{listprice};
 		my $isbn=cleanisbn($item->{isbn});
 		$isbn=Business::ISBN->new($isbn);
-		if ($isbn ne '')
+		if ($isbn)
 		{
-			$isbn=$isbn->as_isbn13;
+			if ($isbn->is_valid)
+			{
+				$isbn=($isbn->as_isbn13)->isbn;
+				
+			}
+			else
+			{
+				$isbn="0";
+			}
+		}
+		else
+		{
+			$isbn=0;
 		}
 		my $copyrightdate=escape($item->{publicationyear});
 		my $quantity=escape($item->{quantity});
@@ -465,6 +477,12 @@ sub CreateEDIOrder {
 			{
 				$isbn=substr($isbn,0,($i-1));
 			}
+			if (index($isbn,"|") !=-1)
+			{
+				my @isbns=split(/\|/,$isbn);
+				$isbn=$isbns[0];
+				#print "0: ".$isbns[0]."\n";
+			}
 			$isbn=escape($isbn);
 			$isbn =~ s/^\s+//;
 			$isbn =~ s/\s+$//;
@@ -472,7 +490,7 @@ sub CreateEDIOrder {
 		}
 		else
 		{
-			return;
+			return undef;
 		}
 	}
 	
