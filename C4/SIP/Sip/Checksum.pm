@@ -10,7 +10,7 @@ our $debug = 0;
 
 sub checksum {
     my $pkt = shift;
-    my $u = unpack('%16C*', $pkt);
+    my $u = unpack('%16c*', $pkt);
     my $check = ($u * -1) & 0xFFFF;
     return $check;
 }
