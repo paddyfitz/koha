@@ -659,6 +659,12 @@ sub handle_checkin {
             $status->alert_type('04');  # no hold, just send it
         }
     }
+    # 3M dont send a current_loc
+    elsif ( $item && $item->permanent_location ne  $inst_id ) {
+	    $status->alert(1);
+	    $status->alert_type('04');  # no hold, just send it
+    }
+	
     $resp .= $status->alert ? 'Y' : 'N';
     $resp .= Sip::timestamp;
     $resp .= add_field(FID_INST_ID, $inst_id);
