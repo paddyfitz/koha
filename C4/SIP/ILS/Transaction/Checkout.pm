@@ -55,6 +55,7 @@ sub do_checkout {
 	my $shelf          = $self->{item}->hold_shelf;
 	my $barcode        = $self->{item}->id;
 	my $patron_barcode = $self->{patron}->id;
+    my $overriden_duedate; # usually passed as undef to AddIssue
 	$debug and warn "do_checkout: patron (" . $patron_barcode . ")";
 	my $borrower = $self->{patron}->getmemberdetails_object();
 	$debug and warn "do_checkout borrower: . " . Dumper $borrower;
@@ -82,6 +83,9 @@ sub do_checkout {
                 $self->screen_msg("Item already checked out to another patron.  Please return item for check-in.");
                 $noerror = 0;
             } elsif ($confirmation eq 'DEBT') {     # don't do anything, it's the minor debt, and alarms fire elsewhere
+            } elsif ($confirmation eq 'HIGHHOLDS') {
+                $overriden_duedate = $needsconfirmation->{returndate};
+                $self->screen_msg('Loan period reduced for high-demand item');
             } else {
                 $self->screen_msg($needsconfirmation->{$confirmation});
                 $noerror = 0;
@@ -116,7 +120,7 @@ sub do_checkout {
 	$debug and warn "do_checkout: calling AddIssue(\$borrower,$barcode, undef, 0)\n"
 		# . "w/ \$borrower: " . Dumper($borrower)
 		. "w/ C4::Context->userenv: " . Dumper(C4::Context->userenv);
-	my $c4due  = AddIssue($borrower, $barcode, undef, 0);
+	my $c4due  = AddIssue($borrower, $barcode, $overriden_duedate, 0);
 	my $due  = $c4due->output('iso') || undef;
 	$debug and warn "Item due: $due";
 	$self->{'due'} = $due;
