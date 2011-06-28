@@ -73,6 +73,10 @@ sub do_checkin {
         $self->destination_loc($iteminformation->{homebranch});
         $self->alert_type('04');            # send to other branch
     }
+    if ($messages->{WasTransfered}) { # set into transit so tell unit
+        $self->destination_loc($iteminformation->{homebranch});
+        $self->alert_type('04');            # send to other branch
+    }
     if ($messages->{ResFound}) {
         $self->hold($messages->{ResFound});
         $debug and warn "Item returned at $branch reserved at $messages->{ResFound}->{branchcode}";
