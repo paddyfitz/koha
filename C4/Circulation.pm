@@ -906,10 +906,11 @@ sub CanBookBeIssued {
         #print "reserved: $reserved\n".Dumper($num);
         if ($num>=C4::Context->preference("decreaseLoanHighHoldsValue"))
         {
-            $needsconfirmation{HIGHHOLDS} = 1;
-            $needsconfirmation{'num_holds'} = $num;
-            $needsconfirmation{'duration'} = $duration;
-            $needsconfirmation{'returndate'} = format_date($returndate);
+            $needsconfirmation{HIGHHOLDS} = {
+                num_holds  => $num,
+                duration   => $duration,
+                returndate => format_date($returndate),
+            };
         }
     }
 

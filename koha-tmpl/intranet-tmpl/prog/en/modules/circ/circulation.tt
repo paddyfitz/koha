@@ -272,14 +272,14 @@ function refocus(calendar) {
 [% IF ( USERBLOCKEDOVERDUE ) %]
     <li>Patron has [% USERBLOCKEDOVERDUE %] overdue item(s).  Check out anyway?</li>
 [% END %]
-[% IF ( HIGHHOLDS ) %]
-	<li>High demand item. Loan period shortened to [% duration %] days (due [% returndate %]). Check out anyway?</li>
+[% IF  HIGHHOLDS %]
+	<li>High demand item. Loan period shortened to [% HIGHHOLDS.duration %] days (due [% HIGHHOLDS.returndate %]). Check out anyway?</li>
 [% END %]
 </ul>
-[% IF ( HIGHHOLDS ) %]
+[% IF HIGHHOLDS %]
 	<script language="JavaScript" type="text/javascript">
 	$(document).ready(function() {
-		$("input[name=duedatespec]:hidden").val('[% returndate %]');
+		$("input[name=duedatespec]:hidden").val('[% HIGHHOLDS.returndate %]');
 	});
 	</script>
 [% END %]
