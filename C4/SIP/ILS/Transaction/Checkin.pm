@@ -97,7 +97,6 @@ sub do_checkin {
                 $branch,
                 $messages->{ResFound}->{branchcode}
             );
-
         }
         $self->{item}->hold_patron_id( $messages->{ResFound}->{borrowernumber} );
         $self->{item}->destination_loc( $messages->{ResFound}->{branchcode} );
