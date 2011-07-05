@@ -31,16 +31,6 @@ use C4::Reserves;
 
 # expire all waiting hold requests after 7 days
 
-=head2 ExpireWaitingReserves
-
-  ExpireWaitingReserves();
-
-Expires all reserves with an waitingdate 7 days before today.
-
-=cut
-
-sub ExpireWaitingReserves {
-
 	my $dbh = C4::Context->dbh;
 	my $sth = $dbh->prepare( "
 		SELECT * FROM reserves WHERE DATE(waitingdate) < DATE_SUB( CURDATE(), INTERVAL 7 DAY) AND found = 'W'
@@ -49,5 +39,4 @@ sub ExpireWaitingReserves {
 
 	while ( my $res = $sth->fetchrow_hashref() ) {
 		CancelReserve( $res->{'biblionumber'}, '', $res->{'borrowernumber'} );
-	}
 }
