@@ -707,6 +707,11 @@ sub ParseEDIQuote {
 	        my $llo=$item->{related_numbers}->[$gir]->{LLO}->[0];
 			my $lfn=$item->{related_numbers}->[$gir]->{LFN}->[0];
 			my $lsq=$item->{related_numbers}->[$gir]->{LSQ}->[0];
+			my $lst=$item->{related_numbers}->[$gir]->{LST}->[0];
+			if (!$lst)
+			{
+				$lst=uc($item->item_format);
+			}
 			
 			my $budget_id=GetBudgetID($lfn);
 	        
@@ -737,7 +742,8 @@ sub ParseEDIQuote {
 	            "items.price"				  => $item->{price}->{price},
 	            "items.replacementprice"	  => $item->{price}->{price},
 	            "items.itemcallnumber"		  => $item->shelfmark,
-	            "items.itype"				  => uc($item->item_format),
+	            #"items.itype"				  => uc($item->item_format),
+	            "items.itype"				  => $lst,
 	            "items.cn_sort"				  => "",
 	        });
 	        
