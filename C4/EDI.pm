@@ -862,6 +862,7 @@ sub GetBudgetID {
 =head2 CheckOrderItemExists
 
 Checks to see if a biblio record already exists in the catalogue when parsing a quotes message
+Converts 10-13 digit ISBNs and vice-versa if an initial match is not found
 
 =cut
 
@@ -881,7 +882,49 @@ sub CheckOrderItemExists {
     	$biblionumber=$matches[0];
     	$bibitemnumber=$matches[1];
     }
-    return $biblionumber,$bibitemnumber;
+    if ($biblionumber)
+    {
+    	return $biblionumber,$bibitemnumber;
+    }
+    else
+    {
+		$isbn=cleanisbn($isbn);
+    	if (length($isbn)==10)
+    	{
+			$isbn=Business::ISBN->new($isbn);
+			if ($isbn)
+			{
+				if ($isbn->is_valid)
+				{
+					$isbn=($isbn->as_isbn13)->isbn;
+					$sth->execute($isbn);
+    				while (@matches=$sth->fetchrow_array())
+    				{
+						$biblionumber=$matches[0];
+    					$bibitemnumber=$matches[1];
+   					}
+				}
+			}
+    	}
+    	elsif (length($isbn)==13)
+    	{
+			$isbn=Business::ISBN->new($isbn);
+			if ($isbn)
+			{
+				if ($isbn->is_valid)
+				{
+					$isbn=($isbn->as_isbn10)->isbn;
+					$sth->execute($isbn);
+    				while (@matches=$sth->fetchrow_array())
+    				{
+						$biblionumber=$matches[0];
+    					$bibitemnumber=$matches[1];
+   					}
+				}
+			}
+    	}
+    	return $biblionumber,$bibitemnumber;
+    }
 }
 
 sub string35escape {
