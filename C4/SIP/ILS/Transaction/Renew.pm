@@ -30,10 +30,20 @@ sub new {
     return bless $self, $class;
 }
 
-sub do_renew_for ($$) {
+sub do_renew_for {
     my $self = shift;
     my $borrower = shift;
     my ($renewokay,$renewerror) = CanBookBeRenewed($borrower->{borrowernumber},$self->{item}->{itemnumber});
+    if ($renewokay){ # ok so far check charges
+        my ($charge, undef) = GetIssuingCharges($self->{item}->{itemnumber}, $self->{patron}->{borrowernumber});
+        if ($charge > 0.0) {
+            $self->{sip_fee_type} = '06';
+            $self->{fee_amount} = sprintf '%.2f',$charge;
+            if ($self->{fee_ack} eq 'N') {
+                $renewokay = 0;
+            }
+        }
+    }
     if ($renewokay){
         $self->{due} = undef;
         my $due_date = AddIssue( $borrower, $self->{item}->id, undef, 0 );
@@ -41,14 +51,9 @@ sub do_renew_for ($$) {
             $self->{due} = $due_date;
         }
         $self->renewal_ok(1);
-        my ($charge, undef) = GetIssuingCharges($self->{item}->{itemnumber}, $self->{patron}->{borrowernumber});
-        if ($charge > 0.0) {
-            $self->{sip_fee_type} = '06';
-            $self->{fee_amount} = sprintf '%.2f',$charge;
-        }
     } else {
         $renewerror=~s/on_reserve/Item unavailable due to outstanding holds/;
-        $renewerror=~s/too_many/Item has reached maximum renewals/
+        $renewerror=~s/too_many/Item has reached maximum renewals/;
         $self->screen_msg($renewerror);
         $self->renewal_ok(0);
     }
