@@ -399,6 +399,30 @@ if ( $messages->{'ResFound'}) {
     } # else { ; }  # error?
 }
 
+# new op dev : we check if the document must be returned to his homebranch directly,
+#  if the document is transfered, we have warning message .
+
+if ( $messages->{'WasTransfered'} and not $messages->{'ResFound'} ) {
+    $template->param(
+        found          => 1,
+        transfer       => 1,
+    );
+}
+
+if ( $messages->{'NeedsTransfer'} ){
+    $template->param(
+        found          => 1,
+        needstransfer  => 1,
+        itemnumber     => $itemnumber,
+    );
+}
+
+if ( $messages->{'Wrongbranch'} ){
+    $template->param(
+        wrongbranch => 1,
+    );
+}
+
 # Error Messages
 my @errmsgloop;
 foreach my $code ( keys %$messages ) {
