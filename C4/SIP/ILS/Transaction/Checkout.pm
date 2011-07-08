@@ -98,6 +98,14 @@ sub do_checkout {
         $self->screen_msg("Item is on hold shelf for another patron.");
         $noerror = 0;
     }
+    my ($charge, undef) = GetIssuingCharges($itemnumber, $self->{patron}->{borrowernumber});
+    if ($charge > 0.0) {
+        $self->{sip_fee_type} = '06';
+        $self->{fee_amount} = sprintf '%.2f',$charge;
+        if ( $self->{fee_ack} eq 'N' ) {
+            $noerror = 0; # show fee but refuse checkout
+        }
+    }
 	unless ($noerror) {
 		$debug and warn "cannot issue: " . Dumper($issuingimpossible) . "\n" . Dumper($needsconfirmation);
 		$self->ok(0);
@@ -122,11 +130,6 @@ sub do_checkout {
 	$self->{'due'} = $due;
 	$self->{item}->due_date($due);
 	$self->ok(1);
-    my ($charge, undef) = GetIssuingCharges($itemnumber, $self->{patron}->{borrowernumber});
-    if ($charge > 0.0) {
-        $self->{sip_fee_type} = '06';
-        $self->{fee_amount} = sprintf '%.2f',$charge;
-    }
 	return $self;
 }
 
