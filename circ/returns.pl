@@ -264,30 +264,6 @@ my $found    = 0;
 my $waiting  = 0;
 my $reserved = 0;
 
-# new op dev : we check if the document must be returned to his homebranch directly,
-#  if the document is transfered, we have warning message .
-
-if ( $messages->{'WasTransfered'} ) {
-    $template->param(
-        found          => 1,
-        transfer       => 1,
-    );
-}
-
-if ( $messages->{'NeedsTransfer'} ){
-    $template->param(
-        found          => 1,
-        needstransfer  => 1,
-        itemnumber     => $itemnumber,
-    );
-}
-
-if ( $messages->{'Wrongbranch'} ){
-    $template->param(
-        wrongbranch => 1,
-    );
-}
-
 # case of wrong transfert, if the document wasn't transfered to the right library (according to branchtransfer (tobranch) BDD)
 
 if ( $messages->{'WrongTransfer'} and not $messages->{'WasTransfered'}) {
@@ -366,6 +342,30 @@ if ( $messages->{'ResFound'}) {
             reservenotes   => $reserve->{'reservenotes'},
         );
     } # else { ; }  # error?
+}
+
+# new op dev : we check if the document must be returned to his homebranch directly,
+#  if the document is transfered, we have warning message .
+
+if ( $messages->{'WasTransfered'} and not $messages->{'ResFound'} ) {
+    $template->param(
+        found          => 1,
+        transfer       => 1,
+    );
+}
+
+if ( $messages->{'NeedsTransfer'} ){
+    $template->param(
+        found          => 1,
+        needstransfer  => 1,
+        itemnumber     => $itemnumber,
+    );
+}
+
+if ( $messages->{'Wrongbranch'} ){
+    $template->param(
+        wrongbranch => 1,
+    );
 }
 
 # Error Messages
