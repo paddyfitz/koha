@@ -269,10 +269,12 @@ $.tablesorter.addParser({
             </tr>
         [% END %]</tbody>
         </table>
-	
-		[% IF ( OpacRenewalAllowed ) %]
-		<input type="submit" value="Renew Selected" />
-		[% END %]
+
+        [% IF OpacRenewalAllowed %]
+            [% UNLESS patron_flagged %]
+            <input type="submit" value="Renew Selected" />
+            [% END %]
+        [% END %]
 		</form>
 		[% IF ( OpacRenewalAllowed ) %]
 		
