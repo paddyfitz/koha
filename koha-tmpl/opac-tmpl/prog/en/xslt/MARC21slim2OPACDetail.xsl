@@ -194,6 +194,38 @@
         </xsl:if>
    </xsl:if>
 
+
+        <xsl:if test="marc:datafield[@tag=082]">
+        <span class="results_summary"><span class="label">Class Number: </span>
+            <xsl:for-each select="marc:datafield[@tag=082]">
+                <xsl:call-template name="chopPunctuation">
+                  <xsl:with-param name="chopString">
+                    <xsl:call-template name="subfieldSelect">
+                        <xsl:with-param name="codes">a</xsl:with-param>
+                    </xsl:call-template>
+                   </xsl:with-param>
+               </xsl:call-template>
+                    <xsl:choose><xsl:when test="position()=last()"><xsl:text>.</xsl:text></xsl:when><xsl:otherwise><xsl:text>; </xsl:text></xsl:otherwise></xsl:choose>
+            </xsl:for-each>
+        </span>
+       </xsl:if>
+
+       
+        <xsl:if test="marc:datafield[@tag=930]">
+        <span class="results_summary"><span class="label">Journal Holdings: </span>
+            <xsl:for-each select="marc:datafield[@tag=930]">
+                <xsl:call-template name="chopPunctuation">
+                  <xsl:with-param name="chopString">
+                    <xsl:call-template name="subfieldSelect">
+                        <xsl:with-param name="codes">a</xsl:with-param>
+                    </xsl:call-template>
+                   </xsl:with-param>
+               </xsl:call-template>
+                    <xsl:choose><xsl:when test="position()=last()"><xsl:text>.</xsl:text></xsl:when><xsl:otherwise><xsl:text>; </xsl:text></xsl:otherwise></xsl:choose>
+            </xsl:for-each>
+        </span>
+       </xsl:if>
+
         <!--Series: Alternate Graphic Representation (MARC 880) -->
         <xsl:if test="$display880">
             <xsl:call-template name="m880Select">
