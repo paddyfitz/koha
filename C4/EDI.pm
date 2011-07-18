@@ -708,6 +708,7 @@ sub ParseEDIQuote {
 			my $lfn=$item->{related_numbers}->[$gir]->{LFN}->[0];
 			my $lsq=$item->{related_numbers}->[$gir]->{LSQ}->[0];
 			my $lst=$item->{related_numbers}->[$gir]->{LST}->[0];
+			my $lclnote;
 			if (!$lst)
 			{
 				$lst=uc($item->item_format);
@@ -716,6 +717,10 @@ sub ParseEDIQuote {
 			if (!$lcl)
 			{
 				$lcl=$item->shelfmark;
+			}
+			else
+			{
+				($lcl,$lclnote) = DawsonsLCL($lcl);
 			}
 			
 			my $budget_id=GetBudgetID($lfn);
@@ -779,6 +784,7 @@ sub ParseEDIQuote {
 	        	listprice				=> $item->{price}->{price},
 	        	branchcode				=> $llo,
 	        	budget_id				=> $budget_id,
+	        	notes					=> $lclnote,
 	        );
         
 	        my $orderinfo = \%orderinfo;
@@ -838,6 +844,26 @@ sub GetDiscountedPrice {
     }
     $ecost=($price-(($percentage*$price)/100));
     return $ecost;
+}
+
+=head2 DawsonsLCL
+
+Checks for a call number encased by asterisks. If found, returns call number as $lcl and string with
+asterisks as $lclnote to go into FTX field enabling spine label creation by Dawsons bookseller
+
+=cut
+
+sub DawsonsLCL {
+	my $lcl=shift;
+	my $lclnote;
+	my $f=index($lcl,'*');
+	my $l=rindex($lcl,'*');
+	if ($f==0 && $l==(length($lcl)-1))
+	{
+		$lclnote=$lcl;
+		$lcl=~ s/\*//g;
+	}
+	return ($lcl,$lclnote);
 }
 
 =head2 GetBudgetID
