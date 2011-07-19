@@ -82,8 +82,16 @@ sub do_checkout {
                 $self->screen_msg("Item already checked out to another patron.  Please return item for check-in.");
                 $noerror = 0;
             } elsif ($confirmation eq 'DEBT') {     # don't do anything, it's the minor debt, and alarms fire elsewhere
+            } elsif ($confirmation eq 'TOO_MANY') {
+                if ( exists $needsconfirmation->{RENEW_ISSUE} ) {
+                    # no op RENEWS do not increase number on loan
+                } else {
+                    $self->screen_msg('Loan would exceeed entitlement');
+                    $noerror = 0;
+                }
             } else {
-                $self->screen_msg($needsconfirmation->{$confirmation});
+                #$self->screen_msg($needsconfirmation->{$confirmation});
+                $self->screen_msg($confirmation);
                 $noerror = 0;
             }
         }
