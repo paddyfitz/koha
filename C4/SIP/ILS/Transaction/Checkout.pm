@@ -91,8 +91,16 @@ sub do_checkout {
             } elsif ($confirmation eq 'HIGHHOLDS') {
                 $overridden_duedate = $needsconfirmation->{$confirmation}->{returndate};
                 $self->screen_msg('Loan period reduced for high-demand item');
+            } elsif ($confirmation eq 'TOO_MANY') {
+                if ( exists $needsconfirmation->{RENEW_ISSUE} ) {
+                    # no op RENEWS do not increase number on loan
+                } else {
+                    $self->screen_msg('Loan would exceeed entitlement');
+                    $noerror = 0;
+                }
             } else {
-                $self->screen_msg($needsconfirmation->{$confirmation});
+                #$self->screen_msg($needsconfirmation->{$confirmation});
+                $self->screen_msg($confirmation);
                 $noerror = 0;
             }
         }
