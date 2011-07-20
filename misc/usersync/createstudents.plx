@@ -63,16 +63,16 @@ print REPORT "\n Parsing XML File";
 my $twig =
   XML::Twig->new( twig_handlers => { LEARNER => \&LEARNER }, )
   ;    # Create XML Twig Object
-$twig->parsefile('/home/syncuser/imports/learner_create.xml');  # Parse XML File
+$twig->parsefile('/home/syncuser/imports/learner_create.xml') or die();  # Parse XML File
 
 # Print Summary of Results to log file
 if ( defined($ccount) ) {
     print REPORT "\n\n\n Import Complete \n";
     print REPORT " Records Found in file: " . "$ccount" . "\n";
-    if (defined(@inserts)){
+    if (@inserts){
     print REPORT " Records Imported to DB (Cardnumbers): " . "@inserts" . "\n";
     }
-    if (defined(@fails)){
+    if (@fails){
     print REPORT " Records Failing Import (Cardnumbers): " . "@fails" . "\n";
     }
     print REPORT "\n\n\n";
