@@ -708,6 +708,7 @@ sub ParseEDIQuote {
 			my $lfn=$item->{related_numbers}->[$gir]->{LFN}->[0];
 			my $lsq=$item->{related_numbers}->[$gir]->{LSQ}->[0];
 			my $lst=$item->{related_numbers}->[$gir]->{LST}->[0];
+			my $lfs=$item->{related_numbers}->[$gir]->{LFS}->[0];
 			my $lclnote;
 			if (!$lst)
 			{
@@ -721,6 +722,10 @@ sub ParseEDIQuote {
 			else
 			{
 				($lcl,$lclnote) = DawsonsLCL($lcl);
+			}
+			if ($lfs)
+			{
+				$lcl=$lcl." ".$lfs;
 			}
 			
 			my $budget_id=GetBudgetID($lfn);
