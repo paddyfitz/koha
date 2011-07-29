@@ -700,21 +700,54 @@ sub ParseEDIQuote {
 	
 	$ParseEDIQuoteItem = sub {
 			my ($item,$gir,$booksellerid)=@_;
+			my $relnos=$item->{related_numbers};
 			my $author=$item->author_surname.", ".$item->author_firstname;
 			
 			my $ecost=GetDiscountedPrice($booksellerid,$item->{price}->{price});
 	        
-	        my $llo=$item->{related_numbers}->[$gir]->{LLO}->[0];
-			my $lfn=$item->{related_numbers}->[$gir]->{LFN}->[0];
-			my $lsq=$item->{related_numbers}->[$gir]->{LSQ}->[0];
-			my $lst=$item->{related_numbers}->[$gir]->{LST}->[0];
-			my $lfs=$item->{related_numbers}->[$gir]->{LFS}->[0];
+			my ($llo,$lfn,$lsq,$lst,$lfs,$lcl,$id);
+			my $relcount=0;
+			foreach my $rel (@$relnos)
+			{
+				if ($rel->{id}==($gir+1))
+				{
+					if ($item->{related_numbers}->[$relcount]->{LLO}->[0])
+					{
+						$llo=$item->{related_numbers}->[$relcount]->{LLO}->[0];
+					}
+					if ($item->{related_numbers}->[$relcount]->{LFN}->[0])
+					{
+						$lfn=$item->{related_numbers}->[$relcount]->{LFN}->[0];
+					}
+					if ($item->{related_numbers}->[$relcount]->{LSQ}->[0])
+					{
+						$lsq=$item->{related_numbers}->[$relcount]->{LSQ}->[0];
+					}
+					if ($item->{related_numbers}->[$relcount]->{LST}->[0])
+					{
+						$lst=$item->{related_numbers}->[$relcount]->{LST}->[0];
+					}
+					if ($item->{related_numbers}->[$relcount]->{LFS}->[0])
+					{
+						$lfs=$item->{related_numbers}->[$relcount]->{LFS}->[0];
+					}
+					if ($item->{related_numbers}->[$relcount]->{LCL}->[0])
+					{
+						$lcl=$item->{related_numbers}->[$relcount]->{LCL}->[0];
+					}
+					if ($item->{related_numbers}->[$relcount]->{id})
+					{
+						$id=$item->{related_numbers}->[$relcount]->{id};
+					}
+				}
+				$relcount++;
+			}
+	        
 			my $lclnote;
 			if (!$lst)
 			{
 				$lst=uc($item->item_format);
 			}
-			my $lcl=$item->{related_numbers}->[$gir]->{LCL}->[0];
 			if (!$lcl)
 			{
 				$lcl=$item->shelfmark;
