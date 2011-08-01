@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 # Staff Delete
 use warnings;
 use strict;
@@ -58,12 +58,12 @@ if ( defined($dcount) ) {
     print REPORT "\n\n\n Staff Delete Complete \n";
     if ( defined($errors) ) {
         print REPORT $errors . " Errors";
-        if ( defined(@fails) ) {
+        if ( @fails ) {
             print REPORT " Records Failing Import (Registry No.): " . "@fails"
               . "\n";
         }
     }
-    if ( defined(@deletes) ) {
+    if ( @deletes ) {
         print REPORT "\n"
           . " Records Deleted Succesfully (Registry No.): "
           . "@deletes";

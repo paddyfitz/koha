@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 # Student Create
 use warnings;
 use strict;
@@ -70,10 +70,10 @@ $twig->parsefile('/home/syncuser/imports/staff_create.xml');    # Parse XML File
 if ( defined($ccount) ) {
     print REPORT "\n\n\n Import Complete \n";
     print REPORT " Records Found in file: " . "$ccount" . "\n";
-        if (defined(@inserts)){
+        if (@inserts){
    print REPORT " Records Imported to DB (Registry No.): " . "@inserts" . "\n";
     }
-        if (defined(@inserts)){
+        if (@inserts){
     print REPORT " Records Failed Import (Registry No.): " . "@fails" . "\n";
     }
     print REPORT "\n\n\n";
