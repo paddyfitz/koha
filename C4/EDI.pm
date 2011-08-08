@@ -370,7 +370,7 @@ sub CreateEDIOrder {
 		my $publisher=string35escape(escape($item->{publishercode}));
 		$price=sprintf "%.2f",$item->{listprice};
 		my $isbn;
-		if (length($item->{isbn})==10 || substr($item->{isbn},0,3) eq "978")
+		if (length($item->{isbn})==10 || substr($item->{isbn},0,3) eq "978" || index($item->{isbn},"|") !=-1)
 		{
 			$isbn=cleanisbn($item->{isbn});
 			$isbn=Business::ISBN->new($isbn);
