@@ -48,7 +48,7 @@ sub do_checkin {
     my $self = shift;
     my $branch = shift;
     if (!$branch) {
-        $branch = 'SIP2';
+        $branch = 'SIP2'; 
     }
     my $barcode = $self->{item}->id;
     $debug and warn "do_checkin() calling AddReturn($barcode, $branch)";
