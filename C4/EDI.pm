@@ -711,6 +711,9 @@ sub ParseEDIQuote {
 			my $author=$item->author_surname.", ".$item->author_firstname;
 			
 			my $ecost=GetDiscountedPrice($booksellerid,$item->{price}->{price});
+			
+			my $ftxnote;
+			$ftxnote=$item->{free_text}->{text};
 	        
 			my ($llo,$lfn,$lsq,$lst,$lfs,$lcl,$id);
 			my $relcount=0;
@@ -813,6 +816,16 @@ sub ParseEDIQuote {
 		        ($biblionumber,$bibitemnumber) = AddBiblio($record,'');
 	        }
 	        
+	        my $ordernote;
+	        if ($lclnote)
+	        {
+	        	$ordernote=$lclnote;
+	        }
+	        if ($ftxnote)
+	        {
+	        	$ordernote=$ftxnote;
+	        }
+	        
 	        my %orderinfo = (
 	        	basketno				=> $basketno,
 	        	ordernumber				=> "",
@@ -830,7 +843,7 @@ sub ParseEDIQuote {
 	        	listprice				=> $item->{price}->{price},
 	        	branchcode				=> $llo,
 	        	budget_id				=> $budget_id,
-	        	notes					=> $lclnote,
+	        	notes					=> $ordernote,
 	        );
         
 	        my $orderinfo = \%orderinfo;
