@@ -712,8 +712,16 @@ sub ParseEDIQuote {
 			
 			my $ecost=GetDiscountedPrice($booksellerid,$item->{price}->{price});
 			
-			my $ftxnote;
-			$ftxnote=$item->{free_text}->{text};
+			my $ftxlin;
+			my $ftxlno;
+			if ($item->{free_text}->{qualifier} eq "LIN")
+			{
+				$ftxlin=$item->{free_text}->{text};
+			}
+			if ($item->{free_text}->{qualifier} eq "LNO")
+			{
+				$ftxlno=$item->{free_text}->{text};
+			}
 	        
 			my ($llo,$lfn,$lsq,$lst,$lfs,$lcl,$id);
 			my $relcount=0;
@@ -821,9 +829,13 @@ sub ParseEDIQuote {
 	        {
 	        	$ordernote=$lclnote;
 	        }
-	        if ($ftxnote)
+	        if ($ftxlno)
 	        {
-	        	$ordernote=$ftxnote;
+	        	$ordernote=$ftxlno;
+	        }
+	        if ($ftxlin)
+	        {
+	        	$ordernote=$ftxlin;
 	        }
 	        
 	        my %orderinfo = (
