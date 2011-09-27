@@ -420,7 +420,14 @@ sub CreateEDIOrder {
 			print EDIORDER "IMD+L+230+:::$callnumber'";													# shelfmark
 		}
 		print EDIORDER "QTY+21:$quantity'";																# quantity
-		print EDIORDER "GIR+001+$branchcode:LLO+$fund:LFN+";											# branchcode, fund code
+		if ($message_type ne 'QUOTE' && $quantity>1)
+		{
+			print EDIORDER "GIR+001+$quantity:LQT+$branchcode:LLO+$fund:LFN+";											# branchcode, fund code
+		}
+		else
+		{
+			print EDIORDER "GIR+001+$branchcode:LLO+$fund:LFN+";											# branchcode, fund code
+		}
 		if ($callnumber ne '')
 		{
 			print EDIORDER "$callnumber:LCL+";																# shelfmark
