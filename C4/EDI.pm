@@ -422,7 +422,14 @@ sub CreateEDIOrder {
 			print EDIORDER "IMD+L+230+:::$callnumber'";													# shelfmark
 		}
 		print EDIORDER "QTY+21:$quantity'";																# quantity
-		print EDIORDER "GIR+001+$branchcode:LLO+$halton_collection:LFN+";								# branchcode, sequence or collection code
+		if ($message_type ne 'QUOTE')
+		{
+			print EDIORDER "GIR+001+$quantity:LQT+$branchcode:LLO+$halton_collection:LFN+";								# branchcode, sequence or collection code
+		}
+		else
+		{
+			print EDIORDER "GIR+001+$branchcode:LLO+$halton_collection:LFN+";								# branchcode, sequence or collection code
+		}
 		if ($callnumber ne '')
 		{
 			print EDIORDER "$callnumber:LCL+";																# shelfmark
