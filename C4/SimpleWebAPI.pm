@@ -104,9 +104,9 @@ sub CheckAvailability {
 		my $onloan=0;
 		my $duedate=$item->{onloan};
 		$duedate=~ s/-//g;
-		#print $item->{ccode}."\n";
 		$xmlresponse .= "\t\t<item>\n";
 		$xmlresponse .= "\t\t\t<itemnumber>".$item->{itemnumber}."</itemnumber>\n";
+		my $issued=CheckOverdue($item->{itemnumber});
 		if ($item->{restricted}!=0)
 		{
 			$xmlresponse .= "\t\t\t<status>Restricted</status>\n";
@@ -144,6 +144,13 @@ sub CheckAvailability {
 			$na=1;
 			$onloan=1;
 		}
+		elsif ($issued>0)
+		{
+			$xmlresponse .= "\t\t\t<status>Overdue</status>\n";
+			$total_items++;
+			$na=1;
+			$onloan=1;
+		}
 		if ($na==0)
 		{
 			$xmlresponse .= "\t\t\t<status>Available</status>\n";
@@ -170,7 +177,7 @@ sub CheckAvailability {
 
     $xmlresponse .= "</SimpleWebAPI_response>\n";
     return $xmlresponse;
-    return $items;
+    #return $items;
     
     sub GetCollection {
     	my $collection=shift;
@@ -189,6 +196,15 @@ sub CheckAvailability {
 		$sth->execute($itemtype);
 		$itemtype=$sth->fetchrow_array;
 		return $itemtype;
+    }
+    
+    sub CheckOverdue {
+    	my $itemnumber=shift;
+    	my $dbh = C4::Context->dbh;
+		my $sth = $dbh->prepare("SELECT count(*) FROM issues WHERE itemnumber = ?");
+		$sth->execute($itemnumber);
+		$itemnumber=$sth->fetchrow_array;
+		return $itemnumber;
     }
 }
 
