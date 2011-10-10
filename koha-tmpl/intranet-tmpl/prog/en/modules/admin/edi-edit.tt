@@ -80,7 +80,7 @@ function cancelInstance()
                             <input type="text" id="in_dir" name="in_dir" size="40" value="[% in_dir %]" />
                         </li>
                         <li>
-                            <label for="san">Vendor SAN:</label>
+                            <label for="san">Vendor SAN/EAN:</label>
                             <input type="text" id="san" name="san" size="40" value="[% san %]" />
                         </li>
                     </ol>

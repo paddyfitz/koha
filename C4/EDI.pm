@@ -344,7 +344,16 @@ sub CreateEDIOrder {
 	open(EDIORDER,">$ENV{'PERL5LIB'}/misc/edi_files/$filename");
 	
 	print EDIORDER "UNA:+.? '";		# print opening header
-	print EDIORDER "UNB+UNOC:2+".C4::Context->preference("EDIfactEAN").":14+$san:31B+$shortyear$date:$hourmin+".$exchange."++ORDERS+++EANCOM'";		# print identifying EANs/SANs, date/time, exchange reference number
+	print EDIORDER "UNB+UNOC:2+".C4::Context->preference("EDIfactEAN").":14";
+	if (length($san)!=13)
+	{
+		print EDIORDER "+$san:31B";		# use SAN qualifier
+	}
+	else
+	{
+		print EDIORDER "+$san:14";		# use EAN qualifier
+	}
+	print EDIORDER "+$shortyear$date:$hourmin+".$exchange."++ORDERS+++EANCOM'";		# print identifying EANs/SANs, date/time, exchange reference number
 	print EDIORDER "UNH+".$ref."+ORDERS:D:96A:UN:EAN008'";		# print message reference number
 	if ($message_type eq 'QUOTE')
 	{

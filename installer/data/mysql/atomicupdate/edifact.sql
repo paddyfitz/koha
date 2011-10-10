@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `vendor_edi_accounts` (
   `last_activity` date default NULL,
   `provider` int(11) default NULL,
   `in_dir` text,
-  `san` varchar(10) default NULL,
+  `san` varchar(20) default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
