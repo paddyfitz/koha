@@ -232,7 +232,7 @@ $.tablesorter.addParser({
             </fieldset>
         [% END %]
         </form>
-    [% ELSE %]<p>There are no pending purchase suggestions.</p> [% IF ( loggedinusername ) %]<p><a class="new" href="/cgi-bin/koha/opac-suggestions.pl?op=add">New purchase suggestion</a></p>[% ELSE %][% IF ( AnonSuggestions ) %]<p><a class="new" href="/cgi-bin/koha/opac-suggestions.pl?op=add">New purchase suggestion</a></p>[% END %][% END %][% END %]
+    [% ELSE %]<p>Purchase suggestions are not currently available.</p>[% END %]
 	
 [% END %]
 </div>
