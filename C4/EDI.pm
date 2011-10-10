@@ -343,21 +343,21 @@ sub CreateEDIOrder {
 	
 	open(EDIORDER,">$ENV{'PERL5LIB'}/misc/edi_files/$filename");
 	
-	print EDIORDER "UNA:+.? '";																							# print opening header
+	print EDIORDER "UNA:+.? '";		# print opening header
 	print EDIORDER "UNB+UNOC:2+".C4::Context->preference("EDIfactEAN").":14+$san:31B+$shortyear$date:$hourmin+".$exchange."++ORDERS+++EANCOM'";		# print identifying EANs/SANs, date/time, exchange reference number
-	print EDIORDER "UNH+".$ref."+ORDERS:D:96A:UN:EAN008'";																# print message reference number
+	print EDIORDER "UNH+".$ref."+ORDERS:D:96A:UN:EAN008'";		# print message reference number
 	if ($message_type eq 'QUOTE')
 	{
-		print EDIORDER "BGM+22V+".$basketno."+9'";																		# print order number and quote confirmation ref
+		print EDIORDER "BGM+22V+".$basketno."+9'";		# print order number and quote confirmation ref
 	}
 	else
 	{
-		print EDIORDER "BGM+220+".$basketno."+9'";																		# print order number
+		print EDIORDER "BGM+220+".$basketno."+9'";		# print order number
 	}
-	print EDIORDER "DTM+137:$longyear$date:102'";																		# print date of message
-	print EDIORDER "NAD+BY+".C4::Context->preference("EDIfactEAN")."::9'";																			# print buyer EAN  
-	print EDIORDER "NAD+SU+".$san."::31B'";																				# print vendor SAN
-	print EDIORDER "NAD+SU+".$booksellerid."::92'";																		# print internal ID 
+	print EDIORDER "DTM+137:$longyear$date:102'";		# print date of message
+	print EDIORDER "NAD+BY+".C4::Context->preference("EDIfactEAN")."::9'";		# print buyer EAN  
+	print EDIORDER "NAD+SU+".$san."::31B'";		# print vendor SAN
+	print EDIORDER "NAD+SU+".$booksellerid."::92'";		# print internal ID 
 
 	# get items from basket
 	my @results = GetOrders( $basketno );
@@ -408,34 +408,34 @@ sub CreateEDIOrder {
 		my ($branchcode,$callnumber,$itype,$lsqccode,$fund) = GetOrderItemInfo($item->{'ordernumber'});
 		$callnumber=escape($callnumber);
 		
-		print EDIORDER "LIN+$linecount++".$isbn.":EN'";											# line number, isbn
-		print EDIORDER "PIA+5+".$isbn.":IB'";														# isbn as main product identification
-		print EDIORDER "IMD+L+050+:::$title'";															# title
-		print EDIORDER "IMD+L+009+:::$author'";															# full name of author
-		print EDIORDER "IMD+L+109+:::$publisher'";														# publisher
-		print EDIORDER "IMD+L+170+:::$copyrightdate'";													# date of publication
-		print EDIORDER "IMD+L+220+:::O'";																# binding (e.g. PB) (O if not specified)
+		print EDIORDER "LIN+$linecount++".$isbn.":EN'";		# line number, isbn
+		print EDIORDER "PIA+5+".$isbn.":IB'";				# isbn as main product identification
+		print EDIORDER "IMD+L+050+:::$title'";				# title
+		print EDIORDER "IMD+L+009+:::$author'";				# full name of author
+		print EDIORDER "IMD+L+109+:::$publisher'";			# publisher
+		print EDIORDER "IMD+L+170+:::$copyrightdate'";		# date of publication
+		print EDIORDER "IMD+L+220+:::O'";					# binding (e.g. PB) (O if not specified)
 		if ($callnumber ne '')
 		{
-			print EDIORDER "IMD+L+230+:::$callnumber'";													# shelfmark
+			print EDIORDER "IMD+L+230+:::$callnumber'";		# shelfmark
 		}
-		print EDIORDER "QTY+21:$quantity'";																# quantity
-		print EDIORDER "GIR+001+$quantity:LQT+$branchcode:LLO+$fund:LFN";											# branchcode, fund code
+		print EDIORDER "QTY+21:$quantity'";		# quantity
+		print EDIORDER "GIR+001+$quantity:LQT+$branchcode:LLO+$fund:LFN";		# quantity, branchcode, fund code
 		my $gir_cnt=3;
 		if ($callnumber ne '')
 		{
-			print EDIORDER "+$callnumber:LCL";																# shelfmark
+			print EDIORDER "+$callnumber:LCL";				# shelfmark
 			$gir_cnt++;
 		}
-		print EDIORDER "+".$itype.":LST";
+		print EDIORDER "+".$itype.":LST";					# stock category
 		$gir_cnt++;
 		if ($gir_cnt<5)
 		{
-			print EDIORDER "+$lsqccode:LSQ";													# stock category, sequence
+			print EDIORDER "+$lsqccode:LSQ";				# sequence
 		}
 		else
 		{
-			print EDIORDER "'GIR+001+$lsqccode:LSQ";													# stock category, sequence
+			print EDIORDER "'GIR+001+$lsqccode:LSQ";		# sequence
 		}
 		print EDIORDER "'";
 		if ($notes)
@@ -445,22 +445,22 @@ sub CreateEDIOrder {
 		###REQUEST ORDERS TO REVISIT
 		#if ($message_type ne 'QUOTE')
 		#{
-		#	print EDIORDER "FTX+LIN++$linecount:10B:28'";													# freetext ** used for request orders to denote priority (to revisit)
+		#	print EDIORDER "FTX+LIN++$linecount:10B:28'";		# freetext ** used for request orders to denote priority (to revisit)
 		#}
-		print EDIORDER "PRI+AAB:$price'";																# price per item
-		print EDIORDER "CUX+2:GBP:9'";																	# currency (GBP)
-		print EDIORDER "RFF+LI:$ordernumber'";															# Local order number
+		print EDIORDER "PRI+AAB:$price'";					# price per item
+		print EDIORDER "CUX+2:GBP:9'";						# currency (GBP)
+		print EDIORDER "RFF+LI:$ordernumber'";				# Local order number
 		if ($message_type eq 'QUOTE')
 		{
-			print EDIORDER "RFF+QLI:".$item->{booksellerinvoicenumber}."'";								# If QUOTE confirmation, include booksellerinvoicenumber
+			print EDIORDER "RFF+QLI:".$item->{booksellerinvoicenumber}."'";		# If QUOTE confirmation, include booksellerinvoicenumber
 		}
 	}
-	print EDIORDER "UNS+S'";																			# print summary section header
-	print EDIORDER "CNT+2:$linecount'";																	# print number of line items in the message
+	print EDIORDER "UNS+S'";								# print summary section header
+	print EDIORDER "CNT+2:$linecount'";						# print number of line items in the message
 	my $segments=(($linecount*13)+9);
-	print EDIORDER "UNT+$segments+".$ref."'";															# No. of segments in message (UNH+UNT elements included, UNA, UNB, UNZ excluded)
-																										# Message ref number 
-	print EDIORDER "UNZ+1+".$exchange."'\n";															# Exchange ref number
+	print EDIORDER "UNT+$segments+".$ref."'";				# No. of segments in message (UNH+UNT elements included, UNA, UNB, UNZ excluded)
+															# Message ref number 
+	print EDIORDER "UNZ+1+".$exchange."'\n";				# Exchange ref number
 
 	close EDIORDER;
 	
