@@ -768,7 +768,13 @@ sub ParseEDIQuote {
 	            "biblioitems.cn_source"		  => "ddc",
 	            "items.cn_source"			  => "ddc",
 	            "items.notforloan"			  => "-1",
-	            "items.ccode"				  => $lsq,
+	            
+	            # use collection code (authorised values CCODE) to populate GIR LSQ segment in ORDERs
+#	            "items.ccode"				  => $lsq,
+	            
+	            # use location (authorised values LOC) to populate GIR LSQ segment in ORDERs
+	            "items.location"			  => $lsq,
+	            
 	            "items.homebranch"			  => $llo,
 	            "items.holdingbranch"		  => $llo,
 	            "items.booksellerid"		  => $booksellerid,
@@ -995,10 +1001,19 @@ sub GetOrderItemInfo {
 	my $itype;
 	my $ccode;
 	my $fund;
+
+	# use collection code (authorised values CCODE) to populate GIR LSQ segment in ORDERs
+#	$sth = $dbh->prepare(
+#	"select items.homebranch, items.itemcallnumber, items.itype, items.ccode from items 
+#	inner join aqorders_items on aqorders_items.itemnumber=items.itemnumber 
+#	where aqorders_items.ordernumber=?");
+
+	# use location (authorised values - LOC) to populate GIR LSQ segment in ORDERs
 	$sth = $dbh->prepare(
-	"select items.homebranch, items.itemcallnumber, items.itype, items.ccode from items 
+	"select items.homebranch, items.itemcallnumber, items.itype, items.location from items 
 	inner join aqorders_items on aqorders_items.itemnumber=items.itemnumber 
 	where aqorders_items.ordernumber=?");
+
 	$sth->execute($ordernumber);
 	while (@rows=$sth->fetchrow_array())
 	{
