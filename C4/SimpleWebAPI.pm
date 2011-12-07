@@ -106,6 +106,7 @@ sub CheckAvailability {
 		$duedate=~ s/-//g;
 		$xmlresponse .= "\t\t<item>\n";
 		$xmlresponse .= "\t\t\t<itemnumber>".$item->{itemnumber}."</itemnumber>\n";
+		$xmlresponse .= "\t\t\t<itembarcode>".$item->{barcode}."</itembarcode>\n";
 		my $issued=CheckOverdue($item->{itemnumber});
 		if ($item->{restricted}!=0)
 		{
