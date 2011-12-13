@@ -316,7 +316,7 @@ function verify_images() {
 						</span>
                 [% ELSIF ( itemloo.transfertwhen ) %]
                            In transit from [% itemloo.transfertfrom %],
-                           to [% itemloo.transfertto %], since [% itemloo.transfertwhen %]
+                           to [% itemloo.transfertto %].
 							<!-- FIXME: the "since" clause is redundant w/ lastseen field -->
                 [% END %]
 
@@ -369,14 +369,6 @@ function verify_images() {
 		            [% itemloo.ReservedForFirstname %] [% itemloo.ReservedForSurname %]
 			[% END %]
 		    </a>[% END %]
-                    [% IF ( itemloo.waitingdate ) %]
-                        at[% ELSE %]for delivery at
-                    [% END %]   [% itemloo.ExpectedAtLibrary %]
-                    [% IF ( itemloo.waitingdate ) %]
-                        since [% itemloo.waitingdate %]
-                    [% ELSE %]
-                        [% IF ( itemloo.reservedate ) %](placed [% itemloo.reservedate %])[% END %]
-                    [% END %]
                 [% END %]
                 [% UNLESS ( itemloo.itemnotforloan ) %][% UNLESS ( itemloo.onloan ) %][% UNLESS ( itemloo.itemlost ) %][% UNLESS ( itemloo.wthdrawn ) %][% UNLESS ( itemloo.damaged ) %][% UNLESS ( itemloo.transfertwhen ) %][% UNLESS ( itemloo.reservedate ) %]
                                         Available
