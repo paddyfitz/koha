@@ -34,6 +34,7 @@ use C4::Debug;
 use C4::Biblio;
 use C4::Members qw/GetMember/;  #needed for permissions checking for changing basketgroup of a basket
 use C4::Items;
+use C4::Edifact;
 =head1 NAME
 
 basket.pl
@@ -62,8 +63,9 @@ the supplier this script have to display the basket.
 
 =cut
 
-my $query        = new CGI;
-my $basketno     = $query->param('basketno');
+my $query		= new CGI;
+my $basketno	= $query->param('basketno');
+my $ean			= $query->param('ean');
 my $booksellerid = $query->param('supplierid');
 
 my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
@@ -84,10 +86,19 @@ my $basket = GetBasket($basketno);
 # if no booksellerid in parameter, get it from basket
 # warn "=>".$basket->{booksellerid};
 $booksellerid = $basket->{booksellerid} unless $booksellerid;
+my $ediaccount = CheckVendorFTPAccountExists($booksellerid);
+$template->param(ediaccount=>$ediaccount);
 my ($bookseller) = GetBookSellerFromId($booksellerid);
 my $op = $query->param('op');
 if (!defined $op) {
     $op = q{};
+}
+
+if ( $op eq 'ediorder') {
+	use Rebus::EDI;
+	my $edi=Rebus::EDI->new();
+	$edi->send_orders($basketno,$ean);
+	$template->param(edifile => 1);
 }
 
 my $confirm_pref= C4::Context->preference("BasketConfirmations") || '1';

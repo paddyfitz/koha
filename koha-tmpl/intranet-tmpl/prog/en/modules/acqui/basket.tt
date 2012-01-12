@@ -101,6 +101,7 @@
                             new YAHOO.widget.Button("basketheadbutton");
                             new YAHOO.widget.Button("exportbutton");
                             new YAHOO.widget.Button("delbasketbutton");
+                            new YAHOO.widget.Button("ediorderbutton");
                         }
                         //]]>
                     </script>
@@ -115,6 +116,9 @@
                         <li><a href="[% script_name %]?op=close&amp;basketno=[% basketno %]&amp;booksellerid=[% booksellerid %]" class="button" id="closebutton">Close this basket</a></li>
                     [% END %]
                         <li><a href="[% script_name %]?op=export&amp;basketno=[% basketno %]&amp;booksellerid=[% booksellerid %]" class="button" id="exportbutton">Export this basket as CSV</a></li>
+                    [% IF ( ediaccount ) %]   
+                        <li><a href="/cgi-bin/koha/acqui/edi_ean.pl?op=ediorder&amp;basketno=[% basketno %]&amp;booksellerid=[% booksellerid %]" class="button" id="ediorderbutton">EDIfact order</a></li>
+                    [% END %]
                     </ul>
 
                 </div>
@@ -140,7 +144,9 @@
                 [% END %]
             [% END %]
             [% END %]
-
+	[% IF ( edifile ) %]
+	<div id="edifile" class="dialog alert">The EDIfact order was successfully transferred to the bookseller</div>
+	[% END %]
     [% IF ( NO_BOOKSELLER ) %]
     <h2>Vendor not found</h2>
     [% ELSE %]

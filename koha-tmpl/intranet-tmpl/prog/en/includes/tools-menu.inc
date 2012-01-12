@@ -88,4 +88,7 @@
     [% IF ( CAN_user_tools_schedule_tasks ) %]
 	<li><a href="/cgi-bin/koha/tools/scheduler.pl">Task scheduler</a></li>
     [% END %]
+    [% IF ( CAN_user_tools_edi_manage ) %]
+	<li><a href="/cgi-bin/koha/tools/edi.pl">EDIfact messages</a></li>
+    [% END %]
 </ul></div></div>
