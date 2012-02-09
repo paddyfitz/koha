@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 
 #
+# Copyright 2012 PTFS Europe Ltd
 # This file is part of Koha.
 #
 # Koha is free software; you can redistribute it and/or modify it under the
@@ -86,6 +87,7 @@ sub transfer_file {
 
     $ftp->login( $username, $password )
       or croak 'Cannot login to SmartSM ', $ftp->message;
+    $ftp->binary();
     $ftp->put($marc_file);
 
     $ftp->quit;
