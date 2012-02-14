@@ -1,0 +1,109 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha Housebound - [% surname %], [% firstname %]</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" language="javascript">
+function check_form_housebound()
+{
+    document.form.submit();
+}
+function deleteInstance()
+{
+    window.location="/cgi-bin/koha/members/houseboundinstances.pl?op=delsubmit&borrowernumber=[% borrowernumber %]&instanceid=[% delinstanceid %]&hbnumber=[% hbnumber %]";
+}
+function cancelInstance()
+{
+    window.location="/cgi-bin/koha/members/housebound.pl?borrowernumber=[% borrowernumber %]";
+}
+</script>
+[% INCLUDE 'calendar.inc' %]
+</head>
+<body>
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'patron-search.inc' %]
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/members/members-home.pl">Patrons</a>  &rsaquo; Housebound deliveries for [% firstname %] [% surname %] [% IF ( cardnumber ) %]([% cardnumber %])[% END %]</div>
+<div id="doc3" class="yui-t2">
+    <div id="bd">
+        <div id="yui-main">
+            <div class="yui-b">
+                <h1>Housebound deliveries for [% title %] [% firstname %] [% surname %] [% IF ( cardnumber ) %]([% cardnumber %])[% END %]</h1>
+                <form name="form" id="instance_form" method="post" action="/cgi-bin/koha/members/houseboundinstances.pl">
+                    <input type="hidden" name="op" value="[% op %]" />
+                    <input type="hidden" name="borrowernumber" value="[% borrowernumber %]" />
+                    <input type="hidden" name="hbnumber" value="[% hbnumber %]" />
+                    <input type="hidden" name="instanceid" value="[% instanceid %]" />
+                [% IF ( opdel ) %]
+                    <p>Are you sure you want to delete this delivery?</p>
+                    <p><button id="ybutton" onclick="deleteInstance(); return false;">YES</button>&nbsp;&nbsp;<button id="nbutton" onclick="cancelInstance(); return false;">NO</button></p>
+                [% ELSE %]
+                <fieldset class="rows" id="instance">
+                    <legend>Delivery details</legend>
+                    <ol>
+                        <li>
+                            <label for="dmy">Date: </label>
+                            <input type="text" id="dmy" name="dmy" size="20" value="[% dmy %]" />
+                            <img src="[% themelang %]/lib/calendar/cal.gif" id="dmy_button" alt="Show Calendar" />
+                            <script language="JavaScript" type="text/javascript">
+                                Calendar.setup(
+                                {
+                                    inputField : "dmy",
+                                    ifFormat : "[% DHTMLcalendar_dateformat %]",
+                                    ifFormat : "%Y-%m-%d",
+                                    button : "dmy_button"
+                                }
+                                );
+                            </script>
+                        </li>
+                        <li>
+                            <label for="time">Time:</label>
+                            <select id="time" name="time">
+                                <option value="">Select a time</option>
+                                <option value="am"[% IF ( timeam ) %] selected="selected"[% END %]>am</option>
+                                <option value="pm"[% IF ( timepm ) %] selected="selected"[% END %]>pm</option>
+                            </select>
+                        </li>
+                        <li>
+                            <label for="volunteer">Volunteer:</label>
+                            <select id="volunteer" name="volunteer">
+                                <option value="">Select a volunteer</option>
+                                [% FOREACH volunteer IN volunteerlist %]
+                                    <option value="[% volunteer.volbornumber %]" [% volunteer.selected %]>[% volunteer.fullname %]</option>
+                                [% END %]
+                            </select>
+                        </li>
+                        <li>
+                            <label for="chooser">Chooser:</label>
+                            <select id="chooser" name="chooser">
+                                <option value="">Select a chooser</option>
+                                [% FOREACH cho IN chooserlist %]
+                                    <option value="[% cho.volbornumber %]" [% cho.selected %]>[% cho.fullname %]</option>
+                                [% END %]
+                            </select>
+                        </li>
+                        <li>
+                            <label for="deliverer">Deliverer:</label>
+                            <select id="deliverer" name="deliverer">
+                                <option value="">Select a deliverer</option>
+                                [% FOREACH del IN delivererlist %]
+                                    <option value="[% del.volbornumber %]" [% del.selected %]>[% del.fullname %]</option>
+                                [% END %]
+                            </select>
+                        </li>
+
+                    </ol>
+                </fieldset>
+                <fieldset class="action">
+                    <input type="submit" value="Save" onclick="return check_form_instance();" name="save">
+                    <a class="cancel" href="/cgi-bin/koha/members/housebound.pl?borrowernumber=[% borrowernumber %]">Cancel</a>
+                </fieldset>
+                [% END %]
+                </form>
+
+            </div>
+        </div>
+        <div class="yui-b">
+            [% INCLUDE 'circ-menu.inc' %]
+        </div>
+    </div>
+</div>
+[% INCLUDE 'intranet-bottom.inc' %]

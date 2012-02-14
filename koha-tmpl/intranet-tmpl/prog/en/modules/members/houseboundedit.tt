@@ -1,0 +1,78 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha Housebound - [% surname %], [% firstname %]</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" language="javascript">
+function check_form_housebound()
+{
+    document.form.submit();
+}
+</script>
+</head>
+<body>
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'patron-search.inc' %]
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/members/members-home.pl">Patrons</a>  &rsaquo; Edit housebound details for [% firstname %] [% surname %] [% IF ( cardnumber ) %]([% cardnumber %])[% END %]</div>
+
+<div id="doc3" class="yui-t2">
+    <div id="bd">
+        <div id="yui-main">
+            <div class="yui-b">
+                <h1>Edit housebound details for [% title %] [% firstname %] [% surname %] [% IF ( cardnumber ) %]([% cardnumber %])[% END %]</h1>
+
+                <!--<div><ul class="toolbar"><li><span class="yui-button yui-link-button"><span class="first-child"><a href="/cgi-bin/koha/members/housebound.pl?borrowernumber=[% borrowernumber %]">Cancel changes</a></span></span></li></ul></div>-->
+                    <form id="editform" method="post" action="/cgi-bin/koha/members/houseboundedit.pl" name="form">
+                        <input type="hidden" name="borrowernumber" value="[% borrowernumber %]" />
+                        <input type="hidden" name="hbnumber" value="[% hbnumber %]" />
+                        <input type="hidden" name="op" value="[% opeditsubmit %][% opaddsubmit %]" />
+                        <fieldset id="houseboundentry" class="rows">
+                            <legend>Housebound details</legend>
+                            <ol>
+                                <li>
+                                    <label for="day">Delivery day:</label>
+                                    <select id="day" name="day">
+                                    <option value="">Select a day</option>
+                                    <option value="Sunday"[% IF ( dsun ) %] selected="selected"[% END %]>Sunday</option>
+                                    <option value="Monday"[% IF ( dmon ) %] selected="selected"[% END %]>Monday</option>
+                                    <option value="Tuesday"[% IF ( dtue ) %] selected="selected"[% END %]>Tuesday</option>
+                                    <option value="Wednesday"[% IF ( dwed ) %] selected="selected"[% END %]>Wednesday</option>
+                                    <option value="Thursday"[% IF ( dthu ) %] selected="selected"[% END %]>Thursday</option>
+                                    <option value="Friday"[% IF ( dfri ) %] selected="selected"[% END %]>Friday</option>
+                                    <option value="Saturday"[% IF ( dsat ) %] selected="selected"[% END %]>Saturday</option>
+                                    </select>
+                                </li>
+                                <li>
+                                    <label for="frequency">Frequency:</label>
+                                    <select id="frequency" name="frequency">
+                                    <option value="">Select a frequency</option>
+                                    <option value="Week 1/3"[% IF ( wk1 ) %] selected="selected"[% END %]>Week 1/3</option>
+                                    <option value="Week 2/4"[% IF ( wk2 ) %] selected="selected"[% END %]>Week 2/4</option>
+                                    </select>
+                                </li>
+                                <li><label for="Itype_quant">Material:</label><input id="Itype_quant" type="text" value="[% Itype_quant %]" size="50" name="Itype_quant"></li>
+                                <li><label for="Item_subject">Subjects:</label><input id="Item_subject" type="text" value="[% Item_subject %]" size="50" name="Item_subject"></li>
+                                <li><label for="Item_authors">Authors:</label><input id="Item_authors" type="text" value="[% Item_authors %]" size="50" name="Item_authors"></li>
+                                <li><label for="referral">Referral:</label><input id="referral" type="text" value="[% referral %]" size="50" name="referral"></li>
+                                <li><label for="notes">Notes:</label><input id="notes" type="text" value="[% notes %]" size="50" name="notes"></li>
+                        </fieldset>
+                        <fieldset class="action">
+                            <input type="submit" value="Save changes" onclick="return check_form_housebound();" name="save">
+                            <a class="cancel" href="/cgi-bin/koha/members/housebound.pl?borrowernumber=[% borrowernumber %]">Cancel</a>
+                        </fieldset>
+                    </form>
+
+
+
+
+
+
+
+
+            </div>
+        </div>
+        <div class="yui-b">
+            [% INCLUDE 'circ-menu.inc' %]
+        </div>
+    </div>
+</div>
+[% INCLUDE 'intranet-bottom.inc' %]

@@ -1,0 +1,52 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha Housebound - [% surname %], [% firstname %]</title>
+[% INCLUDE 'doc-head-close.inc' %]
+
+</head>
+<body>
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'patron-search.inc' %]
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/members/members-home.pl">Patrons</a>  &rsaquo; Housebound details for [% firstname %] [% surname %] [% IF ( cardnumber ) %]([% cardnumber %])[% END %]</div>
+
+<div id="doc3" class="yui-t2">
+    <div id="bd">
+        <div id="yui-main">
+            <div class="yui-b"
+                <h1>Housebound details for [% title %] [% firstname %] [% surname %] [% IF ( cardnumber ) %]([% cardnumber %])[% END %]</h1>
+                [% IF ( hbnumber ) %]
+                <!--<div><p><a href="/cgi-bin/koha/members/houseboundedit.pl?hbnumber=[% hbnumber %]&borrowernumber=[% borrowernumber %]">Edit</a> housebound details for this patron.</p></div>-->
+                <div><ul class="toolbar"><li><span class="yui-button yui-link-button"><span class="first-child"><a href="/cgi-bin/koha/members/houseboundedit.pl?hbnumber=[% hbnumber %]&borrowernumber=[% borrowernumber %]&op=edit">Edit</a></span></span></li></ul></div>
+                <div id="houseboundinfo" class="rows">
+                    <ol>
+                        <li><span class="label">Delivery day:</span>[% day %]</li>
+                        <li><span class="label">Frequency:</span>[% frequency %]</li>
+                        <li><span class="label">Material:</span>[% Itype_quant %]</li>
+                        <li><span class="label">Subjects:</span>[% Item_subject %]</li>
+                        <li><span class="label">Authors:</span>[% Item_authors %]</li>
+                        <li><span class="label">Referral:</span>[% referral %]</li>
+                        <li><span class="label">Notes:</span>[% notes %]</li>
+                    </ol>
+                    <br>
+                    <div style="height:10px;clear:both;"></div><h1>Deliveries</h1>
+                        <div><ul class="toolbar"><li><span class="yui-button yui-link-button"><span class="first-child"><a href="/cgi-bin/koha/members/houseboundinstances.pl?op=add&hbnumber=[% hbnumber %]&borrowernumber=[% borrowernumber %]">Add a new delivery</a></span></span></li></ul></div>
+                        <table border="0" width="100%" cellpadding="3" cellspacing="0">
+                        <th><strong>ID</strong></th><th><strong>Date</strong></th><th><strong>Volunteer</strong></th><th><strong>Chooser</strong></th><th><strong>Deliverer</strong></th><th><strong>Actions</strong></th></tr>
+                        [% FOREACH instance IN instanceloop %]
+                            <tr><td>[% instance.instanceid %]</td><td>[% instance.dmy %] ([% instance.time %])</td><td><a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% instance.volunteer %]">[% instance.vol %]</a></td><td><a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% instance.chooser %]">[% instance.cho %]</a></td><td><a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% instance.deliverer %]">[% instance.del %]</a></td><td align="center"><a href="/cgi-bin/koha/members/houseboundinstances.pl?op=edit&instanceid=[% instance.instanceid %]&borrowernumber=[% instance.borrowernumber %]&hbnumber=[% instance.hbnumber %]">Edit</a> | <a href="/cgi-bin/koha/members/houseboundinstances.pl?op=del&instanceid=[% instance.instanceid %]&borrowernumber=[% instance.borrowernumber %]&hbnumber=[% instance.hbnumber %]">Delete</a></td></tr>
+                        [% END %]
+                        </table>
+                </div>
+                <!--<div><br><p><a href="/cgi-bin/koha/members/housebound.pl?op=edit&hbnumber=[% hbnumber %]&borrowernumber=[% borrowernumber %]">Edit</a> housebound details for this patron.</p></div>-->
+
+                [% ELSE %]
+                <p>This patron does not currently have registered housebound details. To add these details <a href="/cgi-bin/koha/members/houseboundedit.pl?hnbnumber=[% hbnumber %]&borrowernumber=[% borrowernumber %]&op=add">click here</a>.</p>
+                [% END %]
+            </div>
+        </div>
+        <div class="yui-b">
+            [% INCLUDE 'circ-menu.inc' %]
+        </div>
+    </div>
+</div>
+[% INCLUDE 'intranet-bottom.inc' %]

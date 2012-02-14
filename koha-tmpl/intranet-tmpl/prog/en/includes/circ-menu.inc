@@ -76,6 +76,9 @@
     [% IF ( CAN_user_parameters ) %]
         [% IF ( logview ) %]<li class="active">[% ELSE %]<li>[% END %]<a href="/cgi-bin/koha/tools/viewlog.pl?do_it=1&amp;modules=MEMBERS&amp;modules=circulation&amp;object=[% borrowernumber %]&amp;src=circ">Modification log</a></li>
     [% END %]
+    [% IF useHouseboundModule %]
+        [% IF houseboundview %]<li class="active">[% ELSE %]<li>[% END %]<a href="/cgi-bin/koha/members/housebound.pl?borrowernumber=[% borrowernumber %]">Housebound</a></li>
+    [% END %]
     [% IF ( EnhancedMessagingPreferences ) %]
 	[% IF ( sentnotices ) %]<li class="active">[% ELSE %]<li>[% END %]<a href="/cgi-bin/koha/members/notices.pl?borrowernumber=[% borrowernumber %]">Notices</a></li>
     [% END %]
