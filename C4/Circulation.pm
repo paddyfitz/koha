@@ -53,6 +53,13 @@ use Date::Calc qw(
   Day_of_Week
   Add_Delta_Days
 );
+use POSIX qw(strftime);
+use C4::Branch; # GetBranches
+use C4::Log; # logaction
+
+use C4::Housebound;
+use Data::Dumper;
+
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 
 BEGIN {
@@ -821,6 +828,18 @@ sub CanBookBeIssued {
             $needsconfirmation{TOO_MANY} = 1;
             $needsconfirmation{current_loan_count} = $current_loan_count;
             $needsconfirmation{max_loans_allowed} = $max_loans_allowed;
+        }
+    }
+
+# If Housebound patron and useHouseboundCheckPrev syspref is ON check for previous issue of item to patron
+    if ( C4::Context->preference('useHouseboundCheckPrevious') == 1
+        && $borrower->{categorycode} eq 'HB' )
+    {
+        #$template->param(testhbpref => 'switchedon');
+        my $HBprevissue =
+          CheckPrevIssue( $borrower->{borrowernumber}, $item->{biblionumber} );
+        if ( $HBprevissue == 1 ) {
+            $needsconfirmation{HOUSEBOUNDPREVISSUE} = 1;
         }
     }
 

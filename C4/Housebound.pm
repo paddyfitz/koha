@@ -35,6 +35,7 @@ our @EXPORT  = qw(
   DeleteHouseboundInstanceDetails
   GetVolunteerNameAndID
   GetVolunteerList
+  CheckPrevIssue
 );
 
 =head1 NAME
@@ -232,6 +233,31 @@ sub DeleteHouseboundInstanceDetails {
         $sth->execute($instanceid);
     }
     return;
+}
+
+sub CheckPrevIssue {
+	my ($borrowernumber,$biblionumber) = @_;
+	my $dbh = C4::Context->dbh;
+    my $query;
+    my $item;
+    my $sth;
+    my $previssue=0;
+    $sth = $dbh->prepare("select itemnumber from items where biblionumber=?");
+    $sth->execute($biblionumber);
+    while(my @row=$sth->fetchrow_array())
+    {
+    	$query = $dbh->prepare("select count(itemnumber) from old_issues where borrowernumber=? and itemnumber=?");
+    	$query->execute($borrowernumber,$row[0]);
+    	while(my @matches=$query->fetchrow_array())
+    	{
+    		if ($matches[0]>0)
+    		{
+    			$previssue=1;
+    		}
+    	}
+    }
+    $sth->finish;
+    return $previssue;
 }
 
 1;

@@ -372,6 +372,10 @@ function validate1(date) {
 [% IF  HIGHHOLDS %]
 	<li>High demand item. Loan period shortened to [% HIGHHOLDS.duration %] days (due [% HIGHHOLDS.returndate %]). Check out anyway?</li>
 [% END %]
+
+[% IF HOUSEBOUNDPREVISSUE %]
+    <li>Housebound patron has previously issued this item.  Check out anyway?</li>
+[% END %]
 </ul>
 
 [% IF HIGHHOLDS %]
