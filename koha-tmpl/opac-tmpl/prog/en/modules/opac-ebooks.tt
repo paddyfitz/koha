@@ -1,0 +1,47 @@
+[% INCLUDE 'doc-head-open.inc' %][% IF ( LibraryNameTitle ) %][% LibraryNameTitle %][% ELSE %]Koha Online[% END %]Catalogue &rsaquo; ISBD
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body id="opac-browser">
+[% IF ( OpacNav ) %]
+<div id="doc3" class="yui-t1">
+[% ELSE %]
+<div id="doc3" class="yui-t7">
+[% END %]
+<div id="bd"> 
+  [% INCLUDE 'masthead.inc' %]
+  <div id="yui-main">
+    <div class="yui-b">
+      <div class="yui-g">
+        <div class="container">
+            <div id=OR> 
+              <div id=ORTitle> 
+                <div id=ORPic> </div> 
+                <h1>eBooks and Audiobooks</h1> 
+                <hr /> 
+                <p>Halton Libraries have subscribed to a number of digital download resources! The following websites will allow you to have full access from within any Halton Library or remotely using your own device.</p>
+              </div> 
+              <div id=ORList>  
+                 <a href="http://www.publiclibraryonline.com/default.aspx" target="_new">Public Library Online</a> 
+                <p>Public Library Online offers access to a dynamic range of fiction and non-fiction titles, from a range of renowned publishers. Simply access the books using any Halton Library PC and you will be able to begin reading straight away. 
+                </br> If you are trying to access Public Library Online from the comfort of your own home or on the go, then you will need to be a member of Halton Libraries and have your library card number to hand. Also you will need a flash enabled device to access the service.</p>
+                </p> 
+              </div> 
+              <div id=ORFooter> 
+              <br> 
+              <hr /> 
+              <p>If your having problems accessing these resources, please contact your library for assistance.</p> 
+              </div> 
+            </div>         
+        </div>
+      </div>
+    </div>
+  </div>
+  [% IF ( OpacNav ) %]
+  <div class="yui-b">
+    <div class="container"> 
+      [% INCLUDE 'navigation.inc' %] 
+    </div>
+  </div>
+  [% END %] 
+</div>
+[% INCLUDE 'opac-bottom.inc' %] 

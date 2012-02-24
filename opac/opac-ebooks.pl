@@ -28,7 +28,7 @@ my $input = new CGI;
 
 my ( $template, $borrowernumber, $cookie ) = get_template_and_user(
     {
-        template_name   => "opac-onlresources.tt",
+        template_name   => "opac-ebooks.tt",
         type            => "opac",
         query           => $input,
         authnotrequired => 1,
