@@ -34,6 +34,10 @@ my $branch = $q->param('branch');
 
 my $date_time = localtime;
 
+if (!$email_addr) {
+        error( $q, 'No Email provided');
+    }
+
 if ($email_addr) {
 
     my %mail = (

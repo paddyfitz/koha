@@ -15,56 +15,52 @@
         <div class="container">
             <div id=OR> 
               <div id=ORTitle> 
-                <div id=ORPic> <img src="http://www2.halton.gov.uk/images/main/tourismandleisure/libraries/usingcomputer" width="200" height="150" /> </div> 
-                <h1>Online Resources</h1> 
+                <div id=ORPic> </div> 
+                <h1>Online Resources - Access our virtual library 24 hours a day</h1> 
                 <hr /> 
-                <p>Halton Libraries have subscribed to a number of online resources so you don't have to! The following websites will allow you to have full access from within any Halton Library, and some will allow you access from anywhere in the world using just your  Library ID. </p> 
+                <p>Halton Libraries have subscribed to a number of online resources so you don't have to! The following websites will allow you to have full access from anywhere using your library card number.</p> 
               </div> 
-              <div id=ORList>  <a href="http://kohalibrary.halton.gov.uk:2048/login?url=http://cascaid.co.uk" target="_new">Adult Directions</a> 
-                <p>The leading website for adult careers information and guidance, our mission is to provide the best possible careers planning and guidance services.</p> 
+              <div id=ORList>
+                 <a href="http://library.eb.co.uk/eb?library_id=halton" target="_new">Encyclopedia Britannica</a> 
+                <p>Encyclopedia Britannica is a trusted resource that includes Britannica Junior aimed at 5-11 year olds, Britannica student aimed at 12-18 year olds and the advanced level for university students and adults.</p> 
                 <hr /> 
-                 <a href="http://kohalibrary.halton.gov.uk:2048/login?url=http://library.eb.co.uk/eb?library_id=halton" target="_new">Britannica</a> 
-                <p>The encyclopdia! A curriculum-aligned resource essential for learning more about the every day.</p> 
+                 <a href="http://www.askaboutbusiness.org/index.php?option=com_content&view=article&id=13&Itemid=25" target="_new">COBRA</a> 
+                <p>COBRA is a practical information resource covering all aspects of starting and running a business. From writing a business plan to expanding an existing business, COBRA contains around 4000 factsheets, market reports, contacts, and sources of funding and support to help entrepreneurs.</p> 
                 <hr /> 
-                 <a href="http://kohalibrary.halton.gov.uk:2048/login?url=https://bsol.bsigroup.com/en/BsolHomePage" target="_new">British Standards</a> 
-                <p>The complete database of British Standards!</p> 
+                 <a href="http://halton.theorytestpro.co.uk" target="_new">Driving Theory Test</a> 
+                <p>Driving Theory Test gives you free access to the official DSA Car and Motorbike driving theory test.
+A realistic simulation of the UK's driving theory test. It contains the entire official test question bank, hazard perception video clips and an online version of the Highway code. You will need to register to create your own account so you can track your progress.</p> 
                 <hr /> 
-                 <a href="http://kohalibrary.halton.gov.uk:2048/login?url=http://halton.theorytestpro.co.uk/" target="_new">Driving Theory Test</a> 
-                <p>Free access to the official DSA Car and Motobike drving theory test. <i>You will need to register and have your library card number to log in form home.</i></p> 
+                 <a href="http://www.independence.co.uk/issues-online/login" target="_new">Issues Online</a> 
+                <p>Issues Online is the UK's first comprehensive reference source with articles addressing contemporary social issues. For example, rights and discrimination, drugs, crime and the environment. Very useful for school projects and general interest.</p> 
                 <hr /> 
-                 <a href="http://kohalibrary.halton.gov.uk:2048/login?url=http://www.funderfinder.org.uk/onlinepin/index.php" target="_new">Fundfinder</a> 
-                <p>Find out what funding is available and how to receive it.</p> 
+                 <a href="http://infoweb.newsbank.com" target="_new">Newsbank</a> 
+                <p>Newsbank gives you free access to national, local newspapers and journals online, including: 
+
+UK & Ireland Newspapers
+Liverpool Echo
+Runcorn and Widnes News</p> 
+                <hr />
+                 <a href="http://www.oxforddnb.com" target="_new">Oxford Dictionary of National Biography</a> 
+                <p>Oxford Dictionary of National Biography allows you to explore the lives of over 55,000 people important to the history of Britain.</p> 
                 <hr /> 
-                 <a href="http://kohalibrary.halton.gov.uk:2048/login?url=http://www.independence.co.uk/issues-online/login" target="_new">Issues Online</a> 
-                <p>The UK's first comprehensive reference source with articles addressing contemporary social issues. For example rights and discrimination, drugs, crime and the environment. Very useful for school projects and general interest.</p> 
+                 <a href="http://oed.com/" target="_new">Oxford English Dictionary Online</a> 
+                <p>Oxford English Dictionary Online is the definitive record of the English Language.</p> 
                 <hr /> 
-                 <a href="http://kohalibrary.halton.gov.uk:2048/login?url=http://infoweb.newsbank.com" target="_new">Newsbank</a> 
-                <p>National and local Newspapers online.</p> 
+                 <a href="http://www.oxfordreference.com" target="_new">Oxford Reference Online</a> 
+                <p>Oxford Reference Online gives you electronic access to a large collection of dictionaries and reference books online. It contains authoritative Information on every subject from Astronomy to Zoology.</p> 
                 <hr /> 
-                 <a href="http://kohalibrary.halton.gov.uk:2048/login?url=http://www.oxfordartonline.com/subscriber/;jsessionid=75735E528EDACE2E2DAE54B82E56C69F" target="_new">Oxford Art Online</a> 
-                <p>Oxford Art Online is an innovative gateway that offers users the ability to access and search the vast content of Grove Art Online and other Oxford art reference resources in one location. With the 2008 complete redesign of Grove Art Online and the addition of substantial new Oxford reference content, Oxford Art Online offers the most extensive and easily searchable online art resource available today, a virtual art reference library of unparalleled scope and depth.</p> 
-                <hr /> 
-                 <a href="http://kohalibrary.halton.gov.uk:2048/login?url=http://www.oxfordmusiconline.com/public/" target="_new">Oxford Music Online</a> 
-                <p>Grove Music Online has been the leading online resource for music research since its inception in 2001, a glorious compendium of music scholarship offering the full texts of The New Grove Dictionary of Music and Musicians, 2nd edition (2001), The New Grove Dictionary of Opera (1992), and The New Grove Dictionary of Jazz, 2nd edition (2002), as well as numerous subsequent updates and emendations.</p> 
-                <hr /> 
-                 <a href="http://kohalibrary.halton.gov.uk:2048/login?url=http://www.oxforddnb.com/subscribed" target="_new">Oxford Dictionary of National Biography</a> 
-                <p>Explore the lives of over 55,000 people important to the history of Britain.</p> 
-                <hr /> 
-                 <a href="http://kohalibrary.halton.gov.uk:2048/login?url=http://dictionary.oed.com/entrance.dtl" target="_new">Oxford English Dictionary Online</a> 
-                <p>The very last word on the English Language.</p> 
-                <hr /> 
-                 <a href="http://kohalibrary.halton.gov.uk:2048/login?url=http://www.oxfordreference.com/views/GLOBAL.html?authstatuscode=202" target="_new">Oxford Reference Online</a> 
-                <p>Authoritative Information on every subject from Astronomy to Zoology.</p> 
-                <hr /> 
-                 <a href="http://kohalibrary.halton.gov.uk:2048/login?url=http://infotrac.galegroup.com/itweb/haltlib?db=ttda" target="_new">Times Digital Archive</a> 
-                <p>Full text of the Times Newspaper 1785 to 1985, including images.</p> 
-                <hr /> 
+                 <a href="http://www.picturehalton.org.uk" target="_new">Picture Halton</a> 
+                <p>Picture Halton is a wonderful collection of old photos of Runcorn and Widnes.</p> 
+                <hr />
+                 <a href="http://www.questionpoint.org/crs/servlet/org.oclc.home.TFSRedirect?virtcategory=10836" target="_new">Enquire</a> 
+                <p>Enquire is a live question and answer service available 24 hours a day, every day. It works like instant messaging or chat room technology, allowing you to put questions to trained staff who can help you, just as they would if you were talking to them face-to-face or on the telephone. Best of all the service is free and anyone can use it! is a wonderful collection of old photos of Runcorn and Widnes. This a national service.</p> 
+                <hr />                
                 </p> 
               </div> 
               <div id=ORFooter> 
               <br> 
-              <hr /> 
-              <p>If your having problems accessing these resources, please contact your library for assistance.</p> 
+              <p><a href="http://www3.halton.gov.uk/educationandlearning/libraries/" target="_new">If you have a question about Halton libraries, please contact Halton Libraries.</p>
               </div> 
             </div>         
         </div>

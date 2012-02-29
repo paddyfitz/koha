@@ -89,7 +89,7 @@ function checkform ( mainform )
 <p><font face="Calibri">Submitting this form will notify a member of library staff, who will verify your details and add you to the library system as a new borrower.
 If you are already a member and have lost your card, please visit a branch to obtain a replacement card (£1 charge)
 
-<form name="mainform" method="post" action="/cgi-bin/koha/newuser.cgi" onsubmit="return checkform(this)">
+<form name="mainform" method="post" action="/cgi-bin/koha/newuser.cgi" onsubmit="return checkform(this);">
 
 
 <p><strong><font face="Calibri">Title (Required)</font></strong></p>
