@@ -1,5 +1,5 @@
 #!/bin/bash
-/home/koha/kohaclone/C4/SIP/sip_run.sh ./SIPServer.xml /home/koha/koha-dev/var/log/sip_6001.out /home/koha/koha-dev/var/log/sip_6001.err
+/home/koha/kohaclone/C4/SIP/sip_run.sh ./SIPServer.6001.xml /home/koha/koha-dev/var/log/sip_6001.out /home/koha/koha-dev/var/log/sip_6001.err
 /home/koha/kohaclone/C4/SIP/sip_run.sh ./SIPServer.6002.xml /home/koha/koha-dev/var/log/sip_6002.out /home/koha/koha-dev/var/log/sip_6002.err
 /home/koha/kohaclone/C4/SIP/sip_run.sh ./SIPServer.6003.xml /home/koha/koha-dev/var/log/sip_6003.out /home/koha/koha-dev/var/log/sip_6003.err
 /home/koha/kohaclone/C4/SIP/sip_run.sh ./SIPServer.6004.xml /home/koha/koha-dev/var/log/sip_6004.out /home/koha/koha-dev/var/log/sip_6004.err
