@@ -232,10 +232,10 @@ sub write_msg {
 
     if ($file) {
         $file->autoflush(1);
-        print $file "$msg\r";
+        print $file "$msg$CRLF";
     } else {
         STDOUT->autoflush(1);
-        print $msg, "\r";
+        print "$msg$CRLF";
         syslog("LOG_INFO", "OUTPUT MSG: '$msg'");
     }
 
