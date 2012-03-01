@@ -52,7 +52,6 @@ foreach (sort { $branches->{$a}->{branchname} cmp $branches->{$b}->{branchname} 
     };
 }
 
-<<<<<<< HEAD
 my @categories;
 my $no_categories;
 my $no_add = 0;
