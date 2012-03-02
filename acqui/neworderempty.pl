@@ -336,6 +336,11 @@ my @gst_values = map {
     option => $_
 }, split( '\|', C4::Context->preference("gist") );
 
+$bookseller->{discount} ||= 0;
+my $tmp_listprice = $data->{listprice}||$data->{price}||$listprice || 0;
+my $tmp_total = ($data->{ecost}||0)*($data->{quantity}||0);
+$tmp_total += 0;
+my $tmp_unitprice = $data->{unitprice} || 0;
 $template->param(
     existing         => $biblionumber,
     ordernumber           => $ordernumber,
