@@ -1,97 +1,77 @@
-[% INCLUDE 'doc-head-open.inc' %][% IF ( LibraryNameTitle ) %][% LibraryNameTitle %][% ELSE %]Koha Online[% END %] Catalogue &rsaquo; ISBD
+[% INCLUDE 'doc-head-open.inc' %]
+[% IF LibraryNameTitle %]
+[% LibraryNameTitle %]
+[% ELSE %]
+Koha Online
+[% END %]
+ Catalogue &rsaquo; ISBD
 [% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript">
+//<![CDATA[
+function checkform ( mainform )
+{
+    if (mainform.title.value.length == 0) {
+        alert( "Your Title is a required field. Please try again" );
+        mainform.title.focus();
+        return false ;
+    }
+    if (mainform.email_address.value.length == 0) {
+        alert( "Your Email Address is a required field. Please try again." );
+        mainform.email_address.focus();
+        return false ;
+    }
+    if (mainform.firstname.value.length == 0 ) {
+        alert( "Your First Name is a required field. Please try again." );
+        mainform.firstname.focus();
+        return false ;
+    }
+    if (mainform.surname.value.length == 0 ) {
+        alert( "Your Last Name is a required field. Please try again." );
+        mainform.surname.focus();
+        return false ;
+    }
+    if (mainform.dob.value.length == 0 ) {
+        alert( "The Date of Birth is a required field. Please try again." );
+        mainform.dob.focus();
+        return false ;
+    }
+    if (mainform.property.value.length == 0 ) {
+        alert( "Your Property No /  Name is a required field. Please try again." );
+        mainform.property.focus();
+        return false ;
+    }
+    if (mainform.address.value.length == 0 ) {
+        alert( "Your Address is a required field. Please try again." );
+        mainform.address.focus();
+        return false ;
+    }
+    if (mainform.postcode.value.length == 0 ) {
+        alert( "Your Postcode is a required field. Please try again." );
+        mainform.postcode.focus();
+        return false ;
+    }
+    if (mainform.mobile.value.length == 0 ) {
+        alert( "Your Mobile Number is a required field. Please try again." );
+        mainform.mobile.focus();
+        return false ;
+    }
+    return true ;
+}
+//]]>
+</script>
 </head>
 <body id="opac-browser">
         [% IF ( OpacNav ) %]<div id="doc3" class="yui-t1">[% ELSE %]<div id="doc3" class="yui-t7">[% END %]
    <div id="bd">
 [% INCLUDE 'masthead.inc' %]
-
         <div id="yui-main">
         <div class="yui-b"><div class="yui-g">
 <div class="container">
 
-<script language="JavaScript" type="text/javascript">
-//<![CDATA[
-function checkform ( mainform )
-{
-  // see http://www.thesitewizard.com/archive/validation.shtml
-  // for an explanation of this script and how to use it on your
-  // own website
-
-  // ** START **
-  if (mainform.title.value.length == 0) {
-    alert( "Your Title is a required field. Please try again" );
-    mainform.title.focus();
-    return false ;
-  }
-  // ** END **
-    // ** START **
-    if (mainform.email_address.value.length == 0) {
-      alert( "Your Email Address is a required field. Please try again." );
-      mainform.email_address.focus();
-      return false ;
-    }
-  // ** END **
-    // ** START **
-    if (mainform.firstname.value.length == 0 ) {
-      alert( "Your First Name is a required field. Please try again." );
-      mainform.firstname.focus();
-      return false ;
-    }
-  // ** END **
-    // ** START **
-    if (mainform.surname.value.length == 0 ) {
-      alert( "Your Last Name is a required field. Please try again." );
-      mainform.surname.focus();
-      return false ;
-    }
-  // ** END **
-    // ** START **
-    if (mainform.dob.value.length == 0 ) {
-      alert( "The Date of Birth is a required field. Please try again." );
-      mainform.dob.focus();
-      return false ;
-    }
-  // ** END **
-    // ** START **
-    if (mainform.property.value.length == 0 ) {
-      alert( "Your Property No /  Name is a required field. Please try again." );
-      mainform.property.focus();
-      return false ;
-    }
-  // ** END **
-    // ** START **
-    if (mainform.address.value.length == 0 ) {
-      alert( "Your Address is a required field. Please try again." );
-      mainform.address.focus();
-      return false ;
-    }
-  // ** END **
-    // ** START **
-    if (mainform.postcode.value.length == 0 ) {
-      alert( "Your Postcode is a required field. Please try again." );
-      mainform.postcode.focus();
-      return false ;
-    }
-  // ** END **
-    // ** START **
-    if (mainform.mobile.value.length == 0 ) {
-      alert( "Your Mobile Number is a required field. Please try again." );
-      mainform.mobile.focus();
-      return false ;
-    }
-  // ** END **
-  return true ;
-}
-//]]>
-</script>
-
 <p><font face="Calibri">Submitting this form will notify a member of library staff, who will verify your details and add you to the library system as a new borrower.
 If you are already a member and have lost your card, please visit a branch to obtain a replacement card (£1 charge)
-
+</font></p>
 <form name="mainform" method="post" action="/cgi-bin/koha/newuser.cgi" onsubmit="return checkform(this);">
-
-
 <p><strong><font face="Calibri">Title (Required)</font></strong></p>
 <p><textarea rows="1" cols="70" name="title"></textarea></p>
 
@@ -132,27 +112,27 @@ If you are already a member and have lost your card, please visit a branch to ob
 
 Choose the library you will visit most. This will be your home branch
 <p><strong><font face="Calibri">Library</font></strong></p>
-<p><SELECT name="branch"> <OPTION value="" selected></OPTION>
-  <option value="Halton Lea">Halton Lea</option>
+<p><select name="branch">
+  <option value="Halton Lea" selected="selecteed">Halton Lea</option>
   <option value="Ditton">Ditton</option>
   <option value="Runcorn">Runcorn</option>
-  <OPTION value="Widnes">Widnes</OPTION>
-</SELECT></p>
-
+  <option value="Widnes">Widnes</option>
+</select>
+</p>
 <p><input value="Submit" type="submit" />&nbsp; <input value="Reset" type="reset" /></p><p>
-
 Your new library card and PIN will be posted to the address you gave in the form.
-<br /></p></form>
-
+</p>
+</form>
 
 </div></div>
 </div>
 </div>
-[% IF ( OpacNav ) %]
+[% IF OpacNav %]
 <div class="yui-b">
 <div class="container">
 [% INCLUDE 'navigation.inc' %]
 </div>
-</div>[% END %]
+</div>
+[% END %]
 </div>
 [% INCLUDE 'opac-bottom.inc' %]
