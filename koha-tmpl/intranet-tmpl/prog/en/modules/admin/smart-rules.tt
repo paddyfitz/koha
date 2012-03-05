@@ -163,7 +163,7 @@ for="tobranch"><strong>Clone these rules to:</strong></label> <input type="hidde
                     <td><input name="fine" size="4" /></td>
                     <td><input name="chargeperiod" size="2" /></td>
                     <td><input name="firstremind" size="2" /> </td>
-                    <td><input name="overduefinescap" size="6" /> </td>
+                    <td><input name="overduefinescap" size="6" /></td>
                     <td><input name="finedays" size="3" /> </td>
                     <td><input name="renewalsallowed" size="2" /></td>
                     <td><input name="reservesallowed" size="2" /></td>

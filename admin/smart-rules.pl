@@ -102,7 +102,7 @@ elsif ($op eq 'delete-branch-item') {
 elsif ($op eq 'add') {
     my $sth_search = $dbh->prepare('SELECT COUNT(*) AS total FROM issuingrules WHERE branchcode=? AND categorycode=? AND itemtype=?');
     my $sth_insert = $dbh->prepare('INSERT INTO issuingrules (branchcode, categorycode, itemtype, maxissueqty, renewalsallowed, reservesallowed, issuelength, lengthunit, hardduedate, hardduedatecompare, fine, finedays, firstremind, chargeperiod,rentaldiscount, overduefinescap) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
-    my $sth_update=$dbh->prepare("UPDATE issuingrules SET fine=?, finedays=?, firstremind=?, chargeperiod=?, maxissueqty=?, renewalsallowed=?, reservesallowed=?, issuelength=?, lengthunit = ?, hardduedate=?, hardduedatecompare=?, rentaldiscount=?, overduefinescap=?  WHERE branchcode=? AND categorycode=? AND itemtype=?");
+    my $sth_update = $dbh->prepare("UPDATE issuingrules SET fine=?, finedays=?, firstremind=?, chargeperiod=?, maxissueqty=?, renewalsallowed=?, reservesallowed=?, issuelength=?, lengthunit = ?, hardduedate=?, hardduedatecompare=?, rentaldiscount=?, overduefinescap=?  WHERE branchcode=? AND categorycode=? AND itemtype=?");
     
     my $br = $branch; # branch
     my $bor  = $input->param('categorycode'); # borrower category
