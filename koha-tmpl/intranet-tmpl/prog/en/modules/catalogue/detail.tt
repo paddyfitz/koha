@@ -360,7 +360,7 @@ function verify_images() {
                     [% IF ( itemloo.waitingdate ) %]
                         Waiting
                     [% ELSE %]
-                        Item-level hold
+                        Hold
                     [% END %]
                     [% IF ( canreservefromotherbranches ) %]for <a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=[% itemloo.ReservedForBorrowernumber %]">
 		        [% IF ( itemloo.hidepatronname ) %]
