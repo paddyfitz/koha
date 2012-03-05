@@ -5,54 +5,68 @@ use strict;
 
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
+use CGI::Untaint;
+use CGI::Untaint::email;
+use CGI::Untaint::uk_postcode;
+use CGI::Untaint::date;
+use Date::Simple qw( today );
 use Mail::Sendmail;
 use Readonly;
 
 #Readonly my $staff_email => 'jonathan.field@ptfs-europe.com';
 Readonly my $staff_email => 'Jeff.Proffitt@halton.gov.uk';
+
 #Readonly my $staff_email => 'Haltonlea.library@halton.gov.uk';
-Readonly my $from_addr   => 'Haltonlea.library@halton.gov.uk';
-Readonly my $mailserver  => 'localhost';
+Readonly my $from_addr  => 'Haltonlea.library@halton.gov.uk';
+Readonly my $mailserver => 'localhost';
 
 my $q = CGI->new;
 
-my $firstname    = $q->param('firstname');
-my $title     = $q->param('title');
-my $surname = $q->param('surname');
-my $dob   = $q->param('dob');
-my $property      = $q->param('property');
-my $address     = $q->param('address');
-my $address2     = $q->param('address2');
-my $town     = $q->param('town');
-my $county     = $q->param('county');
-my $postcode     = $q->param('postcode');
-my $phone     = $q->param('phone');
-my $mobile     = $q->param('mobile');
-my $email_addr = $q->param('email_address');
+my $handler = CGI::Untaint->new( $q->Vars );
 
-my $branch = $q->param('branch');
-
-my $date_time = localtime;
-
-if (!$email_addr) {
-        error( $q, 'No Email provided');
-    }
-
-if ($email_addr) {
-
-    my %mail = (
-        To                          => $email_addr,
-        From                        => $from_addr,
-        Subject                     => 'New Library User Registration Request Notification',
-        'Content-Type'              => 'text/plain; charset=utf-8',
-        'Content-Transfer-Encoding' => 'quoted-printable',
-        Message =>
-"Thank you for registering for the library.  The following details have been recorded:\n\nTitle: $title\nFirst Name: $firstname\nSurname: $surname\nDOB: $dob\nProperty: $property\nAddress: $address\nAddress 2: $address2\nTown: $town\nCounty: $county\nPostcode: $postcode\nPhone: $phone\nMobile: $mobile\nContact email: $email_addr\nBranch: $branch\nRegistration Date: $date_time\n\n. ",
-        Smtp => $mailserver,
-    );
-
-    sendmail(%mail) or croak $Mail::Sendmail::error;
+my $email_addr = $handler->extract( -as_email => 'email_address' );
+if ( my $err_str = $handler->error ) {
+    error( $q, $err_str );
 }
+my $firstname = $handler->extract( -as_printable   => 'firstname' );
+my $title     = $handler->extract( -as_printable   => 'title' );
+my $surname   = $handler->extract( -as_printable   => 'surname' );
+my $dob       = $handler->extract( -as_date        => 'dob' );
+my $property  = $handler->extract( -as_printable   => 'property' );
+my $address   = $handler->extract( -as_printable   => 'address' );
+my $address2  = $handler->extract( -as_printable   => 'address2' );
+my $town      = $handler->extract( -as_printable   => 'town' );
+my $county    = $handler->extract( -as_printable   => 'county' );
+my $postcode  = $handler->extract( -as_uk_postcode => 'postcode' );
+my $phone     = $handler->extract( -as_printable   => 'phone' );
+my $mobile    = $handler->extract( -as_printable   => 'mobile' );
+my $branch    = $handler->extract( -as_printable   => 'branch' );
+
+my $date_time = today();
+
+my $msg =
+    "\n\nTitle: $title\nFirst Name: $firstname\nSurname: $surname\nDOB: "
+  . $dob->as_str('%d-%m-%Y')
+  . "\nProperty: $property\nAddress: $address\nAddress 2: $address2\n"
+  . "Town: $town\nCounty: $county\nPostcode: $postcode\n"
+  . "Phone: $phone\nMobile: $mobile\nContact email: "
+  . $email_addr->format
+  . "\nBranch: $branch\nRegistration Date: "
+  . $date_time->as_str('%d-%m-%Y')
+  . "\n\n. ";
+
+my %mail = (
+    To             => $email_addr->format,
+    From           => $from_addr,
+    Subject        => 'New Library User Registration Request Notification',
+    'Content-Type' => 'text/plain; charset=utf-8',
+    'Content-Transfer-Encoding' => 'quoted-printable',
+    Message =>
+"Thank you for registering for the library.  The following details have been recorded:$msg",
+    Smtp => $mailserver,
+);
+
+sendmail(%mail) or croak $Mail::Sendmail::error;
 
 my %alert = (
     To             => $staff_email,
@@ -60,7 +74,7 @@ my %alert = (
     Subject        => 'New User Registration Request alert',
     'Content-Type' => 'text/plain; charset=utf-8',
     Message =>
-"The following patron has requested to register with the library :\n\nTitle: $title\nFirst Name: $firstname\nSurname: $surname\nDOB: $dob\nProperty: $property\nAddress: $address\nAddress 2: $address2\nTown: $town\nCounty: $county\nPostcode: $postcode\nPhone: $phone\nMobile: $mobile\nContact email: $email_addr\nBranch: $branch\nRegistration Date: $date_time\n\n. ",
+      "The following patron has requested to register with the library :$msg",
     Smtp => $mailserver,
 );
 
@@ -79,11 +93,11 @@ qq{<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.d
  <body>
    <p><b>Thank you for registering. We will get back to you as soon as possible</b></p>
    <p><b>Your name:</b> $title $firstname $surname</p>
-   <p><b>DOB:</b> $dob</p>
+   <p><b>DOB:</b>} . $dob->as_str('%d-%m-%Y') . qq{</p>
    <p><b>Address:</b> $property $address, $address2, $town, $county, $postcode</p>
    <p><b>Phone:</b> $phone</p>
    <p><b>Mobile:</b> $mobile</p>
-   <p><b>Email address:</b> $email_addr</p>
+   <p><b>Email address:</b>} . $email_addr->format . qq{</p>
    <p><b>Branch:</b> $branch</p>
    };
 
