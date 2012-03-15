@@ -665,7 +665,7 @@ return message_id on success
 =cut
 
 sub EnqueueLetter {
-    my $params = shift or return;
+    my $params = shift or return undef;
 
     return unless exists $params->{'letter'};
     return unless exists $params->{'borrowernumber'};
