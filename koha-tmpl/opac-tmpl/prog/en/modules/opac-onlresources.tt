@@ -22,49 +22,39 @@
                 <p>Halton Libraries have subscribed to a number of online resources so you don't have to! The following websites will allow you to have full access from anywhere using your library card number.</p> 
               </div> 
               <div id=ORList>
-                <img src="/opac-tmpl/prog/images/Encyclopedia Britannica.png" alt="Britannica"/>
-                 <a href="http://library.eb.co.uk/eb?library_id=halton" target="_new">Encyclopedia Britannica</a> 
+                 <a href="http://library.eb.co.uk/eb?library_id=halton" target="_new"><img src="/opac-tmpl/prog/images/Encyclopedia Britannica.png" alt="Britannica"/></a> 
                 <p>Encyclopedia Britannica is a trusted resource that includes Britannica Junior aimed at 5-11 year olds, Britannica student aimed at 12-18 year olds and the advanced level for university students and adults.</p> 
                 <hr /> 
-                <img src="/opac-tmpl/prog/images/Cobra.png" alt="COBRA"/>
-                 <a href="http://www.askaboutbusiness.org/index.php?option=com_content&view=article&id=13&Itemid=25" target="_new">COBRA</a> 
+                 <a href="http://www.askaboutbusiness.org/index.php?option=com_content&view=article&id=13&Itemid=25" target="_new"><img src="/opac-tmpl/prog/images/Cobra.png" alt="COBRA"/></a> 
                 <p>COBRA is a practical information resource covering all aspects of starting and running a business. From writing a business plan to expanding an existing business, COBRA contains around 4000 factsheets, market reports, contacts, and sources of funding and support to help entrepreneurs.</p> 
                 <hr /> 
-                <img src="/opac-tmpl/prog/images/Driving Theory Test.png" alt="Driving Theory"/>
-                 <a href="http://halton.theorytestpro.co.uk" target="_new">Driving Theory Test</a> 
+                 <a href="http://halton.theorytestpro.co.uk" target="_new"><img src="/opac-tmpl/prog/images/Driving Theory Test.png" alt="Driving Theory"/></a> 
                 <p>Driving Theory Test gives you free access to the official DSA Car and Motorbike driving theory test.
 A realistic simulation of the UK's driving theory test. It contains the entire official test question bank, hazard perception video clips and an online version of the Highway code. You will need to register to create your own account so you can track your progress.</p> 
                 <hr /> 
-                <img src="/opac-tmpl/prog/images/Issues Online.png" alt="Issues Online"/>
-                 <a href="http://www.independence.co.uk/issues-online/login" target="_new">Issues Online</a> 
+                 <a href="http://www.independence.co.uk/issues-online/login" target="_new"><img src="/opac-tmpl/prog/images/Issues Online.png" alt="Issues Online"/></a> 
                 <p>Issues Online is the UK's first comprehensive reference source with articles addressing contemporary social issues. For example, rights and discrimination, drugs, crime and the environment. Very useful for school projects and general interest.</p> 
                 <hr /> 
-                <img src="/opac-tmpl/prog/images/Newsbank.png" alt="Newsbank"/>
-                 <a href="http://infoweb.newsbank.com" target="_new">Newsbank</a> 
+                 <a href="http://infoweb.newsbank.com/signin/HaltonBoroughCouncil" target="_new"><img src="/opac-tmpl/prog/images/Newsbank.png" alt="Newsbank"/></a> 
                 <p>Newsbank gives you free access to national, local newspapers and journals online, including: 
 
 UK & Ireland Newspapers
 Liverpool Echo
 Runcorn and Widnes News</p> 
                 <hr />
-                <img src="/opac-tmpl/prog/images/Oxford Dictionary of National Biography.png" alt="ODNB"/>
-                 <a href="http://www.oxforddnb.com" target="_new">Oxford Dictionary of National Biography</a> 
+                 <a href="http://www.oxforddnb.com" target="_new"><img src="/opac-tmpl/prog/images/Oxford Dictionary of National Biography.png" alt="ODNB"/></a> 
                 <p>Oxford Dictionary of National Biography allows you to explore the lives of over 55,000 people important to the history of Britain.</p> 
                 <hr /> 
-                <img src="/opac-tmpl/prog/images/Oxford English Dictionary Online.png" alt="OED"/>
-                 <a href="http://oed.com/" target="_new">Oxford English Dictionary Online</a> 
+                 <a href="http://oed.com/" target="_new"><img src="/opac-tmpl/prog/images/Oxford English Dictionary Online.png" alt="OED"/></a> 
                 <p>Oxford English Dictionary Online is the definitive record of the English Language.</p> 
                 <hr /> 
-                <img src="/opac-tmpl/prog/images/Oxford Reference Online.png" alt="Oxford Reference Online"/>
-                 <a href="http://www.oxfordreference.com" target="_new">Oxford Reference Online</a> 
+                 <a href="http://www.oxfordreference.com" target="_new"><img src="/opac-tmpl/prog/images/Oxford Reference Online.png" alt="Oxford Reference Online"/></a>
                 <p>Oxford Reference Online gives you electronic access to a large collection of dictionaries and reference books online. It contains authoritative Information on every subject from Astronomy to Zoology.</p> 
                 <hr /> 
-                <img src="/opac-tmpl/prog/images/Picture Halton.png" alt="Picture Halton"/>
-                 <a href="http://www.picturehalton.org.uk" target="_new">Picture Halton</a> 
+                 <a href="http://www.picturehalton.org.uk" target="_new"><img src="/opac-tmpl/prog/images/Picture Halton.png" alt="Picture Halton"/></a> 
                 <p>Picture Halton is a wonderful collection of old photos of Runcorn and Widnes.</p> 
                 <hr />
-                <img src="/opac-tmpl/prog/images/Enquire.png" alt="Enquire"/>
-                 <a href="http://www.questionpoint.org/crs/servlet/org.oclc.home.TFSRedirect?virtcategory=10836" target="_new">Enquire</a> 
+                 <a href="http://www.questionpoint.org/crs/servlet/org.oclc.home.TFSRedirect?virtcategory=10836" target="_new"><img src="/opac-tmpl/prog/images/Enquire.png" alt="Enquire"/></a> 
                 <p>Enquire is a live question and answer service available 24 hours a day, every day. It works like instant messaging or chat room technology, allowing you to put questions to trained staff who can help you, just as they would if you were talking to them face-to-face or on the telephone. Best of all the service is free and anyone can use it! is a wonderful collection of old photos of Runcorn and Widnes. This a national service.</p> 
                 <hr />                
                 </p><b> 
@@ -72,32 +62,27 @@ The following websites can only be accessed at your local library on a Halton Li
 </b>
                 <hr />
 
-                <img src="/opac-tmpl/prog/images/Ancestry.png" alt="Ancestry"/>
-                 <a href="http://www.ancestrylibrary.com" target="_new">Ancestry</a> 
+                 <a href="http://www.ancestrylibrary.com" target="_new"><img src="/opac-tmpl/prog/images/Ancestry.png" alt="Ancestry"/></a> 
                 <p>Ancestry gives you free access to a large collection of family records including UK census, births marriages and deaths and lots more.</p> 
                 <hr />                
                 </p> 
-                <img src="/opac-tmpl/prog/images/Find My Past.png" alt="Find My Past"/>
-                 <a href="http://www.findmypast.co.uk/welcome.jsp" target="_new">Find My Past</a> 
+                 <a href="http://www.findmypast.co.uk/welcome.jsp" target="_new"><img src="/opac-tmpl/prog/images/Find My Past.png" alt="Find My Past"/></a> 
                 <p>Find My Past gives you free access to the most complete online 1841-1911 census collection, parish records, the new Cheshire collection, migration and military records.</p>
                 <hr />                
                 </p> 
-                <img src="/opac-tmpl/prog/images/Origins.png" alt="Origins"/>
-                 <a href="http://www.origins.net/Lib_Welcome.aspx" target="_new">Origins</a> 
+                 <a href="http://www.origins.net/Lib_Welcome.aspx" target="_new"><img src="/opac-tmpl/prog/images/Origins.png" alt="Origins"/></a> 
                 <p>Origins allows you to search over 80 million British and Irish genealogy records spanning over eight centuries.
 Including Griffiths Valuation of Ireland 1847 and many other records from England, Wales,, Ireland and Scotland.
 </p>
                 <hr />                
                 </p> 
-                <img src="/opac-tmpl/prog/images/Travel Gazetteers.png" alt="Travel Gazetteers"/>
-                 <a href="http://www.gazetteers.com" target="_new">Travel Gazeteer</a> 
+                 <a href="http://www.gazetteers.com" target="_new"><img src="/opac-tmpl/prog/images/Travel Gazetteers.png" alt="Travel Gazetteers"/></a> 
                 <p>Travel Gazetteer
 Don't book a holiday without seeing what the experts think on our free holiday website.
 </p>
                 <hr />                
                 </p> 
-                <img src="/opac-tmpl/prog/images/Which.png" alt="Which"/>
-                 <a href="http://www.which.co.uk" target="_new">Which?</a> 
+                 <a href="http://www.which.co.uk" target="_new"><img src="/opac-tmpl/prog/images/Which.png" alt="Which"/></a> 
                 <p>Which? Gives you free access to the most reliable consumer advice.</p>
                 <hr />                
                 </p> 
