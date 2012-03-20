@@ -97,6 +97,10 @@
 	<dd>Printers (UNIX paths).</dd> -->
 	<dt><a href="/cgi-bin/koha/admin/z3950servers.pl">Z39.50 Client Targets</a></dt>
 	<dd>Define which servers to query for MARC data in the integrated Z39.50 client.</dd>
+	<dt><a href="/cgi-bin/koha/admin/edi-accounts.pl">EDI Accounts</a></dt>
+	<dd>Manage vendor EDI accounts</dd>
+	<dt><a href="/cgi-bin/koha/admin/edi_ean_accounts.pl">EDI EANs</a></dt>
+	<dd>Manage Branch EDI EANs</dd>
 </dl>
 </div>
 

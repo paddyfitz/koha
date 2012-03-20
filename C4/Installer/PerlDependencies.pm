@@ -484,6 +484,21 @@ our $PERL_DEPS = {
         'required' => '1',
         'min_ver'  => '0.09',
       },
+    'Edifact::Interchange' => {
+        'usage'    => 'Core',
+        'required' => '1',
+        'min_ver'  => '0.01',
+      },
+    'Net::FTP' => {
+        'usage'    => 'Core',
+        'required' => '1',
+        'min_ver'  => '2.77',
+      },
+    'Net::FTP::File' => {
+        'usage'    => 'Core',
+        'required' => '1',
+        'min_ver'  => '0.06',
+      },
 };
 
 1;
