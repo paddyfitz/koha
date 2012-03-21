@@ -268,7 +268,7 @@ sub sip_protocol_loop {
 		while (chomp($input)) {warn "Extra line ending on input";}
 		unless ($input) {
             syslog("LOG_ERR", "sip_protocol_loop: empty input skipped");
-            print("96$CR");
+            print("96$CRLF");
             next;
 		}
 		# end cheap input hacks
