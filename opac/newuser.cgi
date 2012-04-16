@@ -14,7 +14,7 @@ use Mail::Sendmail;
 use Readonly;
 
 #Readonly my $staff_email => 'jonathan.field@ptfs-europe.com';
-Readonly my $staff_email => 'Jeff.Proffitt@halton.gov.uk';
+Readonly my $staff_email => 'Haltonlea.library@halton.gov.uk';
 
 #Readonly my $staff_email => 'Haltonlea.library@halton.gov.uk';
 Readonly my $from_addr  => 'Haltonlea.library@halton.gov.uk';
