@@ -986,9 +986,14 @@ sub handle_patron_info {
 
         $resp .= summary_info($ils, $patron, $summary, $start, $end);
 
-        $resp .= maybe_add(FID_HOME_ADDR,  $patron->address);
-        $resp .= maybe_add(FID_EMAIL,      $patron->email_addr);
-        $resp .= maybe_add(FID_HOME_PHONE, $patron->home_phone);
+        # Halton suppress personal info
+#        $resp .= maybe_add(FID_HOME_ADDR,  $patron->address);
+#        $resp .= maybe_add(FID_EMAIL,      $patron->email_addr);
+#        $resp .= maybe_add(FID_HOME_PHONE, $patron->home_phone);
+
+        $resp .= maybe_add( FID_HOME_ADDR,  q{} );
+        $resp .= maybe_add( FID_EMAIL,      q{} );
+        $resp .= maybe_add( FID_HOME_PHONE, q{} );
 
         # SIP 2.0 extensions used by Envisionware
         # Other terminals will ignore unrecognized fields (unrecognized field identifiers)
