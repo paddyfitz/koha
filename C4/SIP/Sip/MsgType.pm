@@ -662,6 +662,10 @@ sub handle_checkin {
             $status->alert(1);
             $status->alert_type('04');  # no hold, just send it
         }
+        elsif ($item->itype eq 'RG') {
+            $status->alert(1);
+            $status->screen_msg('RG Item');
+        }
     }
     $resp .= $status->alert ? 'Y' : 'N';
     $resp .= Sip::timestamp;
