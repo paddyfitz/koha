@@ -24,7 +24,7 @@ foreach (@myTypes) {
     #print "$sql\n";
     my $dt = DateTime->now;
 
-    #$sth->execute( $newitype, $itype );
+    $sth->execute( $newitype, $itype );
 }
 
 __END__
