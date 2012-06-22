@@ -11,7 +11,7 @@
     min_servers='3'
     min_spare_servers='0' 
     log_file='Sys::Syslog'
-    syslog_ident='sip_test'
+    syslog_ident='sip_8023'
     syslog_facility='local6'
   />
   
