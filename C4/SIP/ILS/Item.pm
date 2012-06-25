@@ -318,6 +318,14 @@ sub hold_pickup_date {
     return $self->{hold_pickup_date} || 0;
 }
 
+sub itype {
+    my $self = shift;
+    if ($self->{itype} ) {
+        return $self->{itype};
+    }
+    return q{};
+}
+
 # This is a partial check of "availability".  It is not supposed to check everything here.
 # An item is available for a patron if it is:
 # 1) checked out to the same patron 
