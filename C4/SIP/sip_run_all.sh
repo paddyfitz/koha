@@ -28,3 +28,4 @@
 /home/koha/kohaclone/C4/SIP/sip_run.sh ./SIPServer.8823.xml /home/koha/koha-dev/var/log/sip_8823.out /home/koha/koha-dev/var/log/sip_8823.err
 /home/koha/kohaclone/C4/SIP/sip_run.sh ./SIPServer.8923.xml /home/koha/koha-dev/var/log/sip_8923.out /home/koha/koha-dev/var/log/sip_8923.err
 /home/koha/kohaclone/C4/SIP/sip_run.sh ./SIPServer.8925.xml /home/koha/koha-dev/var/log/sip_8925.out /home/koha/koha-dev/var/log/sip_8925.err
+/home/koha/kohaclone/C4/SIP/sip_run.sh ./SIPServer.8926.xml /home/koha/koha-dev/var/log/sip_8926.out /home/koha/koha-dev/var/log/sip_8926.err
