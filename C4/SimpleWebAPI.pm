@@ -97,7 +97,6 @@ sub CheckAvailability {
     my $total_available;
     my $na;
     my $curdate=sprintf "%d%02d%02d",(localtime)[5] + 1900,(localtime)[4] + 1, (localtime)[3] ;
-    
 	for my $item (@$items)
 	{
 		$na=0;
@@ -170,6 +169,7 @@ sub CheckAvailability {
 		$xmlresponse .= "\t\t\t<type>".GetItemType($item->{itype})."</type>\n";
 		$xmlresponse .= "\t\t\t<callnumber>".$item->{itemcallnumber}."</callnumber>\n";
 		$xmlresponse .= "\t\t\t<collection>".GetCollection($item->{ccode})."</collection>\n";
+		$xmlresponse .= "\t\t\t<location>".GetLocation($item->{location})."</location>\n";
 		$xmlresponse .= "\t\t</item>\n";
 	}
     $xmlresponse .= "\t</items>\n";
@@ -188,6 +188,16 @@ sub CheckAvailability {
 		$sth->execute($collection);
 		$collection=$sth->fetchrow_array;
 		return $collection;
+    }
+
+    sub GetLocation {
+    	my $location=shift;
+    	my $dbh = C4::Context->dbh;
+		my $sth = $dbh->prepare("SELECT lib FROM authorised_values WHERE category='LOC' 
+			and authorised_value = ?");
+		$sth->execute($location);
+		$location=$sth->fetchrow_array;
+		return $location;
     }
 
     sub GetItemType {
