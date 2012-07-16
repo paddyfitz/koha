@@ -168,7 +168,7 @@ sub CheckAvailability {
 		}
 		$xmlresponse .= "\t\t\t<branch>".GetBranchName($item->{holdingbranch})."</branch>\n";
 		$xmlresponse .= "\t\t\t<type>".GetItemType($item->{itype})."</type>\n";
-		#$xmlresponse .= "\t\t\t<callnumber>".$item->{itemcallnumber}."</callnumber>\n";
+		$xmlresponse .= "\t\t\t<callnumber>".$item->{itemcallnumber}."</callnumber>\n";
 		$xmlresponse .= "\t\t\t<collection>".GetCollection($item->{ccode})."</collection>\n";
 		$xmlresponse .= "\t\t</item>\n";
 	}
