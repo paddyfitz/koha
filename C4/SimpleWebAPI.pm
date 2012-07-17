@@ -104,8 +104,8 @@ sub CheckAvailability {
 		my $duedate=$item->{onloan};
 		$duedate=~ s/-//g;
 		$xmlresponse .= "\t\t<item>\n";
-		$xmlresponse .= "\t\t\t<itemnumber>".$item->{itemnumber}."</itemnumber>\n";
-		$xmlresponse .= "\t\t\t<itembarcode>".$item->{barcode}."</itembarcode>\n";
+		$xmlresponse .= "\t\t\t<itemnumber>".clean_xml($item->{itemnumber})."</itemnumber>\n";
+		$xmlresponse .= "\t\t\t<itembarcode>".clean_xml($item->{barcode})."</itembarcode>\n";
 		my $issued=CheckOverdue($item->{itemnumber});
 		if ($item->{restricted}!=0)
 		{
@@ -163,13 +163,13 @@ sub CheckAvailability {
 		}
 		else
 		{
-			$xmlresponse .= "\t\t\t<duedate>".$item->{onloan}."</duedate>\n";
+			$xmlresponse .= "\t\t\t<duedate>".clean_xml($item->{onloan})."</duedate>\n";
 		}
-		$xmlresponse .= "\t\t\t<branch>".GetBranchName($item->{holdingbranch})."</branch>\n";
-		$xmlresponse .= "\t\t\t<type>".GetItemType($item->{itype})."</type>\n";
-		$xmlresponse .= "\t\t\t<callnumber>".$item->{itemcallnumber}."</callnumber>\n";
-		$xmlresponse .= "\t\t\t<collection>".GetCollection($item->{ccode})."</collection>\n";
-		$xmlresponse .= "\t\t\t<location>".GetLocation($item->{location})."</location>\n";
+		$xmlresponse .= "\t\t\t<branch>".clean_xml(GetBranchName($item->{holdingbranch}))."</branch>\n";
+		$xmlresponse .= "\t\t\t<type>".clean_xml(GetItemType($item->{itype}))."</type>\n";
+		$xmlresponse .= "\t\t\t<callnumber>".clean_xml($item->{itemcallnumber})."</callnumber>\n";
+		$xmlresponse .= "\t\t\t<collection>".clean_xml(GetCollection($item->{ccode}))."</collection>\n";
+		$xmlresponse .= "\t\t\t<location>".clean_xml(GetLocation($item->{location}))."</location>\n";
 		$xmlresponse .= "\t\t</item>\n";
 	}
     $xmlresponse .= "\t</items>\n";
@@ -232,5 +232,22 @@ sub ServiceError {
     $xmlresponse .= "</SimpleWebAPI_response>\n";
 	return $xmlresponse;
 }
+
+=head2 clean_xml
+
+Clean reserved XML characters
+
+=cut
+
+sub clean_xml
+{
+	my $xml=shift;
+	$xml=~ s/&/&amp;/g;
+	$xml=~ s/\"/&quot;/g;
+	$xml=~ s/</&lt;/g;
+	$xml=~ s/>/&gt;/g;
+	return $xml;
+}
+
 
 1;
