@@ -8,10 +8,10 @@
   For OpenSolaris, add: syslog_logsock=stream
 -->
   <server-params
-    min_servers='5'
+    min_servers='1'
     min_spare_servers='0' 
     log_file='Sys::Syslog'
-    syslog_ident='sip_8926'
+    syslog_ident='sip_6020'
     syslog_facility='local6'
   />
   
@@ -22,13 +22,13 @@
       transport="http"
       protocol="NCIP/1.0" />
     <service
-      port="8926/tcp"
-      transport="telnet"
+      port="127.0.0.1:6011/tcp"
+      transport="RAW" 
       protocol="SIP/2.00"
       timeout="60" />
 -->
   <service
-      port="127.0.0.1:8926/tcp"
+      port="127.0.0.r10:6020/tcp"
         transport="RAW" 
        protocol="SIP/2.00"
        timeout="60" />

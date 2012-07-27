@@ -17,6 +17,7 @@
 /home/koha/kohaclone/C4/SIP/sip_run.sh ./SIPServer.6016.xml /home/koha/koha-dev/var/log/sip_6016.out /home/koha/koha-dev/var/log/sip_6016.err
 /home/koha/kohaclone/C4/SIP/sip_run.sh ./SIPServer.6017.xml /home/koha/koha-dev/var/log/sip_6017.out /home/koha/koha-dev/var/log/sip_6017.err
 /home/koha/kohaclone/C4/SIP/sip_run.sh ./SIPServer.6018.xml /home/koha/koha-dev/var/log/sip_6018.out /home/koha/koha-dev/var/log/sip_6018.err
+/home/koha/kohaclone/C4/SIP/sip_run.sh ./SIPServer.6020.xml /home/koha/koha-dev/var/log/sip_6020.out /home/koha/koha-dev/var/log/sip_6020.err
 /home/koha/kohaclone/C4/SIP/sip_run.sh ./SIPServer.6019.xml /home/koha/koha-dev/var/log/sip_6019.out /home/koha/koha-dev/var/log/sip_6019.err
 /home/koha/kohaclone/C4/SIP/sip_run.sh ./SIPServer.8123.xml /home/koha/koha-dev/var/log/sip_8123.out /home/koha/koha-dev/var/log/sip_8123.err
 /home/koha/kohaclone/C4/SIP/sip_run.sh ./SIPServer.8223.xml /home/koha/koha-dev/var/log/sip_8223.out /home/koha/koha-dev/var/log/sip_8223.err
