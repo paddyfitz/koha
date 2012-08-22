@@ -79,8 +79,8 @@ sub get_filename {
 sub transfer_file {
     my $marc_file = shift;
     my $remote    = 'ftp.smartsm.com';
-    my $username  = q(halton);
-    my $password : q(h20lt2nq);
+    my $username  = q{halton};
+    my $password = q{h20lt2nq};
 
     my $ftp = Net::FTP->new( $remote, Debug => 0 )
       or croak "Cannot connect to smartsm: $@";
