@@ -1,6 +1,5 @@
 #!/bin/bash
 
-. $HOME/.bash_profile
 
 
 target="SIPServer.$1.xml";

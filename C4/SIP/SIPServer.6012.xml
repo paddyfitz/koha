@@ -23,7 +23,7 @@
       protocol="NCIP/1.0" />
 -->
     <service
-      port="127.0.0.1:6012/tcp"
+      port="6012/tcp"
       transport="RAW" 
       protocol="SIP/2.00"
       timeout="60" />
