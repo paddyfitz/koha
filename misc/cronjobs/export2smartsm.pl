@@ -53,7 +53,7 @@ sub write_file {
       or croak "Cannot open $export_filename : $!";
 
     while ( my ($biblionumber) = $sth->fetchrow_array ) {
-        my $marc_record = GetMarcBiblio($biblionumber);
+        my $marc_record = GetMarcBiblio($biblionumber,1);
         if ($marc_record) {
             print {$fh} $marc_record->as_usmarc();
         }
