@@ -556,6 +556,7 @@ sub _parseletter_sth {
         carp "ERROR: _parseletter_sth() called without argument (table)";
         return;
     }
+    my %handles = ();
     # check cache first
     (defined $handles{$table}) and return $handles{$table};
     my $query = 
