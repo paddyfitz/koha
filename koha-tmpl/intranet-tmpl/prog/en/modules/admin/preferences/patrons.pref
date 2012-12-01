@@ -139,3 +139,9 @@ Patrons:
                yes: Do
                no: "Don't"
          - enable the ability to upload and attach arbitrary files to a borrower record.
+     -
+         - pref: EnableLookupLLPG
+           choices:
+               yes: Enable
+               no: Disable
+         - lookup of patron addresses via LLPG service. 

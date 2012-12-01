@@ -499,9 +499,9 @@ if (!defined($select_city) or $select_city eq '' ){
 }
 
 # LLPG
-#if (C4::Context->preference('LLPG')) {
+if (C4::Context->preference('enablelookupllpg')) {
    $template->param( LLPG_enabled => 1);
-#}
+}
 
 my $city_arrayref = GetCities();
 if (@{$city_arrayref} ) {
