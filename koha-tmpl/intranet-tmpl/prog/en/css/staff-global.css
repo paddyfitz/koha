@@ -28,6 +28,12 @@ a:hover, a:active {
     border-radius: 5px;
 }
 
+.changed {
+   border-color: #58D3F7;
+   border-style: solid;
+   border-radius: 4px;
+}
+
 .yui-button,.yui-button a:link,.yui-button a:visited {
 	color : #000;
 }

@@ -498,6 +498,11 @@ if (!defined($select_city) or $select_city eq '' ){
 	$default_city = &getidcity($data{'city'});
 }
 
+# LLPG
+#if (C4::Context->preference('LLPG')) {
+   $template->param( LLPG_enabled => 1);
+#}
+
 my $city_arrayref = GetCities();
 if (@{$city_arrayref} ) {
     $template->param( city_cgipopup => 1);
