@@ -704,7 +704,11 @@
     </li>
         [% END %]
         [% UNLESS noaddress2 %]
+    [% IF ( opadd ) %]
     <li style="display: none;">
+    [% ELSE %]
+    <li>
+    [% END %]
       [% IF ( mandatoryaddress2 ) %]
       <label for="address2" class="required">
       [% ELSE %]
@@ -720,7 +724,11 @@
     </li>
         [% END %]
         [% UNLESS nocity %]
+    [% IF ( opadd ) %]
     <li style="display: none;">
+    [% ELSE %]
+    <li>
+    [% END %]
       [% IF ( mandatorycity ) %]
         <label for="city" class="required">
       [% ELSE %]
@@ -749,7 +757,11 @@
     </li>
         [% END %]
         [% UNLESS nostate %]
+    [% IF ( opadd ) %]
     <li style="display: none;">
+    [% ELSE %]
+    <li>
+    [% END %]
       [% IF ( mandatorystate ) %]
         <label for="state" class="required">
       [% ELSE %]
@@ -777,7 +789,11 @@
     </li>
         [% END %]
         [% UNLESS nocountry %]
+    [% IF ( opadd ) %]
     <li style="display: none;">
+    [% ELSE %]
+    <li>
+    [% END %]
       [% IF ( mandatorycountry ) %]
         <label for="country" class="required">
       [% ELSE %]
