@@ -144,4 +144,7 @@ Patrons:
            choices:
                yes: Enable
                no: Disable
-         - lookup of patron addresses via LLPG service. 
+         - lookup of patron addresses via LLPG service located at  
+         - pref: LLPGBaseURL
+           class: url
+         
