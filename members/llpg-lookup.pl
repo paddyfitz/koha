@@ -28,9 +28,11 @@ my $addr = lookup_address( Postcode => "$zipcode", PropertyNo => "$streetnumber"
 # create a JSON string according to the database result
 my $json;
 if ( @$addr == 1 ) {
-    $json =
-"{ \"single\" : \"LLPG Returned a single result\", \"streetnumber\" : \"@$addr[0]->{FullPropertyName}\", \"address\" : \"@$addr[0]->{Street}\", \"address2\" : \"@$addr[0]->{Town}\", \"zipcode\" : \"@$addr[0]->{Postcode}\" }";
-    say $json;
+    $json = "{ \"single\" : \"LLPG Returned a single result\", ";
+    $json .= "\"streetnumber\" : \"@$addr[0]->{FullPropertyName}\", ";
+    $json .= "\"address\" : \"@$addr[0]->{Street}\", ";
+    $json .= "\"address2\" : \"@$addr[0]->{Town}\", ";
+    $json .= "\"zipcode\" : \"@$addr[0]->{Postcode}\" }";
 }
 elsif ( @$addr >> 1 ) {
     $json = "{ \"multiple\" : \"Please select an address\", \"addresses\" : [ ";
@@ -42,7 +44,6 @@ elsif ( @$addr >> 1 ) {
         $json .= "\"zipcode: \" : \"$address->{Postcode}\" } ";
     }
     $json .= "] }";
-    say $json;
 }
 else {
     $json = "{ \"error\" : \"An error occured\" }";
