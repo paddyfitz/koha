@@ -34,21 +34,27 @@ my $addr = lookup_address( Postcode => "$zipcode", PropertyNo => "$streetnumber"
 my $json;
 if ( @$addr == 1 ) {
     $json = "{ \"single\" : \"LLPG Returned a single result\", ";
-    $json .= "\"sent\" : \"$zipcode\", ";
     $json .= "\"streetnumber\" : \"@$addr[0]->{FullPropertyName}\", ";
+    $json .= "\"streettype\" : \"\", ";
     $json .= "\"address\" : \"@$addr[0]->{Street}\", ";
-    $json .= "\"address2\" : \"@$addr[0]->{Town}\", ";
-    $json .= "\"zipcode\" : \"@$addr[0]->{Postcode}\" }";
+    $json .= "\"address2\" : \"\", ";
+    $json .= "\"city\" : \"@$addr[0]->{Town}\", ";
+    $json .= "\"state\" : \"@$addr[0]->{County}\", ";    
+    $json .= "\"zipcode\" : \"@$addr[0]->{Postcode}\", ";
+    $json .= "\"country\" : \"UK\" }";    
 }
 elsif ( @$addr >> 1 ) {
     $json = "{ \"multiple\" : \"Please select an address\", \"addresses\" : [ ";
     my $counter;
     foreach my $address (@$addr) {
         $json .= "{ \"streetnumber\" : \"$address->{FullPropertyName}\",";
+        $json .= "\"streettype\" : \"\", ";        
         $json .= "\"address\" : \"$address->{Street}\",";
-        $json .= "\"address2\" : \"$address->{Town}\",";
-        $json .= "\"address3\" : \"$address->{County}\",";
-        $json .= "\"zipcode\" : \"$address->{Postcode}\" } ";
+        $json .= "\"address2\" : \"\",";
+        $json .= "\"city\" : \"$address->{Town}\",";
+        $json .= "\"state\" : \"$address->{County}\", ";        
+        $json .= "\"zipcode\" : \"$address->{Postcode}\", ";
+        $json .= "\"country\" : \"UK\" } ";
         $json .= ", " unless ++$counter == scalar(@$addr);
     }
     $json .= "] }";

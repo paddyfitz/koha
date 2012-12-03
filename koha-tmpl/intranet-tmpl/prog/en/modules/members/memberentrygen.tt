@@ -34,11 +34,18 @@
         [% END %]
         $("#dateofbirth").datepicker({ maxDate: "-1D" });
 
+        [% IF ( LLPG_enabled ) %]
         $(".llpg_lookup").click(function () {
-            var streetnumber = $(this).parent().siblings().children(".streetnumber");
-            var address = $(this).parent().siblings().children(".address");
-            var address2 = $(this).parent().siblings().children(".address2");
-            var zipcode = $(this).parent().siblings().children(".zipcode");
+            var fieldset = $(this).parent().siblings();
+
+            var streetnumber = $(this).parent().siblings(".streetnumber").children(":input");
+            var streettype  = $(this).parent().siblings(".streettype").children(":input");
+            var address = $(this).parent().siblings(".address").children(":input");
+            var address2 = $(this).parent().siblings(".address2").children(":input");
+            var city = $(this).parent().siblings(".city").children(":input");
+            var state = $(this).parent().siblings(".state").children(":input");
+            var zipcode = $(this).parent().siblings(".zipcode").children(":input");
+            var country = $(this).parent().siblings(".country").children(":input");
 
             var result = $(this).siblings("#llpg_result");
 
@@ -49,16 +56,14 @@
                 dataType: "json",
                 data: "streetnumber=" + streetnumber.val() + "&address=" + address.val() + "&zipcode=" + formatPostcode(zipcode.val()),
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    $('div#loginResult').text("responseText: " + XMLHttpRequest.responseText + ", textStatus: " + textStatus + ", errorThrown: " + errorThrown);
-                    $('div#loginResult').addClass("error");
+                    window.alert("An LLPG Service Error has occured, please enter details manually");
+                    fieldset.show("slow");
                 },
                 statusCode: {
-                    404: function() {
-                        window.alert("page not found");
-                    },
                     500: function() {
-                        window.alert("Server Error 500");
-                    }
+                        window.alert("An LLPG Service Error has occured, please enter details manually");
+                        fieldset.show("slow");                        
+                    },
                 },
                 success: function (data) {
                     if (data.error) {
@@ -68,13 +73,28 @@
                         if (data.streetnumber) {
                             streetnumber.val(data.streetnumber).addClass("changed");
                         }
+                        if (data.streettype) {
+                            streettype.val(data.streettype).addClass("changed");
+                        }                        
                         if (data.address) {
                             address.val(data.address).addClass("changed");
                         }
                         if (data.address2) {
                             address2.val(data.address2).addClass("changed");
                         }
-                        $("li").show("slow");
+                        if (data.city) {
+                            city.val(data.city).addClass("changed");
+                        }
+                        if (data.state) {
+                            state.val(data.state).addClass("changed");
+                        }
+                        if (data.zipcode) {
+                            zipcode.val(data.zipcode).addClass("changed");
+                        }
+                        if (data.country) {
+                            country.val(data.country).addClass("changed");
+                        }                        
+                        fieldset.show("slow");
                     } else {
                         var select = $('<select id="llpg_result" name="llpg_select" style="display:none" />');
                         $('<option value="" selected="selected">'+data.multiple+'</option>').appendTo(select);
@@ -90,20 +110,35 @@
                             if (data.addresses[address_id].streetnumber) {
                                 streetnumber.val(data.addresses[address_id].streetnumber).addClass("changed");
                             }
+                            if (data.addresses[address_id].streettype) {
+                                streettype.val(data.addresses[address_id].streettype).addClass("changed");
+                            }                        
                             if (data.addresses[address_id].address) {
                                 address.val(data.addresses[address_id].address).addClass("changed");
                             }
                             if (data.addresses[address_id].address2) {
                                 address2.val(data.addresses[address_id].address2).addClass("changed");
                             }
-                            $("li").show("slow");
+                            if (data.addresses[address_id].city) {
+                                city.val(data.addresses[address_id].city).addClass("changed");
+                            }
+                            if (data.addresses[address_id].state) {
+                                state.val(data.addresses[address_id].state).addClass("changed");
+                            }
+                            if (data.addresses[address_id].zipcode) {
+                                zipcode.val(data.addresses[address_id].zipcode).addClass("changed");
+                            }
+                            if (data.addresses[address_id].country) {
+                                country.val(data.addresses[address_id].country).addClass("changed");
+                            }                        
+                            fieldset.show("slow");
                         });
                     }
                 }
             });
             return false;
         });
-
+        [% END %]
     });
 
     function clear_entry(node) {
@@ -523,8 +558,18 @@
 <fieldset class="rows">
     <legend id="main_address_lgd">Main address</legend><ol>
         [% UNLESS nostreetnumber %]
-    [% UNLESS ( LLPG_enabled ) %]
-    <li>
+    [% IF ( LLPG_enabled ) %]
+    <li class="llpg_field">
+    <label class="llpg_label">LLPG: </label>
+      <span id="llpg_result">Please enter some details below and click LLPG Lookup</span>
+      <input type="button" style="float:right; margin-right:6px;" value="LLPG Lookup" class="llpg_lookup"/>
+    </li>
+    [% END %]
+    [% IF ( LLPG_enabled ) %]
+    <li class="llpg_field streetnumber">
+    [% ELSE %]
+    <li class="streetnumber">
+    [% END %]
       [% IF ( mandatorystreetnumber ) %]
       <label for="streetnumber" class="required">
       [% ELSE %]
@@ -541,7 +586,7 @@
         [% END %]
         [% UNLESS nostreettype %]
     [% IF ( road_cgipopup ) %]
-      <li>
+      <li class="streettype">
       [% IF ( mandatorystreettype ) %]
       <label for="streettype" class="required">
       [% ELSE %]
@@ -554,7 +599,11 @@
     [% END %] 
         [% END %]
         [% UNLESS noaddress %]
-    <li>
+    [% IF ( LLPG_enabled ) %]
+    <li class="llpg_field address">
+    [% ELSE %]
+    <li class="address">
+    [% END %]    
       [% IF ( mandatoryaddress ) %]
       <label for="address" class="required">
       [% ELSE %]
@@ -570,7 +619,7 @@
     </li>
         [% END %]
         [% UNLESS noaddress2 %]
-    <li>
+    <li class="address2">
       [% IF ( mandatoryaddress2 ) %]
       <label for="address2" class="required">
       [% ELSE %]
@@ -586,7 +635,7 @@
     </li>  
         [% END %]
         [% UNLESS nocity %]
-    <li>
+    <li class="city">
       [% IF ( mandatorycity ) %]
         <label for="city" class="required">
       [% ELSE %]
@@ -615,7 +664,7 @@
     </li>
         [% END %]
         [% UNLESS nostate %]
-    <li> 
+    <li class="state"> 
       [% IF ( mandatorystate ) %]
         <label for="state" class="required">
       [% ELSE %]
@@ -627,7 +676,11 @@
     </li>
         [% END %]
         [% UNLESS nozipcode %]
-    <li> 
+    [% IF ( LLPG_enabled ) %]
+    <li class="llpg_field zipcode">
+    [% ELSE %]
+    <li class="zipcode">
+    [% END %]    
       [% IF ( mandatoryzipcode ) %]
         <label for="zipcode" class="required">
       [% ELSE %]
@@ -643,7 +696,7 @@
     </li>
         [% END %]
         [% UNLESS nocountry %]
-    <li> 
+    <li class="country"> 
       [% IF ( mandatorycountry ) %]
         <label for="country" class="required">
       [% ELSE %]
@@ -657,167 +710,7 @@
       [% END %]
 	  [% IF ( mandatorycountry ) %]<span class="required">Required</span>[% END %]
     </li>    
-        [% END %]
-	</ol>
-   [% ELSE %]
-    <li>
-      <label class="llpg_label">LLPG: </label>
-      <span id="llpg_result">Please enter some deatils below and click LLPG Lookup</span>
-      <input type="button" style="float:right; margin-right:6px;" value="LLPG Lookup" class="llpg_lookup"/>
-    </li>
-        [% UNLESS nostreetnumber %]
-    <li>
-      [% IF ( mandatorystreetnumber ) %]
-      <label for="streetnumber" class="required">
-      [% ELSE %]
-      <label for="streetnumber">
-      [% END %]
-      Street number: </label>
-      [% IF ( opduplicate ) %]
-                <input type="text" id="streetnumber" class="streetnumber" name="streetnumber" size="5" value="[% streetnumber %]" onclick="this.value=''" />
-      [% ELSE %]
-                <input type="text" id="streetnumber" class="streetnumber" name="streetnumber" size="5" value="[% streetnumber %]" />
-      [% END %]
-[% IF ( mandatorystreetnumber ) %]<span class="required">Required</span>[% END %]
-    </li>
-        [% END %]
-        [% UNLESS nostreettype %]
-    [% IF ( road_cgipopup ) %]
-      <li style="display: none;">
-      [% IF ( mandatorystreettype ) %]
-      <label for="streettype" class="required">
-      [% ELSE %]
-      <label for="streettype">
-      [% END %]
-      Street type: </label>
-      [% roadpopup %]
-          [% IF ( mandatorystreettype ) %]<span class="required">Required</span>[% END %]
-      </li>
-    [% END %]
-        [% END %]
-        [% UNLESS noaddress %]
-    <li>
-      [% IF ( mandatoryaddress ) %]
-      <label for="address" class="required">
-      [% ELSE %]
-      <label for="address">
-      [% END %]
-      Address: </label>
-      [% IF ( opduplicate ) %]
-                        <input type="text" id="address" class="address" name="address" size="35" value="[% address %]" onclick="this.value=''" />
-      [% ELSE %]
-                        <input type="text" id="address" class="address" name="address" size="35" value="[% address %]" />
-      [% END %]
-          [% IF ( mandatoryaddress ) %]<span class="required">Required</span>[% END %]
-    </li>
-        [% END %]
-        [% UNLESS noaddress2 %]
-    [% IF ( opadd ) %]
-    <li style="display: none;">
-    [% ELSE %]
-    <li>
-    [% END %]
-      [% IF ( mandatoryaddress2 ) %]
-      <label for="address2" class="required">
-      [% ELSE %]
-      <label for="address2">
-      [% END %]
-      Address 2: </label>
-      [% IF ( opduplicate ) %]
-                        <input type="text" id="address2" class="address2" name="address2" size="35" value="[% address2 %]" onclick="this.value=''" />
-      [% ELSE %]
-                        <input type="text" id="address2" class="address2" name="address2" size="35" value="[% address2 %]" />
-      [% END %]
-          [% IF ( mandatoryaddress2 ) %]<span class="required">Required</span>[% END %]
-    </li>
-        [% END %]
-        [% UNLESS nocity %]
-    [% IF ( opadd ) %]
-    <li style="display: none;">
-    [% ELSE %]
-    <li>
-    [% END %]
-      [% IF ( mandatorycity ) %]
-        <label for="city" class="required">
-      [% ELSE %]
-        <label for="city">
-      [% END %]
-      City: </label>
-        [% IF ( opduplicate ) %]
-                        <input type="text" id="city" class="city" name="city" size="20" value="[% city %]" onclick="this.value=''" />
-        [% ELSE %]
-                        <input type="text" id="city" class="city" name="city" size="20" value="[% city %]" />
-        [% END %]
-        [% IF ( city_cgipopup ) %]or <strong>choose</strong>
-        <select id="select_city" name="select_city">
-        [% FOREACH city_loo IN city_loop %]
-            [% IF ( city_loo.selected ) %]
-            <option value="[% city_loo.city_zipcode %]|[% city_loo.city_name %]|[% city_loo.city_state %]|[% city_loo.city_country %]" selected="selected">
-            [% ELSE %]
-            <option value="[% city_loo.city_zipcode %]|[% city_loo.city_name %]|[% city_loo.city_state %]|[% city_loo.city_country %]">
-            [% END %]
-                [% city_loo.city_name %] [% city_loo.city_state %] [% city_loo.city_zipcode %]
-            </option>
-        [% END %]
-        </select>
-        [% END %]
-          [% IF ( mandatorycity ) %]<span class="required">Required</span>[% END %]
-    </li>
-        [% END %]
-        [% UNLESS nostate %]
-    [% IF ( opadd ) %]
-    <li style="display: none;">
-    [% ELSE %]
-    <li>
-    [% END %]
-      [% IF ( mandatorystate ) %]
-        <label for="state" class="required">
-      [% ELSE %]
-        <label for="state">
-      [% END %]
-      State: </label>
-      <input type="text" name="state" class="state" id="state" size="20" value="[% state %]" />
-          [% IF ( mandatorystate ) %]<span class="required">Required</span>[% END %]
-    </li>
-        [% END %]
-        [% UNLESS nozipcode %]
-    <li>
-      [% IF ( mandatoryzipcode ) %]
-        <label for="zipcode" class="required">
-      [% ELSE %]
-        <label for="zipcode">
-      [% END %]
-      Zip/Postal code: </label>
-      [% IF ( opduplicate ) %]
-                        <input type="text" name="zipcode" class="zipcode" id="zipcode" size="10" value="[% zipcode %]" onclick="this.value=''" />
-      [% ELSE %]
-                        <input type="text" name="zipcode" class="zipcode" id="zipcode" size="10" value="[% zipcode %]" />
-      [% END %]
-          [% IF ( mandatoryzipcode ) %]<span class="required">Required</span>[% END %]
-    </li>
-        [% END %]
-        [% UNLESS nocountry %]
-    [% IF ( opadd ) %]
-    <li style="display: none;">
-    [% ELSE %]
-    <li>
-    [% END %]
-      [% IF ( mandatorycountry ) %]
-        <label for="country" class="required">
-      [% ELSE %]
-        <label for="country">
-      [% END %]
-      Country: </label>
-      [% IF ( opduplicate ) %]
-                        <input type="text" name="country" class="country" id="country" size="20" value="[% country %]" onclick="this.value=''" />
-      [% ELSE %]
-                        <input type="text" name="country" class="country" id="country" size="20" value="[% country %]" />
-      [% END %]
-          [% IF ( mandatorycountry ) %]<span class="required">Required</span>[% END %]
-    </li>
-        [% END %]
-    </ol>
-   [% END %]
+</ol>
     </fieldset>
 [% END # nostreet && nocity etc group%]
 

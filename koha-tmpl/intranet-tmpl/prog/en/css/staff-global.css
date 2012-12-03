@@ -1430,6 +1430,9 @@ li.email {
 	font-size: 110%;
 }
 
+li.address {
+    font-size: 100%;
+}
 .clearfix:after {
     content: "."; 
     display: block; 
