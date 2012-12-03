@@ -34,6 +34,18 @@ a:hover, a:active {
    border-radius: 4px;
 }
 
+.llpg_field input {
+   border-color: #00CC66;
+   border-style: solid;
+   border-radius: 4px;
+}
+
+.llpg_field input.changed {
+   border-color: #58D3F7;
+   border-style: solid;
+   border-radius: 4px;
+}
+
 .yui-button,.yui-button a:link,.yui-button a:visited {
 	color : #000;
 }

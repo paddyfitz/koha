@@ -35,6 +35,7 @@
         $("#dateofbirth").datepicker({ maxDate: "-1D" });
 
         [% IF ( LLPG_enabled ) %]
+        $(".llpg_lookup").parent().siblings().not(".llpg_field, .nohide").hide();
         $(".llpg_lookup").click(function () {
             var fieldset = $(this).parent().siblings();
 
@@ -827,7 +828,18 @@
 		<fieldset class="rows" id="memberentry_address">
 		<legend id="alt_address_lgd">Alternate address</legend><ol>
         [% UNLESS noB_address %]
-			<li>
+    [% IF ( LLPG_enabled ) %]
+    <li class="llpg_field">
+    <label class="llpg_label">LLPG: </label>
+      <span id="llpg_result">Please enter some details below and click LLPG Lookup</span>
+        <input type="button" style="float:right; margin-right:6px;" value="LLPG Lookup" class="llpg_lookup"/>
+        </li>
+        [% END %]
+        [% IF ( LLPG_enabled ) %]
+        <li class="llpg_field streetnumber">
+        [% ELSE %]
+        <li class="streetnumber">
+        [% END %]
 				[% IF ( mandatoryB_address ) %]
 					<label for="B_address" class="required">
 				[% ELSE %]
@@ -843,7 +855,11 @@
 			</li>
         [% END %]
         [% UNLESS noB_address2 %]
-			<li>
+      [% IF ( LLPG_enabled ) %]
+      <li class="llpg_field address">
+      [% ELSE %]
+      <li class="address">
+      [% END %]
 				[% IF ( mandatoryB_address2 ) %]
 					<label for="B_address2" class="required">
 				[% ELSE %]
@@ -859,7 +875,7 @@
 			</li>
         [% END %]
         [% UNLESS noB_city %]
-			<li>
+			<li class="city">
 				[% IF ( mandatoryB_city ) %]
 					<label for="B_city" class="required" >
 				[% ELSE %]
@@ -871,7 +887,7 @@
 			</li>
         [% END %]
         [% UNLESS noB_state %]
-			<li>
+			<li class="state">
 				[% IF ( mandatoryB_state ) %]
 					<label for="B_state" class="required" >
 				[% ELSE %]
@@ -883,7 +899,11 @@
 			</li>
         [% END %]
         [% UNLESS noB_zipcode %]
-			<li>
+      [% IF ( LLPG_enabled ) %]
+      <li class="llpg_field zipcode">
+      [% ELSE %]
+      <li class="zipcode">
+      [% END %]
 				[% IF ( mandatoryB_zipcode ) %]
 					<label for="B_zipcode" class="required">
 				[% ELSE %]
@@ -899,7 +919,7 @@
 			</li>
         [% END %]
         [% UNLESS noB_country %]
-			<li>
+			<li class="country">
 				[% IF ( mandatoryB_country ) %]
 					<label for="B_country" class="required">
 				[% ELSE %]
@@ -915,7 +935,7 @@
 			</li>
         [% END %]
         [% UNLESS noB_phone %]
-            <li>
+            <li class="nohide">
                 [% IF ( mandatoryB_phone ) %]
                 <label for="B_phone" class="required">
                 [% ELSE %]
@@ -931,7 +951,7 @@
             </li>
         [% END %]
         [% UNLESS noB_email %]
-			<li> 
+			<li class="nohime"> 
         [% IF ( mandatoryB_email ) %]
           <label for="B_email" class="required">
         [% ELSE %]
@@ -946,7 +966,7 @@
 		[% IF ( mandatoryB_email ) %]<span class="required">Required</span>[% END %] </li>
         [% END %]
         [% UNLESS nocontactnote %]
-            <li>
+            <li class="nohide">
                 [% IF ( mandatorycontactnote ) %]
                 <label for="contactnote" class="required">
                 [% ELSE %]
