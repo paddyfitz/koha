@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://www.halton.gov.uk/LLPG/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="http://www.halton.gov.uk/LLPG/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://www.halton.gov.uk/LLPG/">
+      <s:element name="GetAddressesByComponents">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="PropertyNo" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="FlatNo" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Street" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Locality" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Town" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="County" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Postcode" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAddressesByComponentsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAddressesByComponentsResult" type="tns:ArrayOfLlpgAddress" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfLlpgAddress">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="LlpgAddress" nillable="true" type="tns:LlpgAddress" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="LlpgAddress">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Organisation" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PAON" type="tns:AddressableObject" />
+          <s:element minOccurs="0" maxOccurs="1" name="SAON" type="tns:AddressableObject" />
+          <s:element minOccurs="0" maxOccurs="1" name="FullPropertyName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Street" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Locality" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Town" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="County" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Postcode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PostTown" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsPostal" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="UniquePropertyReferenceNumber" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="UniqueStreetReferenceNumber" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Parish" type="tns:ParishInfo" />
+          <s:element minOccurs="0" maxOccurs="1" name="Ward" type="tns:WardInfo" />
+          <s:element minOccurs="0" maxOccurs="1" name="Location" type="tns:Coordinates" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="AddressableObject">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Description" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="StartNumber" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="StartSuffix" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EndNumber" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="EndSuffix" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ParishInfo">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:DivisionInfo" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="DivisionInfo">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="OnsCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="WardInfo">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:DivisionInfo" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="Coordinates">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Easting" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Northing" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetAddressByUPRN">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UPRN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAddressByUPRNResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAddressByUPRNResult" type="tns:LlpgAddress" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAddressesByUSRN">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="USRN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAddressesByUSRNResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAddressesByUSRNResult" type="tns:ArrayOfLlpgAddress" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetWards">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetWardsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetWardsResult" type="tns:ArrayOfWardInfo" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfWardInfo">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="WardInfo" nillable="true" type="tns:WardInfo" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetParishes">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetParishesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetParishesResult" type="tns:ArrayOfParishInfo" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfParishInfo">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ParishInfo" nillable="true" type="tns:ParishInfo" />
+        </s:sequence>
+      </s:complexType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="GetAddressesByComponentsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAddressesByComponents" />
+  </wsdl:message>
+  <wsdl:message name="GetAddressesByComponentsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAddressesByComponentsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAddressByUPRNSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAddressByUPRN" />
+  </wsdl:message>
+  <wsdl:message name="GetAddressByUPRNSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAddressByUPRNResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAddressesByUSRNSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAddressesByUSRN" />
+  </wsdl:message>
+  <wsdl:message name="GetAddressesByUSRNSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAddressesByUSRNResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetWardsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetWards" />
+  </wsdl:message>
+  <wsdl:message name="GetWardsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetWardsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetParishesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetParishes" />
+  </wsdl:message>
+  <wsdl:message name="GetParishesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetParishesResponse" />
+  </wsdl:message>
+  <wsdl:portType name="LlpgSearchServiceSoap">
+    <wsdl:operation name="GetAddressesByComponents">
+      <wsdl:input message="tns:GetAddressesByComponentsSoapIn" />
+      <wsdl:output message="tns:GetAddressesByComponentsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAddressByUPRN">
+      <wsdl:input message="tns:GetAddressByUPRNSoapIn" />
+      <wsdl:output message="tns:GetAddressByUPRNSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAddressesByUSRN">
+      <wsdl:input message="tns:GetAddressesByUSRNSoapIn" />
+      <wsdl:output message="tns:GetAddressesByUSRNSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetWards">
+      <wsdl:input message="tns:GetWardsSoapIn" />
+      <wsdl:output message="tns:GetWardsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetParishes">
+      <wsdl:input message="tns:GetParishesSoapIn" />
+      <wsdl:output message="tns:GetParishesSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="LlpgSearchServiceSoap" type="tns:LlpgSearchServiceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetAddressesByComponents">
+      <soap:operation soapAction="http://www.halton.gov.uk/LLPG/GetAddressesByComponents" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAddressByUPRN">
+      <soap:operation soapAction="http://www.halton.gov.uk/LLPG/GetAddressByUPRN" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAddressesByUSRN">
+      <soap:operation soapAction="http://www.halton.gov.uk/LLPG/GetAddressesByUSRN" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetWards">
+      <soap:operation soapAction="http://www.halton.gov.uk/LLPG/GetWards" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetParishes">
+      <soap:operation soapAction="http://www.halton.gov.uk/LLPG/GetParishes" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="LlpgSearchServiceSoap12" type="tns:LlpgSearchServiceSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetAddressesByComponents">
+      <soap12:operation soapAction="http://www.halton.gov.uk/LLPG/GetAddressesByComponents" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAddressByUPRN">
+      <soap12:operation soapAction="http://www.halton.gov.uk/LLPG/GetAddressByUPRN" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAddressesByUSRN">
+      <soap12:operation soapAction="http://www.halton.gov.uk/LLPG/GetAddressesByUSRN" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetWards">
+      <soap12:operation soapAction="http://www.halton.gov.uk/LLPG/GetWards" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetParishes">
+      <soap12:operation soapAction="http://www.halton.gov.uk/LLPG/GetParishes" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="LlpgSearchService">
+    <wsdl:port name="LlpgSearchServiceSoap" binding="tns:LlpgSearchServiceSoap">
+      <soap:address location="https://www.halton.gov.uk/LlpgServices/LlpgSearchService.asmx" />
+    </wsdl:port>
+    <wsdl:port name="LlpgSearchServiceSoap12" binding="tns:LlpgSearchServiceSoap12">
+      <soap12:address location="https://www.halton.gov.uk/LlpgServices/LlpgSearchService.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

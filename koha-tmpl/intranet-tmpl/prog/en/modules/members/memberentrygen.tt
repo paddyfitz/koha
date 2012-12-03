@@ -47,10 +47,18 @@
                 url: "/cgi-bin/koha/members/llpg-lookup.pl",
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                data: "streetnumber=" + streetnumber.val() + "&address" + address.val() + "&zipcode" + zipcode.val(),
+                data: "streetnumber=" + streetnumber.val() + "&address=" + address.val() + "&zipcode=" + formatPostcode(zipcode.val()),
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     $('div#loginResult').text("responseText: " + XMLHttpRequest.responseText + ", textStatus: " + textStatus + ", errorThrown: " + errorThrown);
                     $('div#loginResult').addClass("error");
+                },
+                statusCode: {
+                    404: function() {
+                        window.alert("page not found");
+                    },
+                    500: function() {
+                        window.alert("Server Error 500");
+                    }
                 },
                 success: function (data) {
                     if (data.error) {
@@ -69,21 +77,16 @@
                         $("li").show("slow");
                     } else {
                         var select = $('<select id="llpg_result" name="llpg_select" style="display:none" />');
-                        $('<option />', {
-                            value: "",
-                            selected: "selected",
-                            text: data.multiple
-                        }).appendTo(select);
+                        $('<option value="" selected="selected">'+data.multiple+'</option>').appendTo(select);
+                        //$('<option />', { value: "", selected: "selected", text: data.multiple }).appendTo(select); //later jQuery method
                         for (var i = 0; i < data.addresses.length; i++) {
                             var add = data.addresses[i].streetnumber + ", " + data.addresses[i].address + ", " + data.addresses[i].address2;
-                            $('<option />', {
-                                value: i,
-                                text: add
-                            }).appendTo(select);
+                            $('<option value="'+i+'">'+add+'</option>').appendTo(select);
+                            //$('<option />', { value: i, text: add }).appendTo(select); //Later jQuery method.
                         }
                         result.remove();
-                        select.insertAfter('.llpg_label').fadeIn().on("change", function () { // We attach the event onchange to the select element
-                            var address_id = this.value; // We retirve the customer's id
+                        select.insertAfter('.llpg_label').fadeIn().bind("change", function () { // We attach the event onchange to the select element
+                            var address_id = this.value; // We retrive the customer's id
                             if (data.addresses[address_id].streetnumber) {
                                 streetnumber.val(data.addresses[address_id].streetnumber).addClass("changed");
                             }
@@ -139,7 +142,12 @@
         $(mytables).find(" li[data-category_code='']").show();
     }
 
-		var MSG_SEPARATOR = _("Separator must be / in field ");
+    function formatPostcode(p) { 
+        var postcodeRegEx = /(^[A-Z]{1,2}[0-9]{1,2})([0-9][A-Z]{0,2}$)/i; 
+        return p.replace(postcodeRegEx,"$1 $2"); 
+    }
+
+	var MSG_SEPARATOR = _("Separator must be / in field ");
         var MSG_INCORRECT_DAY = _("Invalid day entered in field ");
         var MSG_INCORRECT_MONTH = _("Invalid month entered in field ");
         var MSG_INCORRECT_YEAR = _("Invalid year entered in field ");
