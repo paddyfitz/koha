@@ -13,14 +13,14 @@ my @myTypes;
 
 @myTypes = ( 'DVDM16_12', 'DVDM16_15', 'DVDM16_18', 'DVDM16_PG', 'DVDM16_U' );
 foreach (@myTypes) {
-    print "$_\n";
+    #   print "$_\n";
     my $sql =
 'UPDATE items set itype = ? where itype = ? and dateaccessioned = DATE_SUB(curdate(),INTERVAL 112 day)';
     my $sth      = $dbh->prepare($sql);
     my $itype    = $_;
     my $newitype = $itype;
     $newitype =~ s/16//;
-    print "$newitype\n";
+    #print "$newitype\n";
     #print "$sql\n";
     my $dt = DateTime->now;
 
