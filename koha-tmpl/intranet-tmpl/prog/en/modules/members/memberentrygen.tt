@@ -34,7 +34,7 @@
         [% END %]
         $("#dateofbirth").datepicker({ maxDate: "-1D" });
 
-        [% IF ( LLPG_enabled ) %]
+        [% IF LLPG_enabled %]
         $(".llpg_lookup").parent().siblings().not(".llpg_field, .nohide").hide();
         $(".llpg_lookup").click(function () {
             var fieldset = $(this).parent().siblings();
@@ -559,14 +559,12 @@
 <fieldset class="rows">
     <legend id="main_address_lgd">Main address</legend><ol>
         [% UNLESS nostreetnumber %]
-    [% IF ( LLPG_enabled ) %]
+    [% IF LLPG_enabled %]
     <li class="llpg_field">
     <label class="llpg_label">LLPG: </label>
       <span id="llpg_result">Please enter some details below and click LLPG Lookup</span>
       <input type="button" style="float:right; margin-right:6px;" value="LLPG Lookup" class="llpg_lookup"/>
     </li>
-    [% END %]
-    [% IF ( LLPG_enabled ) %]
     <li class="llpg_field streetnumber">
     [% ELSE %]
     <li class="streetnumber">
@@ -600,7 +598,7 @@
     [% END %] 
         [% END %]
         [% UNLESS noaddress %]
-    [% IF ( LLPG_enabled ) %]
+    [% IF LLPG_enabled %]
     <li class="llpg_field address">
     [% ELSE %]
     <li class="address">
@@ -677,7 +675,7 @@
     </li>
         [% END %]
         [% UNLESS nozipcode %]
-    [% IF ( LLPG_enabled ) %]
+    [% IF LLPG_enabled %]
     <li class="llpg_field zipcode">
     [% ELSE %]
     <li class="zipcode">
@@ -828,18 +826,17 @@
 		<fieldset class="rows" id="memberentry_address">
 		<legend id="alt_address_lgd">Alternate address</legend><ol>
         [% UNLESS noB_address %]
-    [% IF ( LLPG_enabled ) %]
+            <legend>Alternate address</legend><ol>
+    [% IF LLPG_enabled %]
     <li class="llpg_field">
     <label class="llpg_label">LLPG: </label>
       <span id="llpg_result">Please enter some details below and click LLPG Lookup</span>
         <input type="button" style="float:right; margin-right:6px;" value="LLPG Lookup" class="llpg_lookup"/>
         </li>
-        [% END %]
-        [% IF ( LLPG_enabled ) %]
         <li class="llpg_field streetnumber">
-        [% ELSE %]
+    [% ELSE %]
         <li class="streetnumber">
-        [% END %]
+    [% END %]
 				[% IF ( mandatoryB_address ) %]
 					<label for="B_address" class="required">
 				[% ELSE %]
@@ -855,7 +852,7 @@
 			</li>
         [% END %]
         [% UNLESS noB_address2 %]
-      [% IF ( LLPG_enabled ) %]
+      [% IF LLPG_enabled %]
       <li class="llpg_field address">
       [% ELSE %]
       <li class="address">
@@ -899,7 +896,7 @@
 			</li>
         [% END %]
         [% UNLESS noB_zipcode %]
-      [% IF ( LLPG_enabled ) %]
+      [% IF LLPG_enabled %]
       <li class="llpg_field zipcode">
       [% ELSE %]
       <li class="zipcode">
