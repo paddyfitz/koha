@@ -64,6 +64,7 @@ GetOptions(
 my $dbh = C4::Context->dbh;
 $|=1; # flushes output
 
+local $dbh->{RaiseError} = 0;
 
 # Record the version we are coming from
 
@@ -6017,6 +6018,61 @@ if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
    $dbh->do("UPDATE systempreferences SET value=0 WHERE variable='NoZebra'");
    $dbh->do("UPDATE systempreferences SET value=0 WHERE variable='QueryRemoveStopwords'");
    print "Upgrade to $DBversion done (Disable obsolete NoZebra and QueryRemoveStopwords sysprefs)\n";
+   SetVersion ($DBversion);
+}
+
+$DBversion = "3.09.00.063";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+    my $gst_booksellers = $dbh->selectcol_arrayref("SELECT DISTINCT(gstrate) FROM aqbooksellers");
+    my $gist_syspref = C4::Context->preference("gist");
+    # remove the undef values and construct and array with the syspref and the supplier values
+    my @gstrates = map { defined $_ ? $_ : () } @$gst_booksellers;
+    push @gstrates, split ('\|', $gist_syspref);
+    # we want to compare integer (or float)
+    $_ = $_ + 0 for @gstrates;
+    use List::MoreUtils qw/uniq/;
+    # remove duplicate values
+    @gstrates = uniq sort @gstrates;
+    my $new_syspref_value = join '|', @gstrates;
+    # update the syspref with the new values
+    my $sth = $dbh->prepare("UPDATE systempreferences set value=? WHERE variable='gist'");
+    $sth->execute( $new_syspref_value );
+
+    print "Upgrade to $DBversion done (Bug 8832, Set the syspref gist with the existing values)\n";
+    SetVersion ($DBversion);
+}
+
+$DBversion = "3.09.00.064";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+   $dbh->do('ALTER TABLE items ADD coded_location_qualifier varchar(10) default NULL AFTER itemcallnumber');
+   print "Upgrade to $DBversion done (Bug 6428: Added coded_location_qualifier to the items table)\n";
+   SetVersion ($DBversion);
+}
+
+$DBversion = "3.09.00.065";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+   $dbh->do('ALTER TABLE deleteditems ADD coded_location_qualifier varchar(10) default NULL AFTER itemcallnumber');
+   print "Upgrade to $DBversion done (Bug 6428: Added coded_location_qualifier to the deleteditems table)\n";
+   SetVersion ($DBversion);
+}
+
+$DBversion = "3.09.00.066";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+   $dbh->do("DELETE FROM systempreferences WHERE variable='DidYouMeanFromAuthorities'");
+   print "Upgrade to $DBversion done (Bug 9107: remove DidYouMeanFromAuthorities syspref)\n";
+   SetVersion ($DBversion);
+}
+
+$DBversion = "3.09.00.067";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+   $dbh->do("ALTER TABLE statistics CHANGE COLUMN ccode ccode varchar(10) NULL");
+   print "Upgrade to $DBversion done (Bug 9064: statistics.ccode potentially wrongly defined)\n";
+   SetVersion ($DBversion);
+}
+
+$DBversion = "3.10.00.00";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+   print "Upgrade to $DBversion done (release tag)\n";
    SetVersion ($DBversion);
 }
 

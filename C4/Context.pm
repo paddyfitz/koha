@@ -523,12 +523,13 @@ with this method.
 # flushing the caching mechanism.
 
 my %sysprefs;
+my $use_syspref_cache = 1;
 
 sub preference {
     my $self = shift;
     my $var  = lc(shift);                          # The system preference to return
 
-    if (exists $sysprefs{$var}) {
+    if ($use_syspref_cache && exists $sysprefs{$var}) {
         return $sysprefs{$var};
     }
 
@@ -550,6 +551,35 @@ sub boolean_preference {
     my $var = shift;        # The system preference to return
     my $it = preference($self, $var);
     return defined($it)? C4::Boolean::true_p($it): undef;
+}
+
+=head2 enable_syspref_cache
+
+  C4::Context->enable_syspref_cache();
+
+Enable the in-memory syspref cache used by C4::Context. This is the
+default behavior.
+
+=cut
+
+sub enable_syspref_cache {
+    my ($self) = @_;
+    $use_syspref_cache = 1;
+}
+
+=head2 disable_syspref_cache
+
+  C4::Context->disable_syspref_cache();
+
+Disable the in-memory syspref cache used by C4::Context. This should be
+used with Plack and other persistent environments.
+
+=cut
+
+sub disable_syspref_cache {
+    my ($self) = @_;
+    $use_syspref_cache = 0;
+    $self->clear_syspref_cache();
 }
 
 =head2 clear_syspref_cache
@@ -757,8 +787,23 @@ sub _new_dbh
     my $db_user   = $context->config("user");
     my $db_passwd = $context->config("pass");
     # MJR added or die here, as we can't work without dbh
-    my $dbh= DBI->connect("DBI:$db_driver:dbname=$db_name;host=$db_host;port=$db_port",
+    my $dbh = DBI->connect("DBI:$db_driver:dbname=$db_name;host=$db_host;port=$db_port",
     $db_user, $db_passwd, {'RaiseError' => $ENV{DEBUG}?1:0 }) or die $DBI::errstr;
+
+    # Check for the existence of a systempreference table; if we don't have this, we don't
+    # have a valid database and should not set RaiseError in order to allow the installer
+    # to run; installer will not run otherwise since we raise all db errors
+
+    eval {
+                local $dbh->{PrintError} = 0;
+                local $dbh->{RaiseError} = 1;
+                $dbh->do(qq{SELECT * FROM systempreferences WHERE 1 = 0 });
+    };
+
+    if ($@) {
+        $dbh->{RaiseError} = 0;
+    }
+
 	my $tz = $ENV{TZ};
     if ( $db_driver eq 'mysql' ) { 
         # Koha 3.0 is utf-8, so force utf8 communication between mySQL and koha, whatever the mysql default config.

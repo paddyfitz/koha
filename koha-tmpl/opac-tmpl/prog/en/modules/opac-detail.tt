@@ -1,4 +1,6 @@
 [% USE KohaDates %]
+[% SET TagsShowEnabled = ( TagsEnabled && TagsShowOnDetail ) %]
+[% SET TagsInputEnabled = ( opacuserlogin && TagsEnabled && TagsInputOnDetail ) %]
 
 [% INCLUDE 'doc-head-open.inc' %][% IF ( LibraryNameTitle ) %][% LibraryNameTitle %][% ELSE %]Koha online[% END %] catalog &rsaquo; Details for: [% title |html %][% FOREACH subtitl IN subtitle %], [% subtitl.subfield |html %][% END %]
 [% INCLUDE 'doc-head-close.inc' %]
@@ -8,6 +10,7 @@
     <script type="text/javascript" src="https://apis.google.com/js/plusone.js">
       {lang: '[% lang %]'}
     </script>
+    <script type="text/javascript">!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 [% END %]
 [% IF ( OpacStarRatings != 'disable' ) %]<script type="text/javascript" src="/opac-tmpl/prog/en/lib/jquery/plugins/jquery.rating.js"></script>
 <link rel="stylesheet" type="text/css" href="/opac-tmpl/prog/en/css/jquery.rating.css" />[% END %]
@@ -46,18 +49,38 @@
 
      $(document).ready(function() { 
         $('#bibliodescriptions').tabs();
-[% IF ( opacuserlogin ) %][% IF ( loggedinusername ) %][% IF ( TagsEnabled ) %]$("#tagform").hide();
-        $("#addtagl").show();
-        $("#addtagl a").click(function(){
-            $("#addtagl").hide();
-            $("#tagform, #tagform a").show();
+
+[% IF ( TagsInputEnabled && loggedinusername ) %]
+        $(".tag_add").click(function(){
+            var thisid = $(this).attr("id");
+            thisid = thisid.replace("tag_add","");
+            $(this).hide();
+            $("#tagform"+thisid).show();
+            $("#newtag"+thisid).focus();
+            $("#newtag"+thisid+"_status").empty().hide();
             return false;
         });
-        $("#tagform a").click(function(){
-            $("#addtagl").show();
-            $("#tagform").hide();
+        $(".cancel_tag_add").click(function(){
+            var thisid = $(this).attr("id");
+            thisid = thisid.replace("cancel","");
+            $("#tagform"+thisid).hide();
+            $("#tag_add"+thisid).show();
+            $("#newtag"+thisid).val("");
+            $("#newtag"+thisid+"_status").empty().hide();
             return false;
-        });[% END %][% END %][% END %]
+        });
+        $(".tagbutton").click(function(){
+            var thisid = $(this).attr("title");
+            var tag = $("#newtag"+thisid).val();
+            if (!tag || (tag == "")) {
+                alert(MSG_NO_TAG_SPECIFIED);
+                return false;
+            }
+            KOHA.Tags.add_tag_button(thisid, tag);
+            return false;
+        });
+[% END %]
+
         $("#holdingst").tablesorter({[% IF ( dateformat == 'metric' ) %]
     dateFormat: 'uk',[% END %]
             widgets : ['zebra'],
@@ -80,9 +103,6 @@
         [% IF ( NovelistSelectProfile ) %]
         novSelect.loadContentForISBN('[% normalized_isbn %]','[% NovelistSelectProfile %]', '[% NovelistSelectPassword %]', function(d){});
         [% END %]
-	[% IF ( opacuserlogin ) %][% IF ( loggedinusername ) %][% IF ( TagsEnabled ) %]
-        $(".tagbutton").click(KOHA.Tags.add_tag_button);[% END %][% END %][% END %]
-
 
     [% IF ( OpacBrowseResults && busc ) %]
         if (arrPagination.length > 0) {
@@ -292,9 +312,6 @@ YAHOO.util.Event.onContentReady("furtherm", function () {
  });
 //]]>
 </script>
-[% IF ( opacuserlogin ) %][% IF ( loggedinusername ) %][% IF ( TagsEnabled ) %]<style type="text/css">
-    #addtagl { display: none; }
-</style>[% END %][% END %][% END %]
 <style type="text/css">
 .branch-info-tooltip {
   display: none;
@@ -502,8 +519,7 @@ YAHOO.util.Event.onContentReady("furtherm", function () {
 	</span>
 [% END %]
 
-[% IF ( TagsEnabled ) %]
-    [% IF ( TagsShowOnDetail ) %]
+[% IF ( TagsShowEnabled ) %]
         <div class="results_summary">
         [% IF ( TagLoop ) %]
         <span class="label">Tags from this library:</span>
@@ -514,28 +530,23 @@ YAHOO.util.Event.onContentReady("furtherm", function () {
     [% END %]
         </div>
 [% END %]
-[% IF ( opacuserlogin ) %]
-  [% IF ( loggedinusername ) %]
-   [% IF ( TagsEnabled ) %]
-      [% IF ( TagsInputOnDetail ) %]
+[% IF ( TagsInputEnabled ) %]
       <div class="results_summary">
-        <span class="label" id="addtagl"><a href="#">Add</a></span>
-         <form name="tagform[% biblionumber %]" method="post" action="/cgi-bin/koha/opac-tags.pl" id="tagform">
-                <label for="newtag[% biblionumber %]">New:</label><input name="newtag[% biblionumber %]" id="newtag[% biblionumber %]" maxlength="100" />
+        [% IF ( loggedinusername ) %]
+            <a class="tag_add" id="tag_add[% biblionumber %]" href="#">Add</a>
+            <form id="tagform[% biblionumber %]" method="post" action="/cgi-bin/koha/opac-tags.pl" style="display:none;">
+                <label for="newtag[% biblionumber %]">New tag(s):</label>
+                <input name="newtag[% biblionumber %]" id="newtag[% biblionumber %]" maxlength="100" type="text"/>
                 <input name="tagbutton" class="input tagbutton" title="[% biblionumber %]" type="submit" value="Add" />
-                <a href="#">Cancel</a>
+                <a class="cancel_tag_add" id="cancel[% biblionumber %]" href="#">(done)</a>
             </form>
             <span id="newtag[% biblionumber %]_status" class="tagstatus" style="display:none;">
                 Tag status here.
             </span>
-            <br />
-            [% ELSE %]
-                <span id="login4tags" class="tagstatus">Log in to add tags.</span>
-            [% END %]
+        [% ELSE %]
+            <span id="login4tags">Log in to add tags.</span>
         [% END %]
         </div>
-    [% END %]
-   [% END %]
 [% END %]
 
         [% IF ( SyndeticsEnabled ) %][% IF ( SyndeticsSeries ) %][% IF ( SyndeticsSERIES1Exists ) %]
@@ -1215,11 +1226,11 @@ YAHOO.util.Event.onContentReady("furtherm", function () {
     <div id="social_networks">
         <span>Share</span>
         <div><a id="facebook" href="http://www.facebook.com/sharer.php?u=[% current_url |url %]&amp;t=[% title |url %]" title="Share on Facebook">Facebook</a></div>
-        <div><a id="twitter" href="http://twitter.com/share" title="Share on Twitter">Twitter</a></div>
         <div><a id="linkedin" href="http://www.linkedin.com/shareArticle?mini=true&amp;url=[% current_url |url %]&amp;title=[% title |url %]" title="Share on LinkedIn">LinkedIn</a></div>
         <div><a id="delicious" href="http://www.delicious.com/save?url=[% current_url |url %]&amp;title=[% title |url %]" title="Share on Delicious">Delicious</a></div>
         <div><a id="email" href="mailto:?subject=[% title |url %]&amp;body=[% title |url %] ([% current_url |url %])" title="Share by email">Email</a></div>
-        <div><g:plusone size="small"></g:plusone></div>
+        <div><g:plusone size="small" annotation="none"></g:plusone></div>
+        <div><a id="twitter" href="https://twitter.com/share" class="twitter-share-button" data-count="none" data-text="[% title %]" data-lang="[% lang %]">Tweet</a></div>
     </div>
 [% END %]
 

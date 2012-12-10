@@ -440,6 +440,7 @@ my %default_values_for_mod_from_marc = (
     booksellerid         => undef, 
     ccode                => undef, 
     'items.cn_source'    => undef, 
+    coded_location_qualifier => undef,
     copynumber           => undef, 
     damaged              => 0,
 #    dateaccessioned      => undef,
@@ -1277,13 +1278,14 @@ sub GetItemsInfo {
 
         # get notforloan complete status if applicable
         if ( my $code = C4::Koha::GetAuthValCode( 'items.notforloan', $data->{frameworkcode} ) ) {
-            $data->{notforloanvalue} = C4::Koha::GetAuthorisedValueByCode( $code, $data->{itemnotforloan} );
+            $data->{notforloanvalue}     = C4::Koha::GetKohaAuthorisedValueLib( $code, $data->{itemnotforloan} );
+            $data->{notforloanvalueopac} = C4::Koha::GetKohaAuthorisedValueLib( $code, $data->{itemnotforloan}, 1 );
         }
 
         # get restricted status and description if applicable
         if ( my $code = C4::Koha::GetAuthValCode( 'items.restricted', $data->{frameworkcode} ) ) {
             $data->{restricted}     = C4::Koha::GetKohaAuthorisedValueLib( $code, $data->{restricted} );
-            $data->{restrictedopac} = C4::Koha::GetKohaAuthorisedValueLib( $code, $data->{restricted}, 'opac' );
+            $data->{restrictedopac} = C4::Koha::GetKohaAuthorisedValueLib( $code, $data->{restricted}, 1 );
         }
 
         # my stack procedures
@@ -2076,6 +2078,7 @@ sub _koha_new_item {
             itemlost            = ?,
             wthdrawn            = ?,
             itemcallnumber      = ?,
+            coded_location_qualifier = ?,
             restricted          = ?,
             itemnotes           = ?,
             holdingbranch       = ?,
@@ -2117,6 +2120,7 @@ sub _koha_new_item {
             $item->{'itemlost'},
             $item->{'wthdrawn'},
             $item->{'itemcallnumber'},
+            $item->{'coded_location_qualifier'},
             $item->{'restricted'},
             $item->{'itemnotes'},
             $item->{'holdingbranch'},
