@@ -22,7 +22,7 @@ use warnings;
 use C4::Context;
 use C4::Acquisition;
 use Net::FTP;
-use Edifact::Interchange;
+use Business::Edifact::Interchange;
 use C4::Biblio;
 use C4::Items;
 use Business::ISBN;
