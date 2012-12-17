@@ -19,20 +19,26 @@
 
 use strict;
 use warnings;
+use C4::Context;
+my $edidir = C4::Context->config('intranetdir');
 
-my $edidir="$ENV{'PERL5LIB'}/misc/edi_files";
-opendir(EDIDIR,$edidir);
-my @files=readdir(EDIDIR);
-close EDIDIR;
+$edidir .= '/misc/edi_files';
+opendir( my $dh, $edidir );
+my @files = readdir($dh);
+close $dh;
 
-foreach my $file(@files)
-{
-	my $now=time;
-	my @stat=stat("$edidir/$file");
-	if ($stat[9]<($now-2592000) && ((index lc($file),'.ceq') > -1 || (index lc($file),'.cep') > -1))
-	{
-		print "Deleting file $edidir/$file...";
-		unlink("$edidir/$file");
-		print "Done.\n";
-	}
+foreach my $file (@files) {
+    my $now  = time;
+    my @stat = stat("$edidir/$file");
+    if (
+        $stat[9] < ( $now - 2592000 )
+        && (   ( index lc($file), '.ceq' ) > -1
+            || ( index lc($file), '.cep' ) > -1
+      )
+    {
+        print "Deleting file $edidir/$file...";
+        unlink("$edidir/$file");
+        print "Done.\n";
+    }
 }
+
