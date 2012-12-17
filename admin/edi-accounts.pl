@@ -22,7 +22,7 @@ use warnings;
 use CGI;
 use C4::Auth;
 use C4::Output;
-use C4::EDI;
+use C4::Edifact;
 
 use vars qw($debug);
 
@@ -46,7 +46,7 @@ my $op=$input->param('op');
 $template->param(op => $op);
 
 if ($op eq "delsubmit") {
-	my $del = C4::EDI::DeleteEDIDetails($input->param('id'));
+	my $del = C4::Edifact::DeleteEDIDetails($input->param('id'));
 	$template->param(opdelsubmit => 1);
 }
 
@@ -70,7 +70,7 @@ if ($op eq "editsubmit" ) {
 	$template->param(opeditsubmit => 1);
 }
 
-my $ediaccounts = C4::EDI::GetEDIAccounts;
+my $ediaccounts = C4::Edifact::GetEDIAccounts;
 $template->param(ediaccounts => $ediaccounts);
 
 output_html_with_http_headers $input, $cookie, $template->output;

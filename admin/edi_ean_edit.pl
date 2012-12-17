@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright 2011 Mark Gavillet & PTFS Europe Ltd
+# Copyright 2012 Mark Gavillet & PTFS Europe Ltd
 #
 # This file is part of Koha.
 #
@@ -33,7 +33,7 @@ BEGIN {
 my $input = CGI->new();
 
 my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
-	{ template_name => "admin/edi-edit.tmpl",
+	{ template_name => "admin/edi_ean_edit.tt",
 		query => $input,
 		type => "intranet",
 		authnotrequired => 0,
@@ -41,7 +41,7 @@ my ( $template, $loggedinuser, $cookie ) = get_template_and_user(
 		debug => ($debug) ? 1 : 0,
 	}
 );
-my $vendorlist = C4::Edifact::GetVendorList;
+my $branchlist = C4::Edifact::GetBranchList;
 
 my $op = $input->param('op');
 $template->param( op => $op );
@@ -51,30 +51,21 @@ if ( $op eq "add" ) {
 }
 if ( $op eq "edit" ) {
 	$template->param( opeditsubmit => "editsubmit" );
-	my $edi_details = C4::Edifact::GetEDIAccountDetails($input->param('id'));
-	my $selectedprovider=$edi_details->{'provider'};
-	foreach my $prov (@$vendorlist) {
-		$prov->{selected} = 'selected'
-		if $prov->{'id'} == $selectedprovider;
-	}
+	
 	$template->param(
-		editid			=> $edi_details->{'id'},
-		description		=> $edi_details->{'description'},
-		host			=> $edi_details->{'host'},
-		user			=> $edi_details->{'username'},
-		pass			=> $edi_details->{'password'},
-		provider		=> $edi_details->{'provider'},
-		in_dir			=> $edi_details->{'in_dir'},
-		san				=> $edi_details->{'san'}
+		ean					=> $input->param('ean'),
+		selectedbranch		=> $input->param('branchcode'),
+		branchcode			=> $input->param('branchcode')
 		);
 }
 if ( $op eq "del" ) {
 	$template->param( opdelsubmit => "delsubmit" );
 	$template->param( opdel => 1 );
-	$template->param( id => $input->param('id'));
+	$template->param( ean => $input->param('ean'));
+	$template->param( branchcode => $input->param('branchcode'));
 }
     
 
-$template->param(vendorlist => $vendorlist);
+$template->param(branchlist => $branchlist);
 
 output_html_with_http_headers $input, $cookie, $template->output;
