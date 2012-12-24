@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use 5.10.1;
+use 5.010;
 use XML::Compile::WSDL11 ();
 use XML::Compile::SOAP11;
 use XML::Compile::Transport::SOAPHTTP;
@@ -11,80 +11,91 @@ use URI::Escape;
 
 # read soap params
 my $wsdlfile = q/LlpgSearchService.asmx.xml/;
-my $wsdl = XML::Compile::WSDL11->new($wsdlfile);
-my $server = 'llpguser:4zSr17pd@www.halton.gov.uk';
+my $wsdl     = XML::Compile::WSDL11->new($wsdlfile);
+my $server   = 'llpguser:4zSr17pd@www.halton.gov.uk';
 
 # read CGI params
-my $input = new CGI;
-my $streetnumber = $input->param("streetnumber");
+my $input        = CGI->new();
+my $streetnumber = $input->param('streetnumber');
+
 #$streetnumber  = uri_unescape($streetnumber);
-my $address = $input->param("address");
+my $address = $input->param('address');
+
 #$address  = uri_unescape($address);
-my $zipcode = $input->param("zipcode");
-$zipcode  = uri_unescape($zipcode);
+my $zipcode = $input->param('zipcode');
+$zipcode = uri_unescape($zipcode);
 
 # invoke llpg client
-my $call = $wsdl->compileClient('GetAddressesByComponents', server => $server, port => 'LlpgSearchServiceSoap');
+my $call = $wsdl->compileClient(
+    'GetAddressesByComponents',
+    server => $server,
+    port   => 'LlpgSearchServiceSoap'
+);
 
 # do lookup
-my $addr = lookup_address( Postcode => "$zipcode", PropertyNo => "$streetnumber", Street => "$address" );
+my $addr = lookup_address(
+    Postcode   => $zipcode,
+    PropertyNo => $streetnumber,
+    Street     => $address
+);
+
 #my $addr = lookup_address( Postcode => "WA8 0QT", PropertyNo => "$streetnumber", Street => "West Bank" );
 
 # create a JSON string according to the database result
 my $json;
-if ( @$addr == 1 ) {
-    $json = "{ \"single\" : \"LLPG Returned a single result\", ";
+if ( @{$addr} == 1 ) {
+    $json = '{ "single" : "LLPG Returned a single result", ';
     $json .= "\"streetnumber\" : \"@$addr[0]->{FullPropertyName}\", ";
-    $json .= "\"streettype\" : \"\", ";
+    $json .= '"streettype" : "", ';
     $json .= "\"address\" : \"@$addr[0]->{Street}\", ";
-    $json .= "\"address2\" : \"\", ";
+    $json .= '"address2" : "", ';
     $json .= "\"city\" : \"@$addr[0]->{Town}\", ";
-    $json .= "\"state\" : \"@$addr[0]->{County}\", ";    
+    $json .= "\"state\" : \"@$addr[0]->{County}\", ";
     $json .= "\"zipcode\" : \"@$addr[0]->{Postcode}\", ";
-    $json .= "\"country\" : \"UK\" }";    
+    $json .= '"country" : "UK" }';
 }
-elsif ( @$addr >> 1 ) {
-    $json = "{ \"multiple\" : \"Please select an address\", \"addresses\" : [ ";
-    my $counter;
-    foreach my $address (@$addr) {
+elsif ( @{$addr} > 1 ) {
+    $json = '{ "multiple" : "Please select an address", "addresses" : [ ';
+    my $counter = 0;
+    foreach my $address ( @{$addr} ) {
         $json .= "{ \"streetnumber\" : \"$address->{FullPropertyName}\",";
-        $json .= "\"streettype\" : \"\", ";        
+        $json .= '"streettype" : "", ';
         $json .= "\"address\" : \"$address->{Street}\",";
-        $json .= "\"address2\" : \"\",";
+        $json .= '"address2" : "",';
         $json .= "\"city\" : \"$address->{Town}\",";
-        $json .= "\"state\" : \"$address->{County}\", ";        
+        $json .= "\"state\" : \"$address->{County}\", ";
         $json .= "\"zipcode\" : \"$address->{Postcode}\", ";
-        $json .= "\"country\" : \"UK\" } ";
-        $json .= ", " unless ++$counter == scalar(@$addr);
+        $json .= '"country" : "UK" } ';
+
+        if ( ++$counter < @{$addr} ) {
+            $json .= ', ';
+        }
     }
-    $json .= "] }";
+    $json .= '] }';
 }
 else {
-    $json = "{ \"error\" : \"An error occured\" }";
+    $json = '{ "error" : "An error occured" }';
 }
 
 # return JSON string
-print $input->header(-type => "application/json", -charset => "utf-8");
-print qq{$json};
+print $input->header( -type => 'application/json', -charset => 'utf-8' );
+print $json;
 
 sub lookup_address {
     my @params = @_;
 
-    my ($answer, $trace) = $call->(@params);
+    my ( $answer, $trace ) = $call->(@params);
 
     if ( my $f = $answer->{Fault} ) {
         my $errname = $f->{_NAME};
-        my $error = $answer->{$errname};
+        my $error   = $answer->{$errname};
         say $error->{code};
 
-        my $details = $error->{detail};
-        if (! $details) {
-            # system error, bo details
-        }
-        print $input->header(-type => "application/json", -charset => "utf-8");
-        print qq{{ error : An error occured}};
-        exit 1;
+        print $input->header( -type => 'application/json',
+            -charset => 'utf-8' );
+        print q{{ error : An error occured}};
+        exit;
     }
-    return $answer->{parameters}->{GetAddressesByComponentsResult}->{LlpgAddress};;
-    return $answer;
+    return $answer->{parameters}->{GetAddressesByComponentsResult}
+      ->{LlpgAddress};
 }
