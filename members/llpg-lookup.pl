@@ -8,6 +8,7 @@ use XML::Compile::SOAP11;
 use XML::Compile::Transport::SOAPHTTP;
 use CGI;
 use URI::Escape;
+use JSON;
 
 # read soap params
 my $wsdlfile = q/LlpgSearchService.asmx.xml/;
@@ -44,42 +45,47 @@ my $addr = lookup_address(
 # create a JSON string according to the database result
 my $json;
 if ( @{$addr} == 1 ) {
-    $json = '{ "single" : "LLPG Returned a single result", ';
-    $json .= "\"streetnumber\" : \"@$addr[0]->{FullPropertyName}\", ";
-    $json .= '"streettype" : "", ';
-    $json .= "\"address\" : \"@$addr[0]->{Street}\", ";
-    $json .= '"address2" : "", ';
-    $json .= "\"city\" : \"@$addr[0]->{Town}\", ";
-    $json .= "\"state\" : \"@$addr[0]->{County}\", ";
-    $json .= "\"zipcode\" : \"@$addr[0]->{Postcode}\", ";
-    $json .= '"country" : "UK" }';
+    $json = {
+        single       => q|LLPG Returned a single result|,
+        streetnumber => $addr->[0]->{FullPropertyName},
+        streettype   => q{},
+        address      => $addr->[0]->{Street},
+        address2     => q{},
+        city         => $addr->[0]->{Town},
+        state        => $addr->[0]->{County},
+        zipcode      => $addr->[0]->{Postcode},
+        country      => q{UK},
+    };
 }
 elsif ( @{$addr} > 1 ) {
-    $json = '{ "multiple" : "Please select an address", "addresses" : [ ';
-    my $counter = 0;
-    foreach my $address ( @{$addr} ) {
-        $json .= "{ \"streetnumber\" : \"$address->{FullPropertyName}\",";
-        $json .= '"streettype" : "", ';
-        $json .= "\"address\" : \"$address->{Street}\",";
-        $json .= '"address2" : "",';
-        $json .= "\"city\" : \"$address->{Town}\",";
-        $json .= "\"state\" : \"$address->{County}\", ";
-        $json .= "\"zipcode\" : \"$address->{Postcode}\", ";
-        $json .= '"country" : "UK" } ';
+    my $arr = [];
 
-        if ( ++$counter < @{$addr} ) {
-            $json .= ', ';
-        }
+    foreach my $address ( @{$addr} ) {
+        push @{$arr},
+          {
+            streetnumber => $address->{FullPropertyName},
+            streettype   => q{},
+            address      => $address->{Street},
+            address2     => q{},
+            city         => $address->{Town},
+            state        => $address->{County},
+            zipcode      => $address->{Postcode},
+            country      => q{UK},
+          };
     }
-    $json .= '] }';
+    $json = {
+        multiple  => 'Please select an address',
+        addresses => $arr,
+    };
 }
 else {
-    $json = '{ "error" : "An error occured" }';
+    $json = { error => 'An error occured', };
 }
+my $jtext = encode_json($json);
 
 # return JSON string
-print $input->header( -type => 'application/json', -charset => 'utf-8' );
-print $json;
+print $input->header( -type => 'application/json', -charset => 'utf-8' ),
+  $jtext;
 
 sub lookup_address {
     my @params = @_;
@@ -91,9 +97,11 @@ sub lookup_address {
         my $error   = $answer->{$errname};
         say $error->{code};
 
-        print $input->header( -type => 'application/json',
-            -charset => 'utf-8' );
-        print q{{ error : An error occured}};
+        print $input->header(
+            -type    => 'application/json',
+            -charset => 'utf-8'
+          ),
+          encode_json( { error => 'An error occured', } );
         exit;
     }
     return $answer->{parameters}->{GetAddressesByComponentsResult}
