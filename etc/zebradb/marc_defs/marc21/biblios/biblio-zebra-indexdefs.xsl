@@ -119,7 +119,7 @@ definition file (probably something like {biblio,authority}-koha-indexdefs.xml) 
     <z:index name="bio:w">
       <xslo:value-of select="substring(., 35, 1)"/>
     </z:index>
-    <z:index name="ln:n">
+    <z:index name="ln:w">
       <xslo:value-of select="substring(., 36, 3)"/>
     </z:index>
     <z:index name="ctype:w">
@@ -1252,7 +1252,7 @@ definition file (probably something like {biblio,authority}-koha-indexdefs.xml) 
     </xslo:for-each>
     <xslo:for-each select="marc:subfield">
       <xslo:if test="contains('p', @code)">
-        <z:index name="barcode:w barcode:n">
+        <z:index name="barcode:w barcode:n any:w">
           <xslo:value-of select="."/>
         </z:index>
       </xslo:if>

@@ -315,7 +315,7 @@ melm 952$l      issues:n,issues:w,issues:s
 melm 952$m      renewals:n,renewals:w
 melm 952$n      reserves:n,reserves:w
 melm 952$o      Local-classification:w,Local-classification:p,Local-classification:s
-melm 952$p      barcode,barcode:n
+melm 952$p      barcode,barcode:n,any:w
 melm 952$q      onloan:n,onloan:w
 melm 952$r      datelastseen
 melm 952$s      datelastborrowed
