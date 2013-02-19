@@ -146,7 +146,7 @@
                             new YAHOO.widget.Button("basketheadbutton");
                             new YAHOO.widget.Button("exportbutton");
                             new YAHOO.widget.Button("delbasketbutton");
-			    new YAHOO.widget.Button("ediorderbuton");
+                            new YAHOO.widget.Button("ediorderbutton");
                         }
                         //]]>
                     </script>
