@@ -708,7 +708,8 @@
 			<input type="text" name="country" id="country" size="20" value="[% country %]" />
       [% END %]
 	  [% IF ( mandatorycountry ) %]<span class="required">Required</span>[% END %]
-    </li>    
+    </li>
+        [% END %]
 </ol>
     </fieldset>
 [% END # nostreet && nocity etc group%]
@@ -1612,4 +1613,3 @@
 [% END %]
 </div>
 [% INCLUDE 'intranet-bottom.inc' %]
-
