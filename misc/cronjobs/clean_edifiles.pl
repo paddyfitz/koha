@@ -34,6 +34,7 @@ foreach my $file (@files) {
         $stat[9] < ( $now - 2592000 )
         && (   ( index lc($file), '.ceq' ) > -1
             || ( index lc($file), '.cep' ) > -1
+            || ( index lc($file), '.cei' ) > -1 )
       )
     {
         print "Deleting file $edidir/$file...";
