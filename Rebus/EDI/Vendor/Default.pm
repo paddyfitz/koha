@@ -35,6 +35,128 @@ sub new {
 	return $self;
 }
 
+sub parse_invoice {
+	my ($self, $invoice)=@_;
+	use Business::Edifact::Interchange;
+	use DateTime;
+	my $edi=Business::Edifact::Interchange->new;
+	my @parsed_invoice;
+	$edi->parse_file($edidir.$invoice->{filename});
+	my $messages=$edi->messages();
+	my $message_count=@{$messages};
+	my $count;
+	for ($count=0; $count<$message_count; $count++)
+	{
+		my $dt = DateTime->new(	year	=> substr($messages->[$count]->{message_date}, 0, 4),
+								month	=> substr($messages->[$count]->{message_date}, 4, 2),
+								day		=> substr($messages->[$count]->{message_date}, 6, 2),
+		);
+		my $ref_num=$messages->[$count]->{ref_num};
+		my $booksellerid=$invoice->{account_id};
+		my $billingdate=$dt->ymd('-');
+		my $closedate=$dt->ymd('-');
+
+		my $delivery=0;
+		my $shippingfund;
+		if ($messages->[$count]->{allowance_or_charge})
+		{
+			my $aoc_count=@{$messages->[$count]->{allowance_or_charge}};
+			my $acount;
+			for ($acount=0; $acount<$aoc_count; $acount++)
+			{
+				if ($messages->[$count]->{allowance_or_charge}->[$acount]->{type} eq 'C' && $messages->[$count]->{allowance_or_charge}->[$acount]->{service_code} eq 'DL')
+				{
+					$delivery=$delivery+$messages->[$count]->{allowance_or_charge}->[$acount]->{amount}->[0]->{value};
+				}
+			}
+			$shippingfund=Rebus::EDI::System::Koha::get_budget_id(C4::Context->preference("EDIInvoicesShippingBudget"));
+		}
+			
+		my $items=$messages->[$count]->items();
+		my $item_charge;
+		my @parsed_items;
+		foreach my $item (@{$items})
+		{
+			$item_charge=0;
+			if ($item->{item_allowance_or_charge})
+			{
+				my $charge_count=@{$item->{item_allowance_or_charge}};
+				my $ccount;
+				for ($ccount=0; $ccount<$charge_count; $ccount++)
+				{
+					if ($item->{item_allowance_or_charge}->[$ccount]->{type} eq 'C')
+					{
+						$item_charge=$item_charge+$item->{item_allowance_or_charge}->[$ccount]->{amount};
+					}
+				}
+				#print "item charges: $item_charge\n";
+			}
+			my $item_tax_rate;
+			if ($item->{item_tax})
+			{
+				my $tax_count=@{$item->{item_tax}};
+				my $tcount;
+				for ($tcount=0; $tcount<$tax_count; $tcount++)
+				{
+					if ($item->{item_tax}->[$tcount]->{type_code} eq 'VAT' && $item->{item_tax}->[$tcount]->{rate} > 0)
+					{
+						$item_tax_rate=$item->{item_tax}->[$tcount]->{rate};
+					}
+				}
+			}
+			
+			my $unit_price;
+			if ($item->{monetary_amount})
+			{
+				my $price_count=@{$item->{monetary_amount}};
+				my $pcount;
+				for ($pcount=0; $pcount<$price_count; $pcount++)
+				{
+					if ($item->{monetary_amount}->[$pcount]->{qualifier} eq '203')
+					{
+						$unit_price=$item->{monetary_amount}->[$pcount]->{value};
+					}
+				}
+			}
+			elsif ($item->{price})
+			{
+				my $price_count=@{$item->{price}};
+				my $pcount;
+				for ($pcount=0; $pcount<$price_count; $pcount++)
+				{
+					if ($item->{price}->[$pcount]->{qualifier} eq 'AAA')
+					{
+						$unit_price=$item->{price}->[$pcount]->{price};
+					}
+				}
+				$unit_price=$unit_price+$item_charge;
+			}
+			
+			my $parsed_item={
+				unit_price		=>	$unit_price,
+				quantity		=>	$item->{quantity_invoiced},
+				datereceived	=>	DateTime->now->strftime('%Y-%m-%d'),
+				gstrate			=>	$item_tax_rate,
+				supplier_ref	=>	$item->{item_reference}[0][1],
+			};
+			push (@parsed_items,$parsed_item);
+		}
+		
+		my $invoice_detail={
+			ref_num					=>	$messages->[$count]->{ref_num},
+			booksellerid			=>	$invoice->{account_id},
+			billingdate				=>	$dt->ymd('-'),
+			shipmentdate			=>	$dt->ymd('-'),
+			shipmentcost			=>	$delivery,
+			shipmentcost_budgetid	=>	$shippingfund,
+			items					=>	\@parsed_items,
+		};
+		push (@parsed_invoice,$invoice_detail);
+	}
+	
+	return \@parsed_invoice;
+}
+
 sub parse_quote {
 	my ($self, $quote)=@_;
 	use Business::Edifact::Interchange;
@@ -358,9 +480,22 @@ sub create_order_message {
 	return $order_message;
 }
 
-sub post_process_quote_file {
-	my ($self,$remote_file,$ftp_account)=@_;
+sub post_process_message_file {
+	my ($self,$remote_file,$ftp_account,$message_type)=@_;
+	my $rext;
+	my $qext;
 	
+	if ($message_type eq 'quote')
+	{
+		$rext='.EEQ';
+		$qext='.CEQ';
+	}
+	if ($message_type eq 'invoice')
+	{
+		$rext='.EEI';
+		$qext='.CEI';
+	}
+
 	### connect to vendor ftp account
 	my $filename=substr($remote_file,rindex($remote_file,'/')+1);
 	use Net::FTP::File;
@@ -376,8 +511,6 @@ sub post_process_quote_file {
 	#$ftp->quit;
 		
 	### rename file
-	my $rext='.EEQ';
-	my $qext='.CEQ';
 	$filename=~ s/$qext/$rext/g;
 	$ftp->rename($remote_file,$filename) or die "Couldn't rename remote file";
 }

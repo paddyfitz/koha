@@ -66,8 +66,17 @@ sub retrieve_vendor_ftp_accounts {
 	return @accounts;
 }
 
-sub download_quotes {
-	my ($self,$ftp_accounts)=@_;
+sub download_messages {
+	my ($self,$ftp_accounts,$message_type)=@_;
+	my $message_extension;
+	if ($message_type eq 'QUOTE')
+	{
+		$message_extension=".ceq";
+	}
+	if ($message_type eq 'INVOICE')
+	{
+		$message_extension=".cei";
+	}
 	my @local_files;
 	foreach my $account (@$ftp_accounts) {	
 		#get vendor details
@@ -112,13 +121,13 @@ sub download_quotes {
 						print EDIFTPLOG "Got  file list\n";   
 						foreach(@files) {
 							my $filename=$_;
-							if ((index lc($filename),'.ceq') > -1)
+							if ((index lc($filename),$message_extension) > -1)
 							{
 								my $description = sprintf "%s/%s", $account->{server}, $filename;
 								print EDIFTPLOG "Found file: $description - ";
 								
 								# deduplicate vs. acct/filenames already in DB
-		   						my $hits=find_duplicate_quotes($account->{edi_account_id},$account->{ftpdir},$filename);
+		   						my $hits=find_duplicate_messages($account->{edi_account_id},$account->{ftpdir},$filename);
 		   						
 								my $match=0;
 								if (scalar(@$hits)) {
@@ -138,16 +147,16 @@ sub download_quotes {
 										open FILE,"$edidir/$filename" or die "Couldn't open file: $!\n";
 										my $message_content=join("",<FILE>);
 										close FILE;
-										my $logged_quote=LogQuote($message_content, $account->{ftpdir}."/".$filename, $account->{server}, $account->{edi_account_id});
-										my $quote_file	=	{
-											filename	=>	$filename,
-											account_id	=>	$account->{account_id},
-											po_org_unit	=>	$account->{po_org_unit},
-											edi_quote_user	=>	$edi_quote_user,
-											logged_quote_id	=>	$logged_quote,
-											edi_account_id	=>	$account->{edi_account_id},
+										my $logged_message=LogMessage($message_content, $account->{ftpdir}."/".$filename, $account->{server}, $account->{edi_account_id}, $message_type);
+										my $message_file	=	{
+											filename			=>	$filename,
+											account_id			=>	$account->{account_id},
+											po_org_unit			=>	$account->{po_org_unit},
+											edi_quote_user		=>	$edi_quote_user,
+											logged_message_id	=>	$logged_message,
+											edi_account_id		=>	$account->{edi_account_id},
 										};
-										push (@local_files,$quote_file);										
+										push (@local_files,$message_file);										
 									}
 								}
 							}
@@ -170,7 +179,7 @@ sub myerr {
 	close EDIFTPLOG;
 }
 
-sub find_duplicate_quotes {
+sub find_duplicate_messages {
 	my ($edi_account_id, $ftpdir, $filename)	= @_;
 	my $dbh = C4::Context->dbh;
 	my $sth = $dbh->prepare('select edifact_messages.key from edifact_messages 
@@ -182,13 +191,22 @@ sub find_duplicate_quotes {
 }
 
 # updates last activity in acq.edi_account and writes a new entry to acq.edi_message
-sub LogQuote {
-	my ($content, $remote, $server, $account_or_id) = @_;
+sub LogMessage {
+	my ($content, $remote, $server, $account_or_id, $m_type) = @_;
 	$content or return;
+	my $message_type;
+	if ($m_type eq 'quotes')
+	{
+		$message_type='QUOTES';
+	}
+	if ($m_type eq 'invoices')
+	{
+		$message_type='INVOIC';
+	}
 	my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
 	my $last_activity=sprintf("%4d-%02d-%02d",$year+1900,$mon+1,$mday);
 	my $account = record_activity( $account_or_id,$last_activity );
-	my $message_type=($content =~ /'UNH\+\w+\+(\S{6}):/) ? $1 : 'QUOTES';
+	$message_type=($content =~ /'UNH\+\w+\+(\S{6}):/) ? $1 : $m_type;
 	my $dbh = C4::Context->dbh;
 	my $sth = $dbh->prepare('insert into edifact_messages (message_type, date_sent, provider, 
 		status, edi, remote_file) values (?,?,?,?,?,?)');
@@ -209,6 +227,31 @@ sub update_quote_status {
 	$sth->execute('Processed',$basketno,$quote_id);
 }
 
+sub update_invoice_status {
+	my ($message_id, $edi_account_id,$invoicenumber) = @_;
+	my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
+	my $last_activity=sprintf("%4d-%02d-%02d",$year+1900,$mon+1,$mday);
+	my $account = record_activity( $edi_account_id,$last_activity );
+	my $dbh = C4::Context->dbh;
+	my $sth = $dbh->prepare('update edifact_messages set edifact_messages.status=?, 
+		invoicenumber=? where edifact_messages.key=?');
+	$sth->execute('Processed',$invoicenumber,$message_id);
+}
+
+sub get_ordernumber_from_supplier_ref {
+	my $supplierreference=shift;
+	my @result;
+	my $ordernumber;
+	my $dbh = C4::Context->dbh;
+	my $sth = $dbh->prepare('select ordernumber from aqorders where supplierreference=?');
+	$sth->execute($supplierreference);
+	while (@result = $sth->fetchrow_array())
+	{
+		$ordernumber=$result[0];
+	}
+	return $ordernumber;
+}
+
 sub record_activity {
 	my ($account_or_id,$last_activity) = @_;
 	$account_or_id or return;
@@ -225,6 +268,55 @@ sub record_activity {
 		$provider=$result[0];
 	}
 	return $provider;
+}
+
+sub update_item_order {
+	my ($ordernumber,$datereceived,$gstrate,$quantity,$unitprice,$invoiceid)=@_;
+	my $dbh = C4::Context->dbh;
+	my $sth = $dbh->prepare('update aqorders set datereceived=?, gstrate=?, quantityreceived=?,
+		unitprice=?, invoiceid=? where ordernumber=?');
+	$sth->execute($datereceived,$gstrate,$quantity,$unitprice,$invoiceid,$ordernumber);
+}
+
+sub process_invoices {
+	my ($self, $invoices)	= @_;
+	foreach my $invoice (@$invoices)
+	{
+		my $vendor_san = get_vendor_san($invoice->{account_id});
+		my $module=get_vendor_module($vendor_san);
+		$module or return;
+		require "Rebus/EDI/Vendor/$module.pm";
+		$module="Rebus::EDI::Vendor::$module";
+		import $module;
+		my $vendor_module=$module->new();
+		my $parsed_invoice=$vendor_module->parse_invoice($invoice);
+		use C4::Acquisition;
+		foreach my $inv (@{$parsed_invoice})
+		{
+			my $invoiceid = AddInvoice (
+				invoicenumber			=> $inv->{ref_num},
+				booksellerid			=> $invoice->{account_id},
+				shipmentdate			=> $inv->{shipmentdate},
+				billingdate				=> $inv->{billingdate},
+				shipmentcost			=> $inv->{shipmentcost},
+				shipmentcost_budgetid	=> $inv->{shipmentcost_budgetid},
+			);
+			
+			foreach my $item (@{$inv->{items}})
+			{
+				my $ordernumber=get_ordernumber_from_supplier_ref($item->{supplier_ref});
+				if ($ordernumber)
+				{
+					update_item_order($ordernumber,$item->{datereceived},$item->{gstrate},$item->{quantity},$item->{unit_price},$invoiceid);
+				}
+			}
+			
+			update_invoice_status($invoice->{logged_message_id},$invoice->{edi_account_id},$invoiceid);
+			### manipulate quote file on remote server
+			my $vendor_ftp_account=get_vendor_ftp_account($invoice->{edi_account_id});
+			$vendor_module->post_process_message_file($invoice->{filename},$vendor_ftp_account,'invoice');
+		}
+	}
 }
 
 sub process_quotes {
@@ -315,7 +407,7 @@ sub process_quotes {
 		        	ecost					=> $koha_copy->{ecost},
 		 	       	sort1					=> "",
 		 	       	sort2					=> "",
-		        	booksellerinvoicenumber	=> $item->{item_reference},
+		        	supplierreference		=> $item->{item_reference},
 		        	listprice				=> $koha_copy->{price},
 		        	branchcode				=> $koha_copy->{llo},
 		        	budget_id				=> $koha_copy->{budget_id},
@@ -334,10 +426,10 @@ sub process_quotes {
 			    }
 			}
 		}
-		update_quote_status($quote->{logged_quote_id},$quote->{edi_account_id},$order_id);
+		update_quote_status($quote->{logged_message_id},$quote->{edi_account_id},$order_id);
 		### manipulate quote file on remote server
 		my $vendor_ftp_account=get_vendor_ftp_account($quote->{edi_account_id});
-		$vendor_module->post_process_quote_file($quote->{filename},$vendor_ftp_account);
+		$vendor_module->post_process_message_file($quote->{filename},$vendor_ftp_account,'quote');
 		return 1;
 
 	}
@@ -680,7 +772,7 @@ sub get_order_lineitems {
 		$fleshed_lineitem->{binding}	=	'O';
 		$fleshed_lineitem->{currency}	=	'GBP';
 		$fleshed_lineitem->{id}			=	$lineitem->{ordernumber};
-		$fleshed_lineitem->{qli}		=	$lineitem->{booksellerinvoicenumber};
+		$fleshed_lineitem->{qli}		=	$lineitem->{supplierreference};
 		$fleshed_lineitem->{rff}		=	$order_id."/".$fleshed_lineitem->{id};
 		$fleshed_lineitem->{isbn}		=	$clean_isbn;
 		$fleshed_lineitem->{title}		=	$lineitem->{title};

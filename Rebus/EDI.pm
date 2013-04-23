@@ -73,8 +73,15 @@ sub list_vendors {
 sub retrieve_quotes {
 	my $self					= shift;
 	my @vendor_ftp_accounts		= $self->{edi_system}->retrieve_vendor_ftp_accounts;
-	my @downloaded_quotes		= $self->{edi_system}->download_quotes(\@vendor_ftp_accounts);
+	my @downloaded_quotes		= $self->{edi_system}->download_messages(\@vendor_ftp_accounts,'QUOTE');
 	my $processed_quotes		= $self->{edi_system}->process_quotes(\@downloaded_quotes);
+}
+
+sub retrieve_invoices {
+	my $self					= shift;
+	my @vendor_ftp_accounts		= $self->{edi_system}->retrieve_vendor_ftp_accounts;
+	my @downloaded_invoices		= $self->{edi_system}->download_messages(\@vendor_ftp_accounts,'INVOICE');
+	my $processed_invoices		= $self->{edi_system}->process_invoices(\@downloaded_invoices);
 }
 
 sub send_orders {

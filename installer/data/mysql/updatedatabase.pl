@@ -6070,7 +6070,16 @@ if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
    SetVersion ($DBversion);
 }
 
-$DBversion = "3.10.00.000";
+$DBversion = "XXX";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+   $dbh->do("ALTER TABLE edifact_messages ADD invoicenumber INT(11) AFTER basketno");
+   print "Upgrade to $DBversion done (Added invoiceno to edifact_messages for electronic invoicing)\n";
+   SetVersion ($DBversion);
+}
+
+ALTER TABLE contacts ADD email VARCHAR(60) AFTER name;
+
+$DBversion = "3.10.00.00";
 if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
    print "Upgrade to $DBversion done (release tag)\n";
    SetVersion ($DBversion);

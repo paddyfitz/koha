@@ -34,9 +34,9 @@ function check_sent(status,key,basketno,providerid)
                     <div class="dialog alert">The account was successfully updated</div>
                     [% END %]
                         <table border="0" width="100%" cellpadding="3" cellspacing="0">
-                        <th><strong>Date</strong></th><th><strong>Message type</strong></th><th><strong>Provider</strong></th><th><strong>Status</strong></th><th>Basket</th>
+                        <th><strong>Date</strong></th><th><strong>Message type</strong></th><th><strong>Provider</strong></th><th><strong>Status</strong></th><th>Details</th>
                         [% FOREACH message IN messagelist %]
-                        	<tr><td>[% message.date_sent %]</td><td>[% message.message_type %]</td><td><a href="/cgi-bin/koha/acqui/supplier.pl?supplierid=[% message.providerid %]">[% message.providername %]</a></td><td>[% message.status %]<script type="text/javascript" language="javascript">check_sent('[% message.status %]',[% message.key %],[% message.basketno %],[% message.providerid %]);</script></td><td>[% IF ( message.basketno ) %]<a href="/cgi-bin/koha/acqui/basket.pl?basketno=[% message.basketno %]">View basket</a>[% END %]</td></tr>
+                        	<tr><td>[% message.date_sent %]</td><td>[% message.message_type %]</td><td><a href="/cgi-bin/koha/acqui/supplier.pl?supplierid=[% message.providerid %]">[% message.providername %]</a></td><td>[% message.status %]<script type="text/javascript" language="javascript">check_sent('[% message.status %]',[% message.key %],[% message.basketno %],[% message.providerid %]);</script></td><td>[% IF ( message.basketno ) %]<a href="/cgi-bin/koha/acqui/basket.pl?basketno=[% message.basketno %]">View basket</a>[% END %][% IF ( message.invoicenumber ) %]<a href="/cgi-bin/koha/acqui/invoice.pl?invoiceid=[% message.invoicenumber %]">View invoice</a>[% END %]</td></tr>
                         [% END %]
                         </table>
                 </div>
