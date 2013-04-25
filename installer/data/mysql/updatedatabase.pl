@@ -6154,7 +6154,6 @@ if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
   `provider` int(11) default NULL,
   `status` text,
   `basketno` int(11) NOT NULL default '0',
-  `basketnom` int(11) NOT NULL default '0',
   PRIMARY KEY  (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
    print "Upgrade to $DBversion done (Added edifact_messages table)\n";
