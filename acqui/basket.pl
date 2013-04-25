@@ -28,7 +28,6 @@ use C4::Output;
 use CGI;
 use C4::Acquisition;
 use C4::Budgets;
-use C4::EDI;
 use C4::Bookseller qw( GetBookSellerFromId);
 use C4::Debug;
 use C4::Biblio;
