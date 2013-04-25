@@ -176,7 +176,7 @@ sub parse_quote {
 				author				=>	$item->author_surname.", ".$item->author_firstname,
 				title				=>	$item->title,
 				isbn				=>	$item->{item_number},
-				price				=>	$item->{price}->{price},
+				price				=>	$item->{price}->[0]->{price},
 				publisher			=>	$item->publisher,
 				year				=>	$item->date_of_publication,
 				item_reference		=>	$item->{item_reference}[0][1],
