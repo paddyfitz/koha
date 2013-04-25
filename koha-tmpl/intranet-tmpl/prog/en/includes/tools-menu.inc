@@ -102,3 +102,4 @@
 	<li><a href="/cgi-bin/koha/tools/edi.pl">EDIfact messages</a></li>
     [% END %]
 </ul></div></div>
+

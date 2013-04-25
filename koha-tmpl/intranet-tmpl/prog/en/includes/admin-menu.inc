@@ -64,6 +64,7 @@
 	<!-- <li><a href="/cgi-bin/koha/admin/printers.pl">Network Printers</a></li> -->
     <li><a href="/cgi-bin/koha/admin/z3950servers.pl">Z39.50 client targets</a></li>
     <li><a href="/cgi-bin/koha/admin/edi-accounts.pl">EDI Accounts</a></li>
+	<li><a href="/cgi-bin/koha/admin/edi_ean_accounts.pl">EDI EANs</a></li>
     <li><a href="/cgi-bin/koha/admin/didyoumean.pl">Did you mean?</a></li>
 </ul>
 </div>
