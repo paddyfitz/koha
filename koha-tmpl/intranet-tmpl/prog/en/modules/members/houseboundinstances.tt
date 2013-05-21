@@ -41,18 +41,11 @@ function cancelInstance()
                     <ol>
                         <li>
                             <label for="dmy">Date: </label>
-                            <input type="text" id="dmy" name="dmy" size="20" value="[% dmy %]" />
-                            <img src="[% themelang %]/lib/calendar/cal.gif" id="dmy_button" alt="Show Calendar" />
-                            <script language="JavaScript" type="text/javascript">
-                                Calendar.setup(
-                                {
-                                    inputField : "dmy",
-                                    ifFormat : "[% DHTMLcalendar_dateformat %]",
-                                    ifFormat : "%Y-%m-%d",
-                                    button : "dmy_button"
-                                }
-                                );
-                            </script>
+                [% IF ( metric ) %]
+                            <input type="text" id="dmy" name="dmy" size="20" onchange="CheckDate(document.form.dmy);check_manip_date('verify');" value="[% dmy %]" class="datepickerfrom"/>
+                [% ELSE %]
+                <input type="text" id="from" name="dmy"  maxlength="10" size="10" value="[% dmy %]" class="datepickerfrom" />
+                [% END %]
                         </li>
                         <li>
                             <label for="time">Time:</label>
@@ -63,9 +56,9 @@ function cancelInstance()
                             </select>
                         </li>
                         <li>
-                            <label for="volunteer">Volunteer:</label>
+                            <label for="volunteer">Chooser/Deliverer:</label>
                             <select id="volunteer" name="volunteer">
-                                <option value="">Select a volunteer</option>
+                                <option value="">Select a chooser_deliverer</option>
                                 [% FOREACH volunteer IN volunteerlist %]
                                     <option value="[% volunteer.volbornumber %]" [% volunteer.selected %]>[% volunteer.fullname %]</option>
                                 [% END %]
