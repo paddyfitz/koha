@@ -134,9 +134,17 @@ if ( $housebound->{'day'} eq "Sunday" ) {
 }
 
 if ( $housebound->{'frequency'} eq "Week 1/3" ) {
-    $template->param( wk1 => 1 );
+    $template->param( wk13 => 1 );
 } elsif ( $housebound->{'frequency'} eq "Week 2/4" ) {
+    $template->param( wk24 => 1 );
+} elsif ( $housebound->{'frequency'} eq "Week 1" ) {
+    $template->param( wk1 => 1 );
+} elsif ( $housebound->{'frequency'} eq "Week 2" ) {
     $template->param( wk2 => 1 );
+} elsif ( $housebound->{'frequency'} eq "Week 3" ) {
+    $template->param( wk3 => 1 );
+} elsif ( $housebound->{'frequency'} eq "Week 4" ) {
+    $template->param( wk4 => 1 );
 }
 
 output_html_with_http_headers $input, $cookie, $template->output;
