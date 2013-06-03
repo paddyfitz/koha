@@ -6070,7 +6070,7 @@ if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
    SetVersion ($DBversion);
 }
 
-ALTER TABLE contacts ADD email VARCHAR(60) AFTER name;
+#ALTER TABLE contacts ADD email VARCHAR(60) AFTER name;
 
 $DBversion = "3.10.00.00";
 if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
@@ -6144,6 +6144,7 @@ $DBversion = "3.10.03.000";
 if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
     print "Upgrade to $DBversion done (3.10.3 release)\n";
     SetVersion($DBversion);
+}
 
 $DBversion = "XXX";
 if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
@@ -6175,6 +6176,13 @@ if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
    print "Upgrade to $DBversion done (Added vendor_edi_accounts table)\n";
+   SetVersion ($DBversion);
+}
+
+$DBversion = "XXX";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+   $dbh->do("alter table vendor_edi_accounts modify column san varchar(20) default NULL");
+   print "Upgrade to $DBversion done (Update vendor_edi_accounts.san for legacy systems using EDI v1)\n";
    SetVersion ($DBversion);
 }
 
