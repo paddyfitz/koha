@@ -45,8 +45,12 @@ function check_form_housebound()
                                     <label for="frequency">Frequency:</label>
                                     <select id="frequency" name="frequency">
                                     <option value="">Select a frequency</option>
-                                    <option value="Week 1/3"[% IF ( wk1 ) %] selected="selected"[% END %]>Week 1/3</option>
-                                    <option value="Week 2/4"[% IF ( wk2 ) %] selected="selected"[% END %]>Week 2/4</option>
+                                    <option value="Week 1/3"[% IF ( wk13 ) %] selected="selected"[% END %]>Week 1/3</option>
+                                    <option value="Week 2/4"[% IF ( wk24 ) %] selected="selected"[% END %]>Week 2/4</option>
+                                    <option value="Week 1"[% IF ( wk1 ) %] selected="selected"[% END %]>Week 1</option>
+                                    <option value="Week 2"[% IF ( wk2 ) %] selected="selected"[% END %]>Week 2</option>
+                                    <option value="Week 3"[% IF ( wk3 ) %] selected="selected"[% END %]>Week 3</option>
+                                    <option value="Week 4"[% IF ( wk4 ) %] selected="selected"[% END %]>Week 4</option>
                                     </select>
                                 </li>
                                 <li><label for="Itype_quant">Material:</label><input id="Itype_quant" type="text" value="[% Itype_quant %]" size="50" name="Itype_quant"></li>

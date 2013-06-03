@@ -60,12 +60,6 @@
                     window.alert("An LLPG Service Error has occured, please enter details manually");
                     fieldset.show("slow");
                 },
-                statusCode: {
-                    500: function() {
-                        window.alert("An LLPG Service Error has occured, please enter details manually");
-                        fieldset.show("slow");                        
-                    },
-                },
                 success: function (data) {
                     if (data.error) {
                         result.replaceWith('<span id="llpg_result">' + data.error + '</span>');

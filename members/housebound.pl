@@ -58,7 +58,7 @@ my $borrowernumber = $input->param('borrowernumber');
 
 my $borrowerdetails      = C4::Members::GetMemberDetails($borrowernumber);
 my $branchdetail         = GetBranchDetail( $borrowerdetails->{'branchcode'} );
-my $categorydetail       = GetMember( $borrowernumber, 'borrowernumber' );
+my $categorydetail       = GetMember( borrowernumber => $borrowernumber);
 my $housebound           = GetHouseboundDetails($borrowernumber);
 my $housebound_instances = GetCurrentHouseboundInstanceList($borrowernumber);
 
