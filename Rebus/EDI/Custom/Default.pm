@@ -35,10 +35,10 @@ sub transform_local_quote_copy {
 
 sub lsq_identifier {
 	### use CCODE authorised values in LSQ segment
-	# return 'ccode';
+	return 'ccode';
 	
 	### use LOC authorised values in LSQ segment
-	return 'location';
+	#return 'location';
 }
 
 1;

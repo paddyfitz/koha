@@ -243,7 +243,8 @@ sub get_ordernumber_from_supplier_ref {
 	my @result;
 	my $ordernumber;
 	my $dbh = C4::Context->dbh;
-	my $sth = $dbh->prepare('select ordernumber from aqorders where supplierreference=?');
+	#my $sth = $dbh->prepare('select ordernumber from aqorders where supplierreference=?');
+	my $sth = $dbh->prepare('select ordernumber from aqorders where ordernumber=?');
 	$sth->execute($supplierreference);
 	while (@result = $sth->fetchrow_array())
 	{
@@ -340,6 +341,7 @@ sub process_quotes {
 		{
 			foreach my $copy (@{$item->{copies}})
 			{
+				my @budgetccode=split(/_/,$copy->{lfn});
 				my $quote_copy	=	{
 					author			=>	$item->{author},
 					price			=>	$item->{price},
@@ -349,7 +351,7 @@ sub process_quotes {
 					lsq				=>	$copy->{lsq},
 					lst				=>	$copy->{lst},
 					lcl				=>	$copy->{lcl},
-					budget_id		=>	get_budget_id($copy->{lfn}),
+					budget_id		=>	get_budget_id($budgetccode[0]),
 					title			=>	$item->{title},
 					isbn			=>	$item->{isbn},
 					publisher		=>	$item->{publisher},
@@ -786,7 +788,7 @@ sub get_order_lineitems {
 		my $fleshed_lineitem_detail;
 		my ($branchcode,$callnumber,$itype,$location,$fund) = get_lineitem_additional_info($lineitem->{ordernumber});
 		$fleshed_lineitem_detail->{llo}		=	$branchcode;
-		$fleshed_lineitem_detail->{lfn}		=	$fund;
+		$fleshed_lineitem_detail->{lfn}		=	$fund."_".$location;
 		$fleshed_lineitem_detail->{lsq}		=	$location;
 		$fleshed_lineitem_detail->{lst}		=	$itype;
 		$fleshed_lineitem_detail->{lcl}		=	$callnumber;
