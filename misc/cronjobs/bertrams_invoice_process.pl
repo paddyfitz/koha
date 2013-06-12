@@ -9,21 +9,21 @@ use Rebus::EDI;
 use Edifact::Interchange;
 
 
-our $edidir				=	"$ENV{'PERL5LIB'}misc/edi_files/";
+our $edidir				=	"$ENV{'PERL5LIB'}/misc/edi_files/";
 our $ftplogfile			=	"$edidir/edi_ftp.log";
 
 our @bertrams_ftp_accounts = (
 	{
-		#server		=>	'ftp3.bertrams.com',
-		#vendor		=>	'BertramsEDI-STHQ',
-		#ftpuser		=>	'hltftp',
-		#ftppass		=>	'lagniapp2e',
-		#ftpdir		=>	'/',
-		server		=>	'ftp.ptfs-europe.com',
-		vendor		=>	'PTFS-Europe',
-		ftpuser		=>	'guest@ptfs-europe.com',
-		ftppass		=>	'Jenner5',
-		ftpdir		=>	'/HPL_EDI_V2',
+		server		=>	'ftp3.bertrams.com',
+		vendor		=>	'BertramsEDI-STHQ',
+		ftpuser		=>	'hltftp',
+		ftppass		=>	'lagniapp2e',
+		ftpdir		=>	'/',
+        #server		=>	'ftp.ptfs-europe.com',
+        #vendor		=>	'PTFS-Europe',
+        #ftpuser		=>	'guest@ptfs-europe.com',
+        #ftppass		=>	'Jenner5',
+        #ftpdir		=>	'/HPL_EDI_V2',
 	},
 );	# construct hash containing Bertrams FTP details (server, vendor, ftpuser, ftppass, ftpdir)
 
