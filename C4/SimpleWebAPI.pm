@@ -25,10 +25,12 @@ use C4::Biblio;
 use Data::Dumper;
 use C4::Items;
 use C4::Branch;
+use C4::Reserves;
+use C4::Members;
 
 our $VERSION="0.1";
 use base 'Exporter';
-our @EXPORT=qw(CheckAvailability ServiceError);
+our @EXPORT=qw(CheckAvailability ServiceError CancelHold);
 
 =head1 NAME
 
@@ -217,6 +219,75 @@ sub CheckAvailability {
 		$itemnumber=$sth->fetchrow_array;
 		return $itemnumber;
     }
+}
+
+=head2 CancelHold
+
+Cancel a hold for a given patron and bib
+
+=cut
+
+sub CancelHold {
+	my ($borrowernumber, $biblionumber) = @_;
+	
+	my $xmlresponse = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\n";
+    $xmlresponse .= "<SimpleWebAPI_response>\n";
+    
+    # ERROR - No borrowernumber entered
+    if (!$borrowernumber)
+    {
+    	$xmlresponse .= "\t<error>You must specify a borrowernumber</error>\n";
+    	$xmlresponse .= "</SimpleWebAPI_response>\n";
+	    return $xmlresponse;
+    }
+    
+    # ERROR - No biblionumber entered
+    if (!$biblionumber)
+    {
+    	$xmlresponse .= "\t<error>You must specify a biblionumber</error>\n";
+    	$xmlresponse .= "</SimpleWebAPI_response>\n";
+	    return $xmlresponse;
+    }
+    
+    # ERROR - Borrower not found
+    my $borrower = GetMemberDetails( $borrowernumber );
+    if (!$$borrower{borrowernumber})
+    {
+    	$xmlresponse .= "\t<error>Borrower not found</error>\n";
+    	$xmlresponse .= "</SimpleWebAPI_response>\n";
+	    return $xmlresponse;
+    }
+    
+    # ERROR - Biblio not found
+    my $biblio = GetBiblio( $biblionumber );
+    if (!$$biblio{biblionumber})
+    {
+    	$xmlresponse .= "\t<error>Biblio not found</error>\n";
+    	$xmlresponse .= "</SimpleWebAPI_response>\n";
+	    return $xmlresponse;
+    }
+    
+    # ERROR - Hold not found
+	my $holdmatch=0;
+	my @reserves = GetReservesFromBorrowernumber( $borrowernumber, undef );
+	foreach my $reserve (@reserves)
+	{
+		if ($$reserve{biblionumber} eq $biblionumber)
+		{
+			$holdmatch=1;
+		}
+	}
+	if ($holdmatch!=1)
+	{
+    	$xmlresponse .= "\t<error>Hold not found</error>\n";
+    	$xmlresponse .= "</SimpleWebAPI_response>\n";
+	    return $xmlresponse;
+	}
+	CancelReserve( $biblionumber, '', $borrowernumber );
+	$xmlresponse .= "\t<message>HoldCancelled</message>\n";
+    $xmlresponse .= "</SimpleWebAPI_response>\n";
+	return $xmlresponse;
+
 }
 
 =head2 ServiceError

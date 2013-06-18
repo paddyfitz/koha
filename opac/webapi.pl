@@ -28,7 +28,7 @@ use C4::SimpleWebAPI;
 my $cgi = new CGI;
 
 my %services;
-foreach my $service(qw(ca test))
+foreach my $service(qw(ca cancelhold test))
 {
 	$services{$service}=1;
 }
@@ -46,6 +46,17 @@ if ($cgi->param('service') eq 'ca')
 {
 	my $id=$cgi->param('id');
 	my $xmlresponse=CheckAvailability($id);
+	print "Content-type: text/xml\n\n";
+	print $xmlresponse;
+	exit 0;
+}
+
+# Cancel hold
+if ($cgi->param('service') eq 'cancelhold')
+{
+	my $borrowernumber=$cgi->param('borrowernumber');
+	my $biblionumber=$cgi->param('biblionumber');
+	my $xmlresponse=CancelHold($borrowernumber,$biblionumber);
 	print "Content-type: text/xml\n\n";
 	print $xmlresponse;
 	exit 0;
