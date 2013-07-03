@@ -27,10 +27,11 @@ use C4::Items;
 use C4::Branch;
 use C4::Reserves;
 use C4::Members;
+use C4::Circulation;
 
 our $VERSION="0.1";
 use base 'Exporter';
-our @EXPORT=qw(CheckAvailability ServiceError CancelHold);
+our @EXPORT=qw(CheckAvailability ServiceError CancelHold RenewItem);
 
 =head1 NAME
 
@@ -285,6 +286,87 @@ sub CancelHold {
 	}
 	CancelReserve( $biblionumber, '', $borrowernumber );
 	$xmlresponse .= "\t<message>HoldCancelled</message>\n";
+    $xmlresponse .= "</SimpleWebAPI_response>\n";
+	return $xmlresponse;
+
+}
+
+=head2 RenewItem
+
+Renew an item for a given patron and biblionumber
+
+=cut
+
+sub RenewItem {
+	my ($borrowernumber, $biblionumber) = @_;
+	
+	my $xmlresponse = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\n";
+    $xmlresponse .= "<SimpleWebAPI_response>\n";
+    
+    # ERROR - No borrowernumber entered
+    if (!$borrowernumber)
+    {
+    	$xmlresponse .= "\t<error>You must specify a borrowernumber</error>\n";
+    	$xmlresponse .= "</SimpleWebAPI_response>\n";
+	    return $xmlresponse;
+    }
+    
+    # ERROR - No biblionumber entered
+    if (!$biblionumber)
+    {
+    	$xmlresponse .= "\t<error>You must specify a biblionumber</error>\n";
+    	$xmlresponse .= "</SimpleWebAPI_response>\n";
+	    return $xmlresponse;
+    }
+    
+    # ERROR - Borrower not found
+    my $borrower = GetMemberDetails( $borrowernumber );
+    if (!$$borrower{borrowernumber})
+    {
+    	$xmlresponse .= "\t<error>Borrower not found</error>\n";
+    	$xmlresponse .= "</SimpleWebAPI_response>\n";
+	    return $xmlresponse;
+    }
+    
+    # Find item number from current borrower issues
+    my $issues = GetPendingIssues($borrowernumber);
+	my $itemnumber=0;
+
+	foreach my $item (@{$issues})
+	{
+		if ($item->{biblionumber} eq $biblionumber)
+		{
+			$itemnumber=$item->{itemnumber};
+		}
+	}
+	
+	# ERROR - item not found
+	if ($itemnumber==0)
+	{
+    	$xmlresponse .= "\t<error>Item loan not found</error>\n";
+    	$xmlresponse .= "</SimpleWebAPI_response>\n";
+    	return $xmlresponse;
+	}
+
+	my @renewal = CanBookBeRenewed( $borrowernumber, $itemnumber );
+	if ($renewal[0]) 
+	{
+		AddRenewal($borrowernumber, $itemnumber);
+	}
+	else
+	{
+		# ERROR - item cannot be renewed
+    	$xmlresponse .= "\t<error>Item cannot be renewed</error>\n";
+    	$xmlresponse .= "</SimpleWebAPI_response>\n";
+    	return $xmlresponse;
+	}
+
+	my $issue = GetItemIssue($itemnumber);
+
+    $xmlresponse .= "\t<renewals>".$issue->{'renewals'}."</renewals>\n";
+    $xmlresponse .= "\t<date_due>".$issue->{'date_due'}."</date_due>\n";
+    $xmlresponse .= "\t<success>".$renewal[0]."</success>\n";
+    $xmlresponse .= "\t<error>".$renewal[1]."</error>\n";
     $xmlresponse .= "</SimpleWebAPI_response>\n";
 	return $xmlresponse;
 
