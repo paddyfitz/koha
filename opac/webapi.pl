@@ -28,7 +28,7 @@ use C4::SimpleWebAPI;
 my $cgi = new CGI;
 
 my %services;
-foreach my $service(qw(ca cancelhold renewitem test))
+foreach my $service(qw(ca cancelhold renewitem renewall test))
 {
 	$services{$service}=1;
 }
@@ -68,6 +68,16 @@ if ($cgi->param('service') eq 'renewitem')
 	my $borrowernumber=$cgi->param('borrowernumber');
 	my $biblionumber=$cgi->param('biblionumber');
 	my $xmlresponse=RenewItem($borrowernumber,$biblionumber);
+	print "Content-type: text/xml\n\n";
+	print $xmlresponse;
+	exit 0;
+}
+
+# Renew all
+if ($cgi->param('service') eq 'renewall')
+{
+	my $borrowernumber=$cgi->param('borrowernumber');
+	my $xmlresponse=RenewAll($borrowernumber);
 	print "Content-type: text/xml\n\n";
 	print $xmlresponse;
 	exit 0;
