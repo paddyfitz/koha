@@ -31,7 +31,7 @@ use C4::Circulation;
 
 our $VERSION="0.1";
 use base 'Exporter';
-our @EXPORT=qw(CheckAvailability ServiceError CancelHold RenewItem);
+our @EXPORT=qw(CheckAvailability ServiceError CancelHold RenewItem RenewAll);
 
 =head1 NAME
 
@@ -370,6 +370,63 @@ sub RenewItem {
     $xmlresponse .= "</SimpleWebAPI_response>\n";
 	return $xmlresponse;
 
+}
+
+=head2 RenewAll
+
+Renew items for a given patron
+
+=cut
+
+sub RenewAll {
+	my $borrowernumber=shift;
+
+	my $total_items=0;
+	my $total_renewed=0;
+	
+	my $xmlresponse = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\n";
+    $xmlresponse .= "<SimpleWebAPI_response>\n";
+
+    # ERROR - No borrowernumber entered
+    if (!$borrowernumber)
+    {
+    	$xmlresponse .= "\t<error>You must specify a borrowernumber</error>\n";
+    	$xmlresponse .= "</SimpleWebAPI_response>\n";
+	    return $xmlresponse;
+    }
+
+    # Find item numbers from current borrower issues
+    my $issues = GetPendingIssues($borrowernumber);
+	$total_items=scalar(@$issues);
+	my $itemnumber=0;
+
+	if ($total_items!=0)
+	{
+		foreach my $item (@{$issues})
+		{
+			$itemnumber=$item->{itemnumber};
+			my @renewal = CanBookBeRenewed( $borrowernumber, $itemnumber );
+			if ($renewal[0]) 
+			{
+				AddRenewal($borrowernumber, $itemnumber);
+				$total_renewed++;
+			}
+
+			my $issue = GetItemIssue($itemnumber);
+
+		}
+		$xmlresponse .= "\t<total_items>".$total_items."</total_items>\n";
+		$xmlresponse .= "\t<total_renewed>".$total_renewed."</total_renewed>\n";
+		$xmlresponse .= "</SimpleWebAPI_response>\n";
+		return $xmlresponse;
+	}
+	else
+	{
+		$xmlresponse .= "\t<total_items>0</total_items>\n";
+		$xmlresponse .= "\t<total_renewed>0</total_renewed>\n";
+		$xmlresponse .= "</SimpleWebAPI_response>\n";
+		return $xmlresponse;
+	}
 }
 
 =head2 ServiceError
