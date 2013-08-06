@@ -240,6 +240,13 @@ sub update_invoice_status {
 
 sub get_ordernumber_from_supplier_ref {
 	my $supplierreference=shift;
+	my @splitreference;
+	if (index($supplierreference, "/") != -1)
+	{
+		@splitreference = split(/\//, $supplierreference);
+		$supplierreference=$splitreference[1];
+	}
+
 	my @result;
 	my $ordernumber;
 	my $dbh = C4::Context->dbh;
