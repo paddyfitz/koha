@@ -31,7 +31,7 @@ use C4::Circulation;
 
 our $VERSION="0.1";
 use base 'Exporter';
-our @EXPORT=qw(CheckAvailability ServiceError CancelHold RenewItem RenewAll);
+our @EXPORT=qw(CheckAvailability ServiceError CancelHold RenewItem RenewAll HoldTitle);
 
 =head1 NAME
 
@@ -459,5 +459,91 @@ sub clean_xml
 	return $xml;
 }
 
+=head2 HoldTitle
+
+Create a hold for a given biblionumber and borrowernumber
+
+=cut
+
+sub HoldTitle {
+	my ($borrowernumber, $biblionumber, $pickup_location)=@_;
+	
+    my $xmlresponse = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\n";
+    $xmlresponse .= "<SimpleWebAPI_response>\n";
+
+    # ERROR - No borrowernumber entered
+    if (!$borrowernumber)
+    {
+    	$xmlresponse .= "\t<error>You must specify a borrowernumber</error>\n";
+    	$xmlresponse .= "</SimpleWebAPI_response>\n";
+	    return $xmlresponse;
+    }
+	
+    # ERROR - No biblionumber entered
+    if (!$biblionumber)
+    {
+    	$xmlresponse .= "\t<error>You must specify a biblionumber</error>\n";
+    	$xmlresponse .= "</SimpleWebAPI_response>\n";
+	    return $xmlresponse;
+    }
+	
+    # ERROR - No pickup_location entered
+    if (!$pickup_location)
+    {
+    	$xmlresponse .= "\t<error>You must specify a pickup location</error>\n";
+    	$xmlresponse .= "</SimpleWebAPI_response>\n";
+	    return $xmlresponse;
+    }
+    
+	# ERROR - borrower does not exist
+	my $borrower = GetMemberDetails( $borrowernumber );
+	if (!$$borrower{borrowernumber})
+	{
+		$xmlresponse .= "\t<error>Borrower does not exist</error>\n";
+		$xmlresponse .= "</SimpleWebAPI_response>\n";
+	    return $xmlresponse;
+	}
+
+	# ERROR - biblio does not exist
+	my ( $count, $biblio ) = GetBiblio( $biblionumber );
+	if (!$$biblio{biblionumber})
+	{
+		$xmlresponse .= "\t<error>Item does not exist</error>\n";
+		$xmlresponse .= "</SimpleWebAPI_response>\n";
+	    return $xmlresponse;
+	}
+	
+	my $title = $$biblio{title};
+
+	# ERROR - Item cannot be reserved
+	if (!CanBookBeReserved($borrowernumber, $biblionumber))
+	{
+		$xmlresponse .= "\t<error>Item cannot be reserved</error>\n";
+		$xmlresponse .= "</SimpleWebAPI_response>\n";
+	    return $xmlresponse;
+	}
+
+	my $branch;
+
+	# ERROR - Pickup branch does not exist
+	my $branches=GetBranches;
+	if (!$$branches{$pickup_location})
+	{
+		$xmlresponse .= "\t<error>Pickup branch does not exist</error>\n";
+		$xmlresponse .= "</SimpleWebAPI_response>\n";
+	    return $xmlresponse;
+	}
+	
+	my $resdate = C4::Dates->today( 'iso' );
+	
+	my $priority;
+	$priority = _ShiftPriorityByDateAndPriority( $biblionumber, $resdate, $priority );
+	AddReserve( $pickup_location, $borrowernumber, $biblionumber, 'a', undef, $priority, undef, $title, undef, undef );
+	
+	$xmlresponse.="\t<title>$title</title>\n";
+	$xmlresponse.="\t<pickup_location>".GetBranchName($pickup_location)."</pickup_location>\n";
+	$xmlresponse .= "</SimpleWebAPI_response>\n";
+	return $xmlresponse;
+}
 
 1;

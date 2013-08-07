@@ -130,6 +130,7 @@ BEGIN {
         &ReserveSlip
         &ToggleSuspend
         &SuspendAll
+        &_ShiftPriorityByDateAndPriority
     );
     @EXPORT_OK = qw( MergeHolds );
 }    
