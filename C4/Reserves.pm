@@ -120,6 +120,7 @@ BEGIN {
         
         &AlterPriority
         &ToggleLowestPriority
+        &_ShiftPriorityByDateAndPriority
     );
 }    
 
