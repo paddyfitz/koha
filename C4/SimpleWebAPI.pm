@@ -512,7 +512,7 @@ sub HoldTitle {
 		$xmlresponse .= "</SimpleWebAPI_response>\n";
 	    return $xmlresponse;
 	}
-	
+
 	my $title = $$biblio{title};
 
 	# ERROR - Item cannot be reserved
@@ -537,7 +537,8 @@ sub HoldTitle {
 	my $resdate = C4::Dates->today( 'iso' );
 	
 	my $priority;
-	$priority = _ShiftPriorityByDateAndPriority( $biblionumber, $resdate, $priority );
+	my ( $count, $reserves ) = GetReservesFromBiblionumber($biblionumber,1);
+	$priority=$count+1;
 	AddReserve( $pickup_location, $borrowernumber, $biblionumber, 'a', undef, $priority, undef, $title, undef, undef );
 	
 	$xmlresponse.="\t<title>$title</title>\n";
