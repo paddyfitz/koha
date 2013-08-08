@@ -505,7 +505,7 @@ sub HoldTitle {
 	}
 
 	# ERROR - biblio does not exist
-	my ( $count, $biblio ) = GetBiblio( $biblionumber );
+	my ( $biblio, $count ) = GetBiblio( $biblionumber );
 	if (!$$biblio{biblionumber})
 	{
 		$xmlresponse .= "\t<error>Item does not exist</error>\n";
