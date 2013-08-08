@@ -505,7 +505,8 @@ sub HoldTitle {
 	}
 
 	# ERROR - biblio does not exist
-	my ( $count, $biblio ) = GetBiblio( $biblionumber );
+	my ( $count, $biblio ) = GetBiblio( $biblionumber ); #HALTON
+	#my ( $biblio, $count ) = GetBiblio( $biblionumber ); #MG
 	if (!$$biblio{biblionumber})
 	{
 		$xmlresponse .= "\t<error>Item does not exist</error>\n";
@@ -538,10 +539,35 @@ sub HoldTitle {
 	
 	my $priority;
 	my ( $count, $reserves ) = GetReservesFromBiblionumber($biblionumber,1);
+	
+	foreach my $res (@$reserves)
+	{
+		if ( defined $res->{found} && $res->{found} eq 'W' )
+		{
+			$count--;
+		}
+
+		if ($borrowernumber eq $res->{borrowernumber} )
+		{
+			# ERROR - Borrower has already reserved item
+			$xmlresponse .= "\t<error>You have already reserved this title</error>\n";
+			$xmlresponse .= "</SimpleWebAPI_response>\n";
+			return $xmlresponse;
+		}
+    }
+    
+    #ERROR - maximum reservations reached
+	if (CanBookBeReserved($borrowernumber, $biblionumber)==0 )
+	{
+		$xmlresponse .= "\t<error>You have exceeded the maximum number of allowed reservations</error>\n";
+		$xmlresponse .= "</SimpleWebAPI_response>\n";
+		return $xmlresponse;
+    }
+	
 	$priority=$count+1;
 	AddReserve( $pickup_location, $borrowernumber, $biblionumber, 'a', undef, $priority, undef, $title, undef, undef );
 	
-	$xmlresponse.="\t<title>$title</title>\n";
+	$xmlresponse.="\t<title>".clean_xml($title)."</title>\n";
 	$xmlresponse.="\t<pickup_location>".GetBranchName($pickup_location)."</pickup_location>\n";
 	$xmlresponse .= "</SimpleWebAPI_response>\n";
 	return $xmlresponse;
