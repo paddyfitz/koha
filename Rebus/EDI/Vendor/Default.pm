@@ -437,6 +437,7 @@ sub create_order_message {
 		### Freetext item note
 		if ($note)
 		{
+            $note=Rebus::EDI::string35escape(Rebus::EDI::escape_reserved($note));
 			$order_message.="FTX+LIN+++:::$note'";
 			$segment++;
 		}

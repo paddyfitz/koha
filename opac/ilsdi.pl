@@ -72,6 +72,7 @@ my @services = (
     'HoldTitle',      # FIXME Add dates support
     'HoldItem',       # FIXME Add dates support
     'CancelHold',
+    'CancelHoldTitle', # Title level cancel hold for HPL
 
     #	'RecallItem',                        # Not supported by Koha
     #	'CancelRecall',                      # Not supported by Koha
@@ -95,6 +96,7 @@ my %required = (
     'HoldTitle'           => [ 'patron_id', 'bib_id', 'request_location' ],
     'HoldItem'            => [ 'patron_id', 'bib_id', 'item_id' ],
     'CancelHold' => [ 'patron_id', 'item_id' ],
+    'CancelHoldTitle' => [ 'patron_id', 'bib_id' ],
 );
 
 # List of optional arguments
@@ -112,6 +114,7 @@ my %optional = (
     'HoldTitle'  => [ 'pickup_location', 'needed_before_date', 'pickup_expiry_date' ],
     'HoldItem'   => [ 'pickup_location', 'needed_before_date', 'pickup_expiry_date' ],
     'CancelHold' => [],
+    'CancelHoldTitle' => [],
 );
 
 # If no service is requested, display the online documentation

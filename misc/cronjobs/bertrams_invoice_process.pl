@@ -27,7 +27,7 @@ our @bertrams_ftp_accounts = (
 	},
 );	# construct hash containing Bertrams FTP details (server, vendor, ftpuser, ftppass, ftpdir)
 
-my @downloaded_messages	= download_messages(\@bertrams_ftp_accounts);		# downloads files and returns an array of hashes containing each message details (filename, message_content, ftp_account)
+my @downloaded_messages	= download_messages(\@bertrams_ftp_accounts,'INVOICE');		# downloads files and returns an array of hashes containing each message details (filename, message_content, ftp_account)
 
 my @split_messages		= split_messages(\@downloaded_messages);	# returns an array of hashes for files to be written to disk then transferred to Bertrams server (filename, message_content)
 

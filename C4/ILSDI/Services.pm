@@ -761,4 +761,37 @@ sub CancelHold {
     return { code => 'Canceled' };
 }
 
+sub CancelHoldTitle {
+    my ($cgi) = @_;
+
+     # Get the borrower or return an error code
+     my $borrowernumber = $cgi->param('patron_id');
+     my $borrower = GetMemberDetails( $borrowernumber );
+     return { code => 'PatronNotFound' } unless $$borrower{borrowernumber};
+
+     # Get the item or return an error code
+     my $bibnumber = $cgi->param('bib_id');
+     my $bib = GetBiblio( $bibnumber );
+     return { code => 'RecordNotFound' } unless $$bib{biblionumber};
+
+     # Get borrower's reserves
+     my @reserves = GetReservesFromBorrowernumber( $borrowernumber, undef );
+     my @reserveditems;
+
+     # ...and loop over it to build an array of reserved itemnumbers
+     foreach my $reserve (@reserves) {
+         push @reserveditems, $reserve->{'biblionumber'};
+     }
+return { test2=>@reserveditems };
+
+     # if the item was not reserved by the borrower, returns an error code
+#     return { code => 'NotCanceled' } unless any { $bibnumber eq $_ } @reserveditems;
+
+     # Cancel the reserve
+     CancelReserve( undef, $bibnumber, $borrowernumber );
+
+     return { code => 'Canceled' };
+}
+
+
 1;
