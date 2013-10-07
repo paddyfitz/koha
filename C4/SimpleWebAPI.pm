@@ -351,7 +351,27 @@ sub RenewItem {
 	my @renewal = CanBookBeRenewed( $borrowernumber, $itemnumber );
 	if ($renewal[0]) 
 	{
-		AddRenewal($borrowernumber, $itemnumber);
+		my $renewalbranch = C4::Context->preference('OpacRenewalBranch');
+		my $branchcode;
+		if ($renewalbranch eq 'itemhomebranch'){
+			my $item = GetItem($itemnumber);
+			$branchcode=$item->{'homebranch'};
+		}
+		elsif ($renewalbranch eq 'patronhomebranch'){
+			my $borrower = GetMemberDetails($borrowernumber);
+			$branchcode = $borrower->{'branchcode'};
+		}
+		elsif ($renewalbranch eq 'checkoutbranch'){
+			my $issue = GetOpenIssue($itemnumber);
+			$branchcode = $issue->{'branchcode'};
+		}
+		elsif ($renewalbranch eq 'NULL'){
+			$branchcode='';
+		}
+		else {
+			$branchcode='OPACRenew';
+		}
+		AddRenewal($borrowernumber, $itemnumber, $branchcode);
 	}
 	else
 	{
@@ -406,9 +426,29 @@ sub RenewAll {
 		{
 			$itemnumber=$item->{itemnumber};
 			my @renewal = CanBookBeRenewed( $borrowernumber, $itemnumber );
+			my $branchcode;
 			if ($renewal[0]) 
 			{
-				AddRenewal($borrowernumber, $itemnumber);
+				my $renewalbranch = C4::Context->preference('OpacRenewalBranch');
+				if ($renewalbranch eq 'itemhomebranch'){
+					my $item = GetItem($itemnumber);
+					$branchcode=$item->{'homebranch'};
+				}
+				elsif ($renewalbranch eq 'patronhomebranch'){
+					my $borrower = GetMemberDetails($borrowernumber);
+					$branchcode = $borrower->{'branchcode'};
+				}
+				elsif ($renewalbranch eq 'checkoutbranch'){
+					my $issue = GetOpenIssue($itemnumber);
+					$branchcode = $issue->{'branchcode'};
+				}
+				elsif ($renewalbranch eq 'NULL'){
+					$branchcode='';
+				}
+				else {
+					$branchcode='OPACRenew';
+				}
+				AddRenewal($borrowernumber, $itemnumber, $branchcode);
 				$total_renewed++;
 			}
 
