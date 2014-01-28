@@ -1,0 +1,74 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha &rsaquo; Administration - EDI EANs</title>
+[% INCLUDE 'doc-head-close.inc' %]
+<script type="text/javascript" language="javascript">
+$(document).ready(function() {
+	$('#failcheck').hide();
+});
+function check_form_ean()
+{
+	if ($('#branchcode').val()!="" && $('#ean').val()!="")
+	{
+		$('#ean_form').submit();
+	}
+	else
+	{
+		$('#failcheck').show('fast');
+	}
+    
+}
+</script>
+</head>
+<body>
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/admin/admin-home.pl">Administration</a> &rsaquo; <a href="/cgi-bin/koha/admin/edi_ean_accounts.pl">EDI EANs</a></div>
+<div id="doc3" class="yui-t2">
+    <div id="bd">
+        <div id="yui-main">
+            <div class="yui-b">
+            	<h1>Branch EDI EANs</h1>
+            	<div id="failcheck" class="dialog alert">You must complete all required fields</div>
+                <form name="form" id="ean_form" method="post" action="/cgi-bin/koha/admin/edi_ean_accounts.pl">
+                    <input type="hidden" name="op" value="[% opeditsubmit %][% opaddsubmit %][% opdelsubmit %]" />
+                    
+                [% IF ( opdel ) %]
+                    <p>Are you sure you want to delete this account?</p>
+					<p><a href="/cgi-bin/koha/admin/edi_ean_accounts.pl?branchcode=[% branchcode %]&ean=[% ean %]&op=delsubmit">YES</a> | <a href="/cgi-bin/koha/admin/edi_ean_accounts.pl">NO</a></p>
+                [% ELSE %]
+                <fieldset class="rows" id="ean_details">
+                    <legend>EAN details</legend>
+                    <ol>
+                        <li>
+                            <label for="branchcode" class="required">Branch:*</label>
+                            <select id="branchcode" name="branchcode">
+                                <option value="">Select a branch</option>
+                                [% FOREACH branch IN branchlist %]
+                                    <option value="[% branch.branchcode %]" [% 'SELECTED' IF branch.branchcode==selectedbranch %]>[% branch.branchname %]</option>
+                                [% END %]
+                            </select>
+                        </li>
+                        <li>
+                            <label for="ean" class="required">EAN:* </label>
+                            <input type="text" id="ean" name="ean" size="40" value="[% ean %]" />
+                        </li>
+                        <input type="hidden" name="oldbranchcode" value="[% branchcode %]" />
+                        <input type="hidden" name="oldean" value="[% ean %]" />
+                    </ol>
+                </fieldset>
+                <fieldset class="action">
+                    <input type="submit" value="Save" onclick="check_form_ean(); return false; " name="save">
+                    <a class="cancel" href="/cgi-bin/koha/admin/edi_ean_accounts.pl">Cancel</a>
+                </fieldset>
+                [% END %]
+                </form>
+
+            </div>
+        </div>
+        <div class="yui-b">
+            [% INCLUDE 'admin-menu.inc' %]
+        </div>
+    </div>
+</div>
+[% INCLUDE 'intranet-bottom.inc' %]

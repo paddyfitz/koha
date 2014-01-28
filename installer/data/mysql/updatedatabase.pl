@@ -6070,6 +6070,8 @@ if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
    SetVersion ($DBversion);
 }
 
+#ALTER TABLE contacts ADD email VARCHAR(60) AFTER name;
+
 $DBversion = "3.10.00.00";
 if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
    print "Upgrade to $DBversion done (release tag)\n";
@@ -6502,6 +6504,78 @@ if ( CheckVersion($DBversion) ) {
     });
     print "Upgrade to $DBversion done ( Add circ permission overdues_report )\n";
     SetVersion($DBversion);
+}
+
+$DBversion = "XXX";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+   $dbh->do("CREATE TABLE IF NOT EXISTS `edifact_messages` (
+  `key` int(11) NOT NULL auto_increment,
+  `message_type` text NOT NULL,
+  `date_sent` date default NULL,
+  `provider` int(11) default NULL,
+  `status` text,
+  `basketno` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+   print "Upgrade to $DBversion done (Added edifact_messages table)\n";
+   SetVersion ($DBversion);
+}
+
+$DBversion = "XXX";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+   $dbh->do("CREATE TABLE IF NOT EXISTS `vendor_edi_accounts` (
+  `id` int(11) NOT NULL auto_increment,
+  `description` text NOT NULL,
+  `host` text,
+  `username` text,
+  `password` text,
+  `last_activity` date default NULL,
+  `provider` int(11) default NULL,
+  `in_dir` text,
+  `san` varchar(20) default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+   print "Upgrade to $DBversion done (Added vendor_edi_accounts table)\n";
+   SetVersion ($DBversion);
+}
+
+$DBversion = "XXX";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+   $dbh->do("alter table vendor_edi_accounts modify column san varchar(20) default NULL");
+   print "Upgrade to $DBversion done (Update vendor_edi_accounts.san for legacy systems using EDI v1)\n";
+   SetVersion ($DBversion);
+}
+
+$DBversion = "XXX";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+   $dbh->do("insert into permissions (module_bit, code, description) values (13, 'edi_manage', 'Manage EDIFACT transmissions')");
+   print "Upgrade to $DBversion done (Added edi_manage permission)\n";
+   SetVersion ($DBversion);
+}
+
+$DBversion = "XXX";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+   $dbh->do("ALTER TABLE edifact_messages ADD edi LONGTEXT, ADD remote_file TEXT");
+   print "Upgrade to $DBversion done (Updated edifact_messages table)\n";
+   SetVersion ($DBversion);
+}
+
+$DBversion = "XXX";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+   $dbh->do("CREATE TABLE IF NOT EXISTS `edifact_ean` (
+  `branchcode` varchar(10) NOT NULL default '',
+  `ean` varchar(15) NOT NULL default '',
+  UNIQUE KEY `edifact_ean_branchcode` (`branchcode`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+   print "Upgrade to $DBversion done (Added edifact_ean table)\n";
+   SetVersion ($DBversion);
+}
+
+$DBversion = "XXX";
+if (C4::Context->preference("Version") < TransformToNum($DBversion)) {
+   $dbh->do("ALTER TABLE edifact_messages ADD invoicenumber INT(11) AFTER basketno");
+   print "Upgrade to $DBversion done (Added invoiceno to edifact_messages for electronic invoicing)\n";
+   SetVersion ($DBversion);
 }
 
 $DBversion = "3.11.00.028";
